@@ -1,6 +1,27 @@
+/**
+ * 	Copyright (c) 2010 Philipp Giese
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package com.orm.androrm;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,11 +31,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-
 /**
  * Class to open up a database Connection. 
- * When created it creates all tables needed by the Overture activity
- * if they do not exist already.
  * @author Philipp Giese
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -25,29 +43,44 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 */
 	private static final int DATABASE_VERSION = 1;
 	
-	private List<String> mTables = new ArrayList<String>();
-	private Set<Class<? extends Model>> mModels;
+	private static Set<String> mTables;
+	private static Set<Class<? extends Model>> mModels;
+	
+	private static final Set<String> getTables() {
+		if(mTables == null) {
+			mTables = new HashSet<String>();
+		}
+		
+		return mTables;
+	}
+	
+	private static final Set<Class<? extends Model>> getModels() {
+		if(mModels == null) {
+			mModels = new HashSet<Class<? extends Model>>();
+		}
+		
+		return mModels;
+	}
 
 	public DatabaseHelper(Context context, String dbName) {
 		super(context, dbName, null, DATABASE_VERSION);
-		mModels = new HashSet<Class<? extends Model>>();
-		mTables = new ArrayList<String>();
 	}
 	
-	public <T extends Model> DatabaseHelper addModel(Class<T> model) {
-		mModels.add(model);
+	public void setModels(SQLiteDatabase db, List<Class<? extends Model>> models) {
+		mModels = new HashSet<Class<? extends Model>>();
+		mModels.addAll(models);
 		
-		return this;
+		onCreate(db);
 	}
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		for(Class<? extends Model> model: mModels) {
+		for(Class<? extends Model> model: getModels()) {
 			List<TableDefinition> tableDefinitions = Model.getTableDefinitions(model);
 			
 			for(TableDefinition definition: tableDefinitions) {
 				db.execSQL(definition.toString());
-				mTables.add(definition.getTableName());
+				getTables().add(definition.getTableName());
 			}
 		}
 	}
@@ -57,9 +90,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * @param db {@link SQLiteDatabase}.
 	 */
 	public void drop(SQLiteDatabase db) {
-		for(String table: mTables) {
-			db.execSQL("DROP TABLE IF EXISTS " + table + ";");
+		for(String table: getTables()) {
+			db.execSQL("DROP TABLE IF EXISTS " + table);
 		}
+		
+		mTables.clear();
+		mModels.clear();
 	}
 	
 	@Override

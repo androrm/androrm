@@ -1,24 +1,35 @@
 package com.orm.androrm.impl;
 
+import java.util.List;
+
 import android.content.Context;
 
 import com.orm.androrm.CharField;
+import com.orm.androrm.FilterSet;
 import com.orm.androrm.ForeignKeyField;
 import com.orm.androrm.Model;
 
 public class Branch extends Model {
 
-	protected CharField mName;
-	protected ForeignKeyField<Supplier> mSupplier;
+	public static final List<Branch> filter(Context context, FilterSet filter) {
+		return filter(context, Branch.class, filter);
+	}
 	
-	public Branch(Context context) {
-		super(context);
+	protected CharField mName;
+	protected ForeignKeyField<Product> mProduct;
+	
+	public Branch() {
+		super();
 
 		mName = new CharField(50);
-		mSupplier = new ForeignKeyField<Supplier>(Supplier.class);
+		mProduct = new ForeignKeyField<Product>(Product.class);
 	}
 
 	public void setName(String name) {
 		mName.set(name);
+	}
+	
+	public Product getProduct(Context context) {
+		return mProduct.get(context);
 	}
 }

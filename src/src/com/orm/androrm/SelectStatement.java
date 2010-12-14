@@ -1,3 +1,25 @@
+/**
+ * 	Copyright (c) 2010 Philipp Giese
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package com.orm.androrm;
 
 
@@ -5,10 +27,12 @@ public class SelectStatement {
 	private String[] mFields = new String[] { "*" };
 	private String mFrom;
 	private Where mWhere;
+	private OrderBy mOrderBy;
 	private Limit mLimit;
 	private boolean mDistinct = false;
+	private boolean mCount = false;
 	
-	public SelectStatement select(String[] fields) {
+	public SelectStatement select(String... fields) {
 		mFields = fields;
 		
 		return this;
@@ -39,17 +63,19 @@ public class SelectStatement {
 	}
 	
 	public SelectStatement orderBy(String col) {
-		if(mWhere == null) {
-			mWhere = new Where();
-		}
-		
-		mWhere.orderBy(col);
+		mOrderBy = new OrderBy(col);
 		
 		return this;
 	}
 	
 	public SelectStatement limit(Limit limit) {
 		mLimit = limit;
+		
+		return this;
+	}
+	
+	public SelectStatement count() {
+		mCount = true;
 		
 		return this;
 	}
@@ -63,6 +89,10 @@ public class SelectStatement {
 	}
 	
 	private String buildSelect() {
+		if(mCount) {
+			return " COUNT(*) AS count";
+		}
+		
 		boolean first = true;
 		
 		String fields = " ";
@@ -81,23 +111,15 @@ public class SelectStatement {
 	
 	private String buildWhere() {
 		if(mWhere != null) {
-			String where = mWhere.toString();
-			
-			if(where != null) {
-				return " WHERE " + where;
-			}
+			return mWhere.toString();
 		}
 		
 		return "";
 	}
 	
 	private String buildOrderBy() {
-		if(mWhere != null) {
-			String orderBy = mWhere.getOrderBy();
-			
-			if(orderBy != null) {
-				return " ORDER BY " + orderBy;
-			}
+		if(mOrderBy != null) {
+			return mOrderBy.toString();
 		}
 		
 		return "";
@@ -105,7 +127,7 @@ public class SelectStatement {
 	
 	private String buildLimit() {
 		if(mLimit != null) {
-			return " LIMIT " + mLimit.toString();
+			return mLimit.toString();
 		}
 		
 		return "";

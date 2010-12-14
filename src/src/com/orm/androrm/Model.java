@@ -1,18 +1,31 @@
 /**
+ * 	Copyright (c) 2010 Philipp Giese
  * 
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package com.orm.androrm;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -26,23 +39,15 @@ import android.util.Log;
  */
 public abstract class Model {
 	
-	private static final String TAG = "ANDORM:MODEL";
+	private static final String TAG = "ANDRORM:MODEL";
 	
 	protected static final String PK = "mId";
 	
-	protected static final String getTableName(Class<?> clazz) {
+	private static final String COUNT = "count";
+	
+	public static final String getTableName(Class<?> clazz) {
 		return clazz.getSimpleName().toLowerCase();
 	}
-	
-	private static final String MODIFIER_IN = "in";
-	private static final String MODIFIER_CONTAINS = "contains";
-	private static final String MODIFIER_EXACT = "is";
-	
-	private static final List<String> MODIFIERS = Arrays.asList(new String[] {
-			MODIFIER_IN,
-			MODIFIER_CONTAINS,
-			MODIFIER_EXACT
-	});
 	
 	/**
 	 * Assigns a value gathered from the database to the
@@ -52,7 +57,7 @@ public abstract class Model {
 	 * 
 	 * @param <T>		Type of the object.
 	 * @param field		Field of the object, that a value shall be assigned to.
-	 * @param object	Object instance of type T.
+	 * @param object	Object instance of type <T>.
 	 * @param c			Database {@link Cursor}
 	 * 
 	 * @throws IllegalArgumentException
@@ -63,489 +68,181 @@ public abstract class Model {
 			Cursor c) 
 	throws IllegalArgumentException, IllegalAccessException {
 		
-		String fieldName = field.getName();
+		Object o = field.get(object);
 		
-		Class<?> fieldType = field.getType();
-		if(fieldType.equals(IntegerField.class)
-				|| fieldType.equals(PrimaryKeyField.class)) {
-			IntegerField integerField = (IntegerField) field.get(object);
-			integerField.set(c.getInt(c.getColumnIndexOrThrow(fieldName)));
-		}
+		if(o instanceof DataField) {
+			DataField<?> f = (DataField<?>) o;
+			String fieldName = field.getName();
+			int columnIndex = c.getColumnIndexOrThrow(fieldName);
 		
-		if(fieldType.equals(CharField.class)) {
-			CharField charField = (CharField) field.get(object);
-			charField.set(c.getString(c.getColumnIndexOrThrow(fieldName)));
-		}
-		
-		if(fieldType.equals(ForeignKeyField.class)) {
-			ForeignKeyField<?> foreignKeyField = (ForeignKeyField<?>) field.get(object);
-			foreignKeyField.set(c.getInt(c.getColumnIndexOrThrow(fieldName)));
+			f.set(c, columnIndex);
 		}
 	}
 	
-	protected static final <T extends Model> void createObject(T object, 
-			Class<?> clazz,
+	protected static final <T extends Model> List<Field> getFields(Class<T> clazz, T instance) {
+		Field[] declaredFields = clazz.getDeclaredFields();
+		List<Field> fields = new ArrayList<Field>();
+		
+		try {
+			for(int i = 0, length = declaredFields.length; i < length; i++) {
+				Field field = declaredFields[i];
+				field.setAccessible(true);
+				Object f = field.get(instance);
+				
+				if(QueryBuilder.isDatabaseField(f)) {
+					fields.add(field);
+				}
+			}
+		} catch (IllegalAccessException e) {
+			Log.e(TAG, "exception thrown while trying to gain access to fields of class " 
+					+ clazz.getSimpleName(), e);
+		}
+		
+		return fields;
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected static final <T extends Model, U extends Model> Class<U> getSuperclass(Class<T> clazz) {
+		Class<?> parent = clazz.getSuperclass();
+		Class<U> superclass = null;
+		
+		if(!parent.equals(Object.class)) {
+			superclass = (Class<U>) parent;
+		}
+		
+		return superclass;
+	}
+	
+	private static final <T extends Model> void fillUpData(T instance, 
+			Class<T> clazz, 
 			Cursor c) 
 	throws IllegalArgumentException, IllegalAccessException {
 		
-		if(clazz != null && clazz.isInstance(object) && !clazz.equals(Object.class)) {
-			Field[] fields = clazz.getDeclaredFields();
+		if(clazz != null && clazz.isInstance(instance)) {
 			
-			for(int i = 0, length = fields.length; i < length; i++) {
-				Field field = fields[i];
-				field.setAccessible(true);
-				
-				assignFieldValue(field, object, c);
+			for(Field field: getFields(clazz, instance)) {
+				assignFieldValue(field, instance, c);
 			}
 			
-			createObject(object, clazz.getSuperclass(), c);
+			fillUpData(instance, getSuperclass(clazz), c);
 		}
 	}
 	
-	protected static final <T extends Model> T get(Context context, Class<T> clazz, int id) {
+	protected static final <T extends Model> T createObject(Class<T> clazz,
+			Cursor c) {
+		
 		T object = null;
 		
 		try {
-			Constructor<T> constructor = clazz.getConstructor(Context.class);
-			object = constructor.newInstance(context);
+			Constructor<T> constructor = clazz.getConstructor();
+			object = constructor.newInstance();
 			
-			Where where = new Where();
-			where.and(PK, id);
-			
-			DatabaseAdapter adapter = new DatabaseAdapter(context);
-			adapter.open();
-			
-			Cursor c = adapter.get(getTableName(clazz), where, null);
-			
-			if(c.moveToNext()) {
-				createObject(object, clazz, c);
-			}
-			
+			fillUpData(object, clazz, c);
 		} catch(Exception e) {
 			Log.e(TAG, "exception thrown while gathering representation for object of class " 
-					+ clazz.getSimpleName() 
-					+ " with id " 
-					+ id, e);
+					+ clazz.getSimpleName(), e);
 		}
 		
 		return object;
 	}
 	
-	private static final boolean isDatabaseField(Object field) {
-		if(field != null) {
-			if((field instanceof DataField)
-					|| (field instanceof ManyToManyField)
-					|| field instanceof ForeignKeyField) {
-				
-				return true;
-			}
+	public static final <T extends Model> T get(Context context, Class<T> clazz, int id) {
+		Where where = new Where();
+		where.and(PK, id);
+		
+		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		adapter.open();
+		
+		SelectStatement select = new SelectStatement();
+		select.from(getTableName(clazz))
+			  .where(where);
+		
+		Cursor c = adapter.query(select);
+		
+		T object = null;
+		
+		if(c.moveToNext()) {
+			object = createObject(clazz, c);
 		}
 		
-		return false;
+		c.close();
+		adapter.close();
+		return object;
 	}
 	
-	private static final boolean isRelationalField(Object field) {
-		if(field != null) {
-			if(field instanceof ForeignKeyField
-					|| field instanceof ManyToManyField) {
-				
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	private static final List<String> getEligableFields(Class<?> clazz) {
+	protected static final <T extends Model> List<String> getEligableFields(Class<T> clazz, T instance) {
 		List<String> eligableFields = new ArrayList<String>();
 		
-		if(!clazz.equals(Object.class)) {
-			Field[] fields = clazz.getDeclaredFields();
-			
-			for(int i = 0, length = fields.length; i < length; i++) {
-				Field field = fields[i];
-				field.setAccessible(true);
-				Class<?> type = field.getType();
-			
-				if(type.equals(IntegerField.class)
-						|| type.equals(CharField.class)
-						|| type.equals(ForeignKeyField.class)
-						|| type.equals(ManyToManyField.class)) {
-					
-					eligableFields.add(field.getName());
-				}
+		if(clazz != null) {
+			for(Field field: getFields(clazz, instance)) {
+				eligableFields.add(field.getName());
 			}
 			
-			eligableFields.addAll(getEligableFields(clazz.getSuperclass()));
+			eligableFields.addAll(getEligableFields(getSuperclass(clazz), instance));
 		}
 		
 		return eligableFields;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private static final <T extends Model> void unwrapManyToManyRelation(Map<String, String> joinParams, 
-			Class<T> clazz, 
-			Relation r) {
-		
-		ManyToManyField<T, ? extends Model> m = (ManyToManyField<T, ? extends Model>) r;
-		Class<? extends Model> target = m.getTarget();
-		
-		/*
-		 * As ManyToManyFields are represented in a separate
-		 * relation table this table has to be considered for
-		 * the join.
-		 */
-		joinParams.put("leftTable", m.getRelationTableName());
-		/*
-		 * By convention the fields in a relation table are named
-		 * after the classes they represent. Thus we select the field
-		 * with the name of the class we are currently examining.
-		 */
-		String selectField = getTableName(clazz);
-		joinParams.put("selectField", getTableName(clazz));
-		/*
-		 * When dealing with foreign keys the selection field has
-		 * to be renamed to the field name in the representing class.
-		 * ManyToManyFields do not need this.
-		 */
-		joinParams.put("selectAs", selectField);
-		/*
-		 * Field of the left table that will be considered 
-		 * during the join. 
-		 */
-		String onLeft = getTableName(target);
-		joinParams.put("onLeft", getTableName(target));
-		/*
-		 * Field of the right table that will be matched 
-		 * against the field of the left table during the join.
-		 */
-		joinParams.put("onRight", onLeft);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private static final <T extends Model> void unwrapForeignKeyRelation(Map<String, String> joinParams,
-			String fieldName,
-			Class<T> clazz,
-			Relation r) {
-		
-		ForeignKeyField<? extends Model> f = (ForeignKeyField<? extends Model>) r;
-		Class<? extends Model> target = f.getTarget();
-		
-		/*
-		 * As ForeignKeyFields are real fields in the
-		 * database our left table for the join
-		 * is the table corresponding to the class,
-		 * we are currently examining.
-		 */
-		String leftTable = getTableName(clazz);
-		joinParams.put("leftTable", getTableName(clazz));
-		/*
-		 * As we do not operate on a relation table
-		 * we need to select the id field of our 
-		 * current table. 
-		 */
-		joinParams.put("selectField", PK);
-		/*
-		 * In order to work along with ManyToManyFields
-		 * we select the Id field as the table name
-		 * corresponding to our class. 
-		 */
-		joinParams.put("selectAs", leftTable);
-		
-		/*
-		 * Field of the left table, that will be considered
-		 * during the join.
-		 */
-		joinParams.put("onLeft", fieldName);
-		/*
-		 * Field of the right table, that will be matched
-		 * against the field of the left table during the join.
-		 */
-		joinParams.put("onRight", getTableName(target));
-	}
-	
-	private static final <T extends Model> SelectStatement buildJoin(Context context, 
-			Class<T> clazz,
-			List<String> fields, 
-			String value, 
-			int depth) throws NoSuchFieldException {
-		
-		SelectStatement select = new SelectStatement();
-		String fieldName = fields.get(0);
-		Field field = getField(clazz, fieldName);
-		
-		if(field == null) {
-			throw new NoSuchFieldException("Could not resolve " 
-					+ fieldName 
-					+ " into class "
-					+ clazz.getSimpleName()
-					+ ". Choices are: " + 
-					getEligableFields(clazz).toString());
-		} else {
-			Object o = null;
-			
-			try {
-			
-				Constructor<T> constructor = clazz.getConstructor(Context.class);
-				T object = constructor.newInstance(context);
-			
-				o = field.get(object);
-			} catch(Exception e) {
-				Log.e(TAG, "exception thrown while trying to create representation of " 
-						+ clazz.getSimpleName() 
-						+ " and fetching field object for field " 
-						+ fieldName, e);
-			}
-			
-			if(isDatabaseField(o)) {
-				if(fields.size() == 1) {
-					String tableName = getTableName(clazz);
-					
-					Where where = new Where();
-					where.and(fieldName, value);
-					
-					select.from(tableName)
-						  .select(new String[] {PK + " AS " + tableName})
-						  .where(where);
-					
-					return select;
-				} 
-				
-				if(isRelationalField(o)) {
-					Relation r = (Relation) o;
-					
-					Class<? extends Model> target = r.getTarget();
-					
-					Map<String, String> joinParams = new HashMap<String, String>();
-					
-					if(r instanceof ManyToManyField) {
-						unwrapManyToManyRelation(joinParams, clazz, r);
-					}
-					
-					if(r instanceof ForeignKeyField) {
-						unwrapForeignKeyRelation(joinParams, fieldName, clazz, r);
-					}
-					
-					String leftTable = joinParams.get("leftTable");
-					String selectField = joinParams.get("selectField");
-					String selectAs = joinParams.get("selectAs");
-					String onLeft = joinParams.get("onLeft");
-					String onRight = joinParams.get("onRight");
-					
-					/*
-					 * After the steps above the left side of the join is always known. 
-					 * What is currently unknown is, if there are any further sub-joins
-					 * needed in order to accomplish the query. Therefore the right side
-					 * of the join is provided with the result of this function. 
-					 */
-					JoinStatement join = new JoinStatement();
-					join.left(leftTable, "table" + depth)
-						.right(buildJoin(context, 
-								target, 
-								fields.subList(1, fields.size()), 
-								value, 
-								depth + 2), 
-								"table" + (depth + 1))
-						.on(onLeft, onRight);
-					
-					/*
-					 * The select will fetch the correct field from the previous join
-					 * that will be needed in the next step. 
-					 */
-					select.from(join)
-					 	  .select(new String[] {"table" 
-					 			  + depth 
-					 			  + "."
-					 			  + selectField
-					 			  + " AS "
-					 			  + selectAs});
-				}
-			}
-		}
-		
-		return select;
-		
-	}
-	
-	private static final Field getField(Class<?> clazz, String fieldName) {
-		Field field = null;
-		
-		if(!clazz.equals(Object.class)) {
-		
-			Field[] fields = clazz.getDeclaredFields();
-			
-			for(int i = 0, length = fields.length; i < length; i++) {
-				Field f = fields[i];
-				f.setAccessible(true);
-				
-				if(f.getName().equals(fieldName)) {
-					field = f;
-					break;
-				}
-			}
-			
-			if(field == null) {
-				field = getField(clazz.getSuperclass(), fieldName);
-			}
-		}
-		
-		return field;
-	}
-	
-	@SuppressWarnings("unchecked")
-	private static final <T extends Model> List<String> getTableNames(Context context, 
-			Class<T> clazz, 
-			List<String> fields,
-			int depth) {
-		
-		List<String> tables = new ArrayList<String>();
-		String fieldName = fields.get(depth);
-		
-		try {
-			Constructor<T> constructor = clazz.getConstructor(Context.class);
-			T object = constructor.newInstance(context);
-			Field field = getField(clazz, fieldName);
-			Object o = field.get(object);
-			
-			if(o instanceof ManyToManyField) {
-				ManyToManyField<T, ? extends Model> m = (ManyToManyField<T, ? extends Model>) o;
-				Class<? extends Model> target = m.getTarget();
-				
-				if(fields.size() == 2) {
-					tables.add(getTableName(target));
-					
-					return tables;
-				}
-				
-				tables.add(m.getRelationTableName());
-				tables.addAll(getTableNames(context, target, fields, depth + 1));
-			}
-		} catch(Exception e) {
-			//discard
-		}
-		
-		return tables;
-	}
-	
-	private static final <T extends Model> SelectStatement buildQuery(Context context, 
-			Class<T> clazz, 
-			Iterator<Entry<String, Object>> iterator,
-			int depth) 
-	throws NoSuchFieldException {
-		
-		JoinStatement selfJoin = new JoinStatement();
-		selfJoin.left(getTableName(clazz), "self" + depth);
-		
-		SelectStatement subSelect = new SelectStatement();
-		Entry<String, Object> entry = iterator.next();
-		
-		String key = entry.getKey();
-		Object value = entry.getValue();
-		
-		String object = String.valueOf(value);
-		
-		if(value instanceof Model) {
-			object = String.valueOf(((Model) value).getId());
-		}
-		
-		List<String> fields = Arrays.asList(key.split("__"));
-		
-		if(fields.size() == 1) {
-			Where where = new Where();
-			where.and(key, object);
-			
-			subSelect.from(getTableName(clazz))
-				  	 .where(where);
-		} else {
-			int left = depth + 1;
-			int right = depth + 2;
-			
-			JoinStatement join = new JoinStatement();
-			join.left(getTableName(clazz), "outer" + left)
-				.right(buildJoin(context, clazz, fields, object, depth), "outer" + right)
-				.on(PK, getTableName(clazz));
-			
-			subSelect.from(join)
-				  	 .select(new String[] { "outer" + left + ".*"});
-		}
-		
-		if(!iterator.hasNext()) {
-			return subSelect;
-		}
-		
-		selfJoin.right(subSelect, "self" + (depth + 1))
-				.on(PK, PK);
-		
-		JoinStatement outerSelfJoin = new JoinStatement();
-		outerSelfJoin.left(subSelect, "outerSelf" + depth)
-					 .right(buildQuery(context, clazz, iterator, (depth + 2)), "outerSelf" + (depth + 1))
-					 .on(PK, PK);
-		
-		SelectStatement select = new SelectStatement();
-		select.from(outerSelfJoin)
-			  .select(new String[] { "outerSelf" + depth + ".*"});
-		
-		return select;
-		
-	}
-	
-	protected static final <T extends Model> List<T> filter(Context context, 
-			Class<T> clazz, 
-			Map<String, Object> filter) {
-		
+	private static final <T extends Model> List<T> createObjects(Context context, Class<T> clazz, SelectStatement select) {
 		List<T> objects = new ArrayList<T>();
-		
-		Set<Entry<String, Object>> entries = filter.entrySet();
-		Iterator<Entry<String, Object>> iterator = entries.iterator();
-		
-		SelectStatement select = new SelectStatement();
-		try {
-			select = buildQuery(context, clazz, iterator, 0);
-		} catch (NoSuchFieldException e) {
-			Log.e(TAG, "could not resolve fields into class.", e);
-		}
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(context);
 		adapter.open();
 		
-		Cursor c = adapter.query(select.toString());
+		Cursor c = adapter.query(select);
 		
-		try {
-			Constructor<T> constructor = clazz.getConstructor(Context.class);
+		while(c.moveToNext()) {
+			T object = createObject(clazz, c);
 			
-			while(c.moveToNext()) {
-				T object = constructor.newInstance(context);
-				
-				createObject(object, clazz, c);
+			if(object != null) {
 				objects.add(object);
 			}
-		} catch(Exception e) {
-			// discard
 		}
 		
+		c.close();
+		adapter.close();
 		return objects;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private static final<T extends Model> void getFieldDefinitions(T object, 
-			Class<?> clazz, 
+	protected static final <T extends Model> List<T> filter(Context context, 
+			Class<T> clazz, 
+			FilterSet filter,
+			Limit limit) {
+		
+		SelectStatement select = new SelectStatement();
+		
+		try {
+			select = QueryBuilder.buildQuery(clazz, filter.getFilters(), 0);
+			select.limit(limit);
+		} catch (NoSuchFieldException e) {
+			Log.e(TAG, "could not resolve fields into class.", e);
+		}
+		
+		return createObjects(context, clazz, select);
+	}
+	
+	protected static final <T extends Model> List<T> filter(Context context,
+			Class<T> clazz,
+			FilterSet filter) {
+		
+		return filter(context, clazz, filter, null);
+	}
+	
+	private static final<T extends Model> void getFieldDefinitions(T instance, 
+			Class<T> clazz, 
 			TableDefinition modelTable) 
 	throws IllegalArgumentException, IllegalAccessException {
 		
-		if(clazz.isInstance(object) && !clazz.equals(Object.class)) {
-			Field[] fields = clazz.getDeclaredFields();
-			
+		if(clazz != null && clazz.isInstance(instance)) {
 			// TODO: only create fields from superclass, if superclass is
 			// abstract. Otherwise create a pointer to superclass.
 			
-			for(int i = 0, length = fields.length; i < length; i++) {
-				Field field = fields[i];
-				field.setAccessible(true);
-				
+			for(Field field: getFields(clazz, instance)) {
 				String name = field.getName();
 
 				try {
-					Object o = field.get(object);
+					Object o = field.get(instance);
 					
 					if(o instanceof DataField) {
 						DataField<?> fieldObject = (DataField<?>) o;
@@ -553,28 +250,27 @@ public abstract class Model {
 					}
 					
 					if(o instanceof ManyToManyField) {
-						modelTable.addRelationalClass((Class<? extends Model>) clazz);
+						modelTable.addRelationalClass(clazz);
 					}
 				} catch(IllegalAccessException e) {
-					// discard and move to the next field					
+					Log.e(TAG, "could not create field definitions for class " 
+							+ clazz.getSimpleName(), e);	
 				}
 			}
 			
-			getFieldDefinitions(object, clazz.getSuperclass(), modelTable);
+			getFieldDefinitions(instance, getSuperclass(clazz), modelTable);
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static final <T extends Model> void getRelationDefinitions(T object, Class<?> clazz, List<TableDefinition> definitions) {
-		if(clazz != null && clazz.isInstance(object) && !clazz.equals(Object.class)) {
-			Field[] fields = clazz.getDeclaredFields();
-			
-			for(int i = 0, length = fields.length; i < length; i++) {
-				Field field = fields[i];
-				field.setAccessible(true);
-				
+	private static final <T extends Model> void getRelationDefinitions(T instance, 
+			Class<T> clazz, 
+			List<TableDefinition> definitions) {
+		
+		if(clazz != null && clazz.isInstance(instance) ) {
+			for(Field field: getFields(clazz, instance)) {
 				try {
-					Object o = field.get(object);
+					Object o = field.get(instance);
 					
 					if(o instanceof ManyToManyField) {
 						ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) o;
@@ -593,27 +289,31 @@ public abstract class Model {
 						definitions.add(definition);
 					}
 				} catch(IllegalAccessException e) {
-					// discard and continue
+					Log.e(TAG, "could not gather relation definitions for class " 
+							+ clazz.getSimpleName(), e);
 				}
 			}
 			
-			getRelationDefinitions(object, clazz.getSuperclass(), definitions);
+			getRelationDefinitions(instance, getSuperclass(clazz), definitions);
 		}
 	}
 	
-	private static final<T extends Model> List<TableDefinition> getRelationDefinitions(Context context, Class<T> clazz) {
+	private static final<T extends Model> List<TableDefinition> getRelationDefinitions(Class<T> clazz) {
 		List<TableDefinition> definitions = new ArrayList<TableDefinition>();
 		
 		T object = null;
 		
 		try {
-			Constructor<T> constructor = clazz.getConstructor(Context.class);
-			object = constructor.newInstance(context);
-		} catch(Exception e) {
+			Constructor<T> constructor = clazz.getConstructor();
+			object = constructor.newInstance();
 			
+			getRelationDefinitions(object, clazz, definitions);
+		} catch(Exception e) {
+			Log.e(TAG, "could not create instance of class " 
+					+ clazz.getSimpleName(), e);
 		}
 		
-		getRelationDefinitions(object, clazz, definitions);
+		
 		
 		return definitions;
 	}
@@ -623,8 +323,8 @@ public abstract class Model {
 		
 		// TODO: only create table definition, if class is not abstract.
 		try {
-			Constructor<T> constructor = clazz.getConstructor(Context.class);
-			T object = constructor.newInstance((Context) null);
+			Constructor<T> constructor = clazz.getConstructor();
+			T object = constructor.newInstance();
 			
 			TableDefinition definition = new TableDefinition(getTableName(clazz));
 			
@@ -633,49 +333,32 @@ public abstract class Model {
 			definitions.add(definition);
 			
 			for(Class<? extends Model> c: definition.getRelationalClasses()) {
-				definitions.addAll(getRelationDefinitions(null, c));
+				definitions.addAll(getRelationDefinitions(c));
 			}
 			
 			return definitions;
 		} catch(Exception e) {
-			Log.e("foo", "bar", e);
+			Log.e(TAG, "an exception has been thrown while gathering the database structure information.", e);
 		}
 		
 		return null;
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static final <T extends Model, O extends Model> ForeignKeyField<O> getForeignKey(T object, Class<?> clazz, Class<O> target) 
+	private static final <T extends Model, O extends Model> ForeignKeyField<T> getForeignKey(O origin, 
+			Class<O> originClass, 
+			Class<T> target) 
 	throws IllegalArgumentException, IllegalAccessException {
 		
-		ForeignKeyField<O> fk = null;
-		
-		if(clazz.isInstance(object) && !clazz.equals(Object.class)) {
-			Field[] fields = clazz.getDeclaredFields();
+		if(originClass != null && originClass.isInstance(origin)) {
+			Field fkField = getForeignKeyField(target, originClass, origin);
 			
-			for(int i = 0, length = fields.length; i < length; i++) {
-				Field field = fields[i];
-				field.setAccessible(true);
-				
-				Object f = field.get(object);
-				
-				if(f instanceof ForeignKeyField) {
-					ForeignKeyField<?> tmpFk = (ForeignKeyField<?>) f;
-					Class<? extends Model> t = tmpFk.getTarget();
-					
-					if(t.equals(target)) {
-						fk = (ForeignKeyField<O>) tmpFk;
-						break;
-					}
-				}
-			}
-			
-			if(fk == null) {
-				fk = getForeignKey(object, clazz.getSuperclass(), target);
+			if(fkField != null) {
+				return (ForeignKeyField<T>) fkField.get(origin);
 			}
 		}
 		
-		return fk;
+		return null;
 	}
 	
 	protected static final <T extends Model, O extends Model> void setBackLink(T target, 
@@ -703,22 +386,19 @@ public abstract class Model {
 					+ " was found in class " 
 					+ originClass.getSimpleName() 
 					+"! Choices are: " 
-					+ getEligableFields(originClass).toString());
+					+ getEligableFields(originClass, origin).toString());
 		}
 	}
 	
-	private static final <T extends Model, O extends Model> Field getForeignKeyField(Class<T> target, Class<?> clazz, O origin) 
+	private static final <T extends Model, O extends Model> Field getForeignKeyField(Class<T> target, 
+			Class<O> originClass, 
+			O origin) 
 	throws IllegalArgumentException, IllegalAccessException {
 		
-		Field fk= null;
+		Field fk = null;
 		
-		if(clazz.isInstance(origin) && !clazz.equals(Object.class)) {
-			Field[] fields = clazz.getDeclaredFields();
-			
-			for(int i = 0, length = fields.length; i < length; i++) {
-				Field field = fields[i];
-				field.setAccessible(true);
-				
+		if(originClass != null && originClass.isInstance(origin)) {
+			for(Field field: getFields(originClass, origin)) {
 				Object f = field.get(origin);
 				
 				if(f instanceof ForeignKeyField) {
@@ -733,22 +413,21 @@ public abstract class Model {
 			}
 			
 			if(fk == null) {
-				fk = getForeignKeyField(target, clazz.getSuperclass(), origin);
+				fk = getForeignKeyField(target, getSuperclass(originClass), origin);
 			}
 		}
 		
 		return fk;
 	}
 	
-	protected static final <T extends Model, O extends Model> String getBackLinkFieldName(Context context, 
-			Class<T> targetClass, 
-			Class<O> originClass) {
+	protected static final <O extends Model, T extends Model> String getBackLinkFieldName(Class<O> originClass,
+			Class<T> targetClass) {
 		
 		Field fk = null;
 		
 		try {
-			Constructor<O> constructor = originClass.getConstructor(Context.class);
-			O origin = constructor.newInstance(context);
+			Constructor<O> constructor = originClass.getConstructor();
+			O origin = constructor.newInstance();
 			
 			fk = getForeignKeyField(targetClass, originClass, origin);
 		}  catch (Exception e) {
@@ -765,86 +444,126 @@ public abstract class Model {
 		return null;
 	}
 	
+	public static final <T extends Model> int count(Context context, 
+			Class<T> clazz, 
+			FilterSet filter) {
+		
+		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		adapter.open();
+		
+		Cursor c = null;
+		
+		try {
+			SelectStatement select = QueryBuilder.buildQuery(clazz, filter.getFilters(), 0);
+			select.count();
+			
+			c = adapter.query(select);
+			
+			int count = 0;
+			if(c.moveToNext()) {
+				count = c.getInt(c.getColumnIndexOrThrow(COUNT));
+			}
+			
+			return count;
+		} catch (NoSuchFieldException e) {
+			Log.e(TAG, "exception thrown trying to count objects of class " 
+					+ clazz.getSimpleName() 
+					+ ". Check your filters!", e);
+		} finally {
+			if(c != null) {
+				c.close();
+			}
+			
+			adapter.close();
+		}
+		
+		return 0;
+	}
+	
+	public static final <T extends Model> int count(Context context, 
+			Class<T> clazz) {
+		
+		SelectStatement select = new SelectStatement();
+		select.count()
+			  .from(getTableName(clazz));
+		
+		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		adapter.open();
+		
+		Cursor c = adapter.query(select);
+		
+		int count = 0;
+		if(c.moveToNext()) {
+			count = c.getInt(c.getColumnIndexOrThrow(COUNT));
+		}
+		
+		c.close();
+		adapter.close();
+		return count;
+	}
+	
+	public static final <T extends Model> List<T> all(Context context, Class<T> clazz, Limit limit) {
+		SelectStatement select = new SelectStatement();
+		select.from(getTableName(clazz))
+			  .limit(limit);
+		
+		return createObjects(context, clazz, select);
+	}
+	
 	protected PrimaryKeyField mId;
 	
-	protected Context mContext;
-	
-	public Model(Context context) {
-		mContext = context;
-		
+	public Model() {
 		mId = new PrimaryKeyField(true);
 	}
 	
-	public Model(Context context, boolean suppressAutoincrement) {
-		mContext = context;
-		
+	public Model(boolean suppressAutoincrement) {
 		mId = new PrimaryKeyField(!suppressAutoincrement);
 	}
 	
-	private void putBooleanValue(Object field, String fieldName, ContentValues values) {
-		if(field instanceof BooleanField) {
-			BooleanField b = (BooleanField) field;
-			values.put(fieldName, b.get(mContext));
-		}
-	}
-	
-	private void putIntegerValue(Object field, String fieldName, ContentValues values) {
-		if(field instanceof IntegerField
-				&& !(field instanceof PrimaryKeyField)) {
-			
-			IntegerField in = (IntegerField) field;
-			values.put(fieldName, in.get(mContext));
-		}
-	}
-	
-	private void putStringValue(Object field, String fieldName, ContentValues values) {
-		if(field instanceof CharField) {
-			CharField c = (CharField) field;
-			values.put(fieldName, c.get(mContext));
-		}
-	}
-	
-	private void putForeignKeyValue(Object field, String fieldName, ContentValues values) {
-		if(field instanceof ForeignKeyField<?>) {
-			ForeignKeyField<?> r = (ForeignKeyField<?>) field;
-			
-			if(r.isPersisted()) {
-				values.put(fieldName, r.get(mContext).getId());
-			} else {
-				values.put(fieldName, 0);
+	private boolean handledByPrimaryKey(Object field) {
+		if(field instanceof PrimaryKeyField) {
+			PrimaryKeyField pk = (PrimaryKeyField) field;
+			if(pk.isAutoincrement()) {
+				return true;
 			}
 		}
+		
+		return false;
 	}
 	
-	private void collectData(ContentValues values, 
-			Class<?> clazz) 
+	private void putValue(Object field, String fieldName, ContentValues values) {
+		if(field instanceof DataField
+			&& !handledByPrimaryKey(field)) {
+			
+			DataField<?> f = (DataField<?>) field;
+			f.putData(fieldName, values);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T extends Model> void collectData(Context context, 
+			ContentValues values, 
+			Class<T> clazz) 
 	throws IllegalArgumentException, IllegalAccessException {
 		
-		if(clazz.isInstance(this) && !clazz.equals(Object.class)) {
-			Field[] fields = clazz.getDeclaredFields();
-			
-			for(int i = 0, length = fields.length; i < length; i++) {
-				Field field = fields[i];
-				field.setAccessible(true);
-				
+		if(clazz != null && clazz.isInstance(this)) {
+			for(Field field: getFields(clazz, (T) this)) {
 				Object o = field.get(this);
 				String fieldName = field.getName();
 				
-				putBooleanValue(o, fieldName, values);
-				putIntegerValue(o, fieldName, values);
-				putStringValue(o, fieldName, values);
-				putForeignKeyValue(o, fieldName, values);
+				putValue(o, fieldName, values);
 			}
 			
-			collectData(values, clazz.getSuperclass());
+			collectData(context, values, getSuperclass(clazz));
 		}
 	}
 	
-	private <T extends Model> void saveRelationToDatabase(Class<?> clazz, 
+	private <T extends Model> void saveM2MToDatabase(Context context, 
+			Class<T> clazz, 
 			List<? extends Model> targets,
 			ManyToManyField<T, ?> m) {
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(mContext);
+		DatabaseAdapter adapter = new DatabaseAdapter(context);
 		
 		for(Model target: targets) {
 			/*
@@ -866,57 +585,58 @@ public abstract class Model {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T extends Model> void persistRelations(Class<?> clazz) 
-	throws IllegalArgumentException, IllegalAccessException {
+	private <T extends Model, O extends Model> void persistRelations(Context context, 
+			Class<T> clazz) 
+	throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
 		
-		if(clazz.isInstance(this) && !clazz.equals(Object.class)) {
-			Field[] fields = clazz.getDeclaredFields();
+		if(clazz != null && clazz.isInstance(this)) {
 			
-			for(int i = 0, length = fields.length; i < length; i++) {
-				Field field = fields[i];
-				field.setAccessible(true);
-				
+			for(Field field: getFields(clazz, (T) this)) {
 				Object o = field.get(this);
 				
 				if(o instanceof ManyToManyField) {
 					ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) o;
-					List<? extends Model> targets = m.get(mContext, (T) this);
+					List<? extends Model> targets = m.get(context, (T) this);
 					
-					saveRelationToDatabase(clazz, targets, m);
+					saveM2MToDatabase(context, clazz, targets, m);
 				}
 				
 				if(o instanceof OneToManyField) {
 					OneToManyField<T, ?> om = (OneToManyField<T, ?>) o;
-					List<? extends Model> targets = om.get(mContext, (T) this);
+					List<? extends Model> targets = om.get(context, (T) this);
 					
 					for(Model target: targets) {
 						if(target.getId() != 0) {
-							target.save(target.getId());
+							setBackLink((T) this, (Class<T>) getClass(), (O) target, (Class<O>) target.getClass());
+							target.save(context);
 						}
 					}
 				}
 			}
 			
-			persistRelations(clazz.getSuperclass());
+			persistRelations(context, getSuperclass(clazz));
 		}
 	}
 	
-	public boolean save(int id) {
+	public boolean save(Context context, int id) {
 		if(!mId.isAutoincrement()) {
 			mId.set(id);
 			
 			ContentValues values = new ContentValues();
 			values.put(PK, id);
 			
-			return save(id, this.getClass(), values);
+			return save(context, id, values);
 		}
 		
 		return false;
 	}
 
-	private <T extends Model> boolean save(int id, Class<T> clazz, ContentValues values) {
+	private <T extends Model> boolean save(Context context, 
+			int id, 
+			ContentValues values) {
+		
 		try {
-			collectData(values, clazz);
+			collectData(context, values, getClass());
 		} catch(IllegalAccessException e) {
 			Log.e(TAG, "exception thrown while gathering data from object", e);
 		}
@@ -924,23 +644,23 @@ public abstract class Model {
 		Where where = new Where();
 		where.and(PK, id);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(mContext);
-		int result = adapter.doInsertOrUpdate(getTableName(clazz), values, where);
+		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		int rowID = adapter.doInsertOrUpdate(getTableName(getClass()), values, where);
 
-		if(result == -1) {
+		if(rowID == -1) {
 			mId.set(0);
 			return false;
 		} 
 		
-		if(mId.get(mContext) == 0) {
-			mId.set(result);
+		if(getId() == 0) {
+			mId.set(rowID);
 		}
 		
 		try {
-			persistRelations(clazz);
-		} catch (IllegalAccessException e) {
+			persistRelations(context, getClass());
+		} catch (Exception e) {
 			Log.e(TAG, "an exception has been thrown trying to save the relations for " 
-					+ clazz.getSimpleName(), e);
+					+ getClass().getSimpleName(), e);
 			
 			return false;
 		}
@@ -949,19 +669,30 @@ public abstract class Model {
 		
 	}
 	
-	public boolean save() {
-		if(mId.isAutoincrement()) {
-			int id = mId.get(mContext);
+	public boolean save(Context context) {
+		if(mId.isAutoincrement() || getId() != 0) {
+			return save(context, getId(), new ContentValues());
+		}
+		
+		return false;
+	}
+	
+	public boolean delete(Context context) {
+		if(getId() != 0) {
+			Where where = new Where();
+			where.and(PK, getId());
 			
-			ContentValues values = new ContentValues();
-			return save(id, this.getClass(), values);
+			DatabaseAdapter adapter = new DatabaseAdapter(context);
+			int affectedRows = adapter.delete(getTableName(getClass()), where);
+			
+			return affectedRows != 0;
 		}
 		
 		return false;
 	}
 	
 	public int getId() {
-		return mId.get(mContext);
+		return mId.get();
 	}
 	
 	private class PrimaryKeyField extends IntegerField {
@@ -989,6 +720,25 @@ public abstract class Model {
 		public boolean isAutoincrement() {
 			return mAutoIncrement;
 		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return getId() + getClass().getSimpleName().hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof Model) {
+			Model m = (Model) o;
+			
+			if(getClass().equals(m.getClass())
+					&& getId() == m.getId()) {
+				
+				return true;
+			}
+		}
 		
+		return false;
 	}
 }

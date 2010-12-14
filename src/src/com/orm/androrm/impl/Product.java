@@ -1,15 +1,14 @@
 package com.orm.androrm.impl;
 
 import java.util.List;
-import java.util.Map;
 
 import android.content.Context;
 
 import com.orm.androrm.CharField;
-import com.orm.androrm.ForeignKeyField;
-import com.orm.androrm.IntegerField;
+import com.orm.androrm.FilterSet;
 import com.orm.androrm.Model;
 import com.orm.androrm.NoSuchFieldException;
+import com.orm.androrm.OneToManyField;
 
 public class Product extends Model {
 
@@ -18,23 +17,20 @@ public class Product extends Model {
 	}
 	
 	public static final List<Product> filter(Context context, 
-			Map<String, 
-			Object> filter) 
+			FilterSet filter) 
 	throws NoSuchFieldException {
 		
 		return filter(context, Product.class, filter);
 	}
 	
 	protected CharField mName;
-	protected IntegerField mPrice;
-	protected ForeignKeyField<Supplier> mSupplier;
+	protected OneToManyField<Product, Branch> mBranches;
 	
-	public Product(Context context) {
-		super(context);
+	public Product() {
+		super();
 		
 		mName = new CharField(50);
-		mPrice = new IntegerField(2);
-		mSupplier = new ForeignKeyField<Supplier>(Supplier.class);
+		mBranches = new OneToManyField<Product, Branch>(Product.class, Branch.class);
 	}
 
 	public void setName(String name) {
@@ -42,14 +38,23 @@ public class Product extends Model {
 	}
 	
 	public String getName() {
-		return mName.get(mContext);
+		return mName.get();
 	}
 	
-	public void setSupplier(Supplier s) {
-		mSupplier.set(s);
+	public void addBranch(Branch branch) {
+		mBranches.add(this, branch);
 	}
 	
-	public Supplier getSupplier() {
-		return mSupplier.get(mContext);
+	public void addBranches(List<Branch> branches) {
+		mBranches.addAll(this, branches);
 	}
+	
+	public List<Branch> getBranches(Context context) {
+		return mBranches.get(context, this);
+	}
+	
+	public int branchCount(Context context) {
+		return mBranches.count(context, this);
+	}
+	
 }

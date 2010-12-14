@@ -1,12 +1,28 @@
 /**
- * Overture is proprietary software of the SAP AG
+ * 	Copyright (c) 2010 Philipp Giese
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package com.orm.androrm;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -27,21 +43,12 @@ public class DatabaseAdapter {
 	 * Tag that can be used for logging.
 	 */
 	private static final String TAG = "ANDRORM:ADAPTER";
-	private static Set<Class<? extends Model>> mModels;
-	public static final void setModels(List<Class<? extends Model>> models) {
-		if(mModels == null) {
-			mModels = new HashSet<Class<? extends Model>>();
-		}
-		
-		mModels.addAll(models);
+	private static String DATABASE_NAME;
+	
+	public static final void setDatabaseName(String name) {
+		DATABASE_NAME = name;
 	}
-	private static final Set<Class<? extends Model>> getModels() {
-		if(mModels == null) {
-			mModels = new HashSet<Class<? extends Model>>();
-		}
-		
-		return mModels;
-	}
+	
 	/**
 	 * {@link DatabaseAdapter.DatabaseHelper Database Helper} to deal with connecting to a SQLite database
 	 * and creating tables.
@@ -51,16 +58,15 @@ public class DatabaseAdapter {
 	 * {@link android.database.sqlite.SQLiteDatabase SQLite database} to store the data.
 	 */
 	private SQLiteDatabase mDb;	
-	/**
-	 * Android {@link android.content.Context context} that the application is running in.
-	 */
 	
 	public DatabaseAdapter(Context context) {
-		mDbHelper = new DatabaseHelper(context, "catalogue");
+		mDbHelper = new DatabaseHelper(context, DATABASE_NAME);
+	}
+	
+	public void setModels(List<Class<? extends Model>> models) {
+		open();
 		
-		for(Class<? extends Model> model: getModels()) {
-			mDbHelper.addModel(model);
-		}
+		mDbHelper.setModels(mDb, models);
 	}
 	
 	/**
@@ -117,8 +123,8 @@ public class DatabaseAdapter {
 		close();
 	}
 	
-	public Cursor query(String sql) {
-		return mDb.rawQuery(sql, null);
+	public Cursor query(SelectStatement select) {
+		return mDb.rawQuery(select.toString(), null);
 	}
 	
 	/**
@@ -129,70 +135,27 @@ public class DatabaseAdapter {
 	 * @param 	limit	{@link Limit} clause to apply.
 	 * @return	{@link Cursor} that represents the query result.
 	 */
-	public Cursor get(String table, Where where, Limit limit) {
-		if(where == null) {
-			where = new Where();
+	private Cursor get(String table, Where where, Limit limit) {
+		String whereClause = null;
+		if(where != null) {
+			whereClause = where.toString().replace(" WHERE ", "");
+		} 
+		
+		String limitClause = null;
+		if(limit != null) {
+			limitClause = limit.toString().replace(" LIMIT ", "");
 		}
 		
-		if(limit == null) {
-			limit = new Limit();
-		}
-		
-		Cursor result = mDb.query(table, null, where.toString(), null, null, null, null, limit.toString());
+		Cursor result = mDb.query(table, 
+				null, 
+				whereClause, 
+				null, 
+				null, 
+				null, 
+				null, 
+				limitClause);
 		
 		return result;
-	}
-	
-	/**
-	 * Retrieves all IDs of the entries that match the where clause in the specified table
-	 * The field in select will be inserted into the result ArrayList.
-	 * 
-	 * @param 	table	Table to query.
-	 * @param 	select	AbstractField to select for result.
-	 * @param 	where 	ContentValues object representing whereClause
-	 * @return	A list of IDs of objects that match the query.
-	 */
-	public List<Integer> getAll(String table, String[] select, Where where, Limit limit) {
-		open();
-		
-		if(where == null) {
-			where = new Where();
-		}
-		
-		if(limit == null) {
-			limit = new Limit();
-		}
-		
-		Log.d(TAG, "performing query:" +
-				" SELECT " + select[0] + 
-				" FROM " + table + 
-				" WHERE " + where + 
-				" LIMIT " + limit);
-		
-		Cursor result = mDb.query(true, table, select, where.toString(), null, null, null, where.getOrderBy(), limit.toString());
-		List<Integer> IDs = new ArrayList<Integer>();
-		
-		while(result.moveToNext()) {
-			int id = result.getInt(result.getColumnIndexOrThrow(select[0]));
-			IDs.add(id);
-		}
-		
-		result.close();
-		close();
-		return IDs;
-	}
-	
-	/**
-	 * Convenience method. Just places a default value for the select statement.
-	 * For more information see {@link DatabaseAdapter#getAll(String, String[], ContentValues) }
-	 * 
-	 * @param 	table	Table to query.
-	 * @param 	where 	{@link ContentValues} object representing whereClause.
-	 * @param	limit	{@link ContentValues} object representing limitClause.
-	 * @return	See {@link DatabaseAdapter#getAll(String, String[], ContentValues) }
-	 */
-	public List<Integer> getAll(String table, Where where, Limit limit) {
-		return getAll(table, new String[] { "_id" }, where, limit);
 	}
 	
 	/**
@@ -211,7 +174,12 @@ public class DatabaseAdapter {
 		Cursor oldVersion = get(table, where, null);
 		
 		if(oldVersion.moveToNext()) {	
-			result = mDb.update(table, values, where.toString(), null);
+			String whereClause = null;
+			if(where != null) {
+				whereClause = where.toString().replace(" WHERE ", "");
+			}
+			
+			result = mDb.update(table, values, whereClause, null);
 		} else {	
 			result = (int) mDb.insert(table, null, values);
 		}
@@ -230,24 +198,7 @@ public class DatabaseAdapter {
 		
 		return result;
 	}
-	
-	/**
-	 * Adds a relation between two tables where not an id serves as primary but the two
-	 * foreign keys of the affected tables.
-	 * 
-	 * @param 	table		The table that holds the relation.
-	 * @param 	values		The two values to be inserted.
-	 * 
-	 * @return	The rowId of the new row on success, -1 on error.
-	 */
-	public int addRelation(String table, ContentValues values) {
-		open();
-		int result = (int) mDb.insertOrThrow(table, null, values);
-		close();
-		
-		return result;
-	}
-	
+
 	/**
 	 * Delete one object or a set of objects from a specific table.
 	 * 
@@ -256,10 +207,10 @@ public class DatabaseAdapter {
 	 * @return	Number of affected rows.
 	 */
 	public int delete(String table, Where where) {
-		open();
-		int result = mDb.delete(table, where.toString(), null);
+		open();	
+		int affectedRows = mDb.delete(table, where.toString().replace(" WHERE ", ""), null);
 		close();
 		
-		return result;
+		return affectedRows;
 	}
 }
