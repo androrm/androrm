@@ -228,7 +228,44 @@ public class QueryBuilder {
 		joinParams.put("onRight", Model.getTableName(target));
 	}
 	
-	// TODO: unwrap one 2 many
+	private static final <T extends Model> void unwrapOneToManyField(Map<String, String> joinParams, 
+			String fieldName,
+			Class<T> clazz,
+			Relation r) {
+		
+		Class<? extends Model> target = r.getTarget();
+		
+		/*
+		 * One to Many fields have no field representation in their origin 
+		 * class. Therefore we must determine the target class for the join.
+		 */
+		String leftTable = Model.getTableName(target);
+		joinParams.put("leftTable", leftTable);
+		
+		/*
+		 * On the target class we select the field pointing back to 
+		 * the origin class
+		 */
+		joinParams.put("selectField", Model.getBackLinkFieldName(target, clazz));
+		
+		/*
+		 * This field has to be selected under the alias of the origin class.
+		 */
+		joinParams.put("selectAs", Model.getTableName(clazz));
+		
+		/*
+		 * We have to join over the primary key of the target class,
+		 * as this is our indirect reference
+		 */
+		joinParams.put("onLeft", PK);
+		
+		/*
+		 * Everything thereafter has to be a child of the target 
+		 * class and has to mask its select field with the alias
+		 * of the target class.
+		 */
+		joinParams.put("onRight", leftTable);
+	}
 	
 	protected static final boolean isDatabaseField(Object field) {
 		if(field != null) {
@@ -275,6 +312,47 @@ public class QueryBuilder {
 	}
 	
 	@SuppressWarnings("unchecked")
+	private static final <T extends Model> SelectStatement getRelationSelection(Relation r, Class<T> clazz, Filter filter) {
+		if(r instanceof ManyToManyField) {
+			ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) r;
+			Class<? extends Model> target = r.getTarget();
+			
+			Statement stmt = filter.getStatement();
+			stmt.setKey(Model.getTableName(target));
+			
+			Where where = new Where();
+			where.setStatement(stmt);
+			
+			SelectStatement s = new SelectStatement();
+			s.from(m.getRelationTableName())
+			 .distinct()
+			 .select(Model.getTableName(clazz))
+			 .where(where);
+			
+			return s;
+		} else if(r instanceof OneToManyField) {
+			Class<? extends Model> target = r.getTarget();
+			
+			String backLinkFieldName = Model.getBackLinkFieldName(target, clazz);
+			
+			Statement stmt = filter.getStatement();
+			stmt.setKey(backLinkFieldName);
+			
+			Where where = new Where();
+			where.setStatement(stmt);
+			
+			SelectStatement s = new SelectStatement();
+			s.from(Model.getTableName(target))
+			 .distinct()
+			 .select(backLinkFieldName + " AS " + Model.getTableName(clazz))
+			 .where(where);
+			
+			return s;
+		}	
+		
+		return null;
+	}
+	
 	public static final <T extends Model> SelectStatement buildJoin(Class<T> clazz,
 			List<String> fields, 
 			Filter filter, 
@@ -320,38 +398,12 @@ public class QueryBuilder {
 				
 				if(isDatabaseField(o)) {
 					if(fields.size() == 1) {
-						if(isRelationalField(o)) {
+						if(isRelationalField(o) 
+								&& !(o instanceof ForeignKeyField)) {
+							
 							Relation r = (Relation) o;
 							
-							if(r instanceof ManyToManyField) {
-								ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) r;
-								Class<? extends Model> target = r.getTarget();
-								
-								Statement stmt = filter.getStatement();
-								stmt.setKey(Model.getTableName(target));
-								
-								Where where = new Where();
-								where.setStatement(stmt);
-								
-								SelectStatement s = new SelectStatement();
-								s.from(m.getRelationTableName())
-								 .select(Model.getTableName(clazz))
-								 .where(where);
-								
-								return s;
-							} else {
-								// TODO: think of one 2 many
-								String tableName = Model.getTableName(clazz);
-								
-								Where where = new Where();
-								where.setStatement(filter.getStatement());
-								
-								select.from(tableName)
-									  .select(PK + " AS " + tableName)
-									  .where(where);
-								
-								return select;
-							}
+							return getRelationSelection(r, clazz, filter);
 						} else {
 							String tableName = Model.getTableName(clazz);
 							
@@ -359,6 +411,7 @@ public class QueryBuilder {
 							where.setStatement(filter.getStatement());
 							
 							select.from(tableName)
+								  .distinct()
 								  .select(PK + " AS " + tableName)
 								  .where(where);
 							
@@ -382,7 +435,7 @@ public class QueryBuilder {
 						}
 						
 						if(r instanceof OneToManyField) {
-							// TODO
+							unwrapOneToManyField(joinParams, fieldName, clazz, r);
 						}
 						
 						String leftTable = joinParams.get("leftTable");
@@ -411,6 +464,7 @@ public class QueryBuilder {
 						 * that will be needed in the next step. 
 						 */
 						select.from(join)
+							  .distinct()
 						 	  .select("table" 
 						 			  + depth 
 						 			  + "."

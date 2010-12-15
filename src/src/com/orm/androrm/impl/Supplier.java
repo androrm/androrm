@@ -13,6 +13,7 @@ public class Supplier extends Model {
 
 	protected CharField mName;
 	protected ManyToManyField<Supplier, Product> mProducts;
+	protected ManyToManyField<Supplier, Branch> mBranches;
 	
 	public static final Supplier get(Context context, int id) {
 		return get(context, Supplier.class, id);
@@ -27,6 +28,7 @@ public class Supplier extends Model {
 		
 		mName = new CharField(50);
 		mProducts = new ManyToManyField<Supplier, Product>(Supplier.class, Product.class);
+		mBranches = new ManyToManyField<Supplier, Branch>(Supplier.class, Branch.class);
 	}
 	
 	public void setName(String name) {
@@ -47,5 +49,9 @@ public class Supplier extends Model {
 	
 	public int productCount(Context context) {
 		return mProducts.count(context, this);
+	}
+	
+	public void addBranch(Branch b) {
+		mBranches.add(b);
 	}
 }
