@@ -14,6 +14,7 @@ public class AllTest extends TestSuite {
 		
 		suite.addTestSuite(ModelTest.class);
 		suite.addTestSuite(FilterTest.class);
+		suite.addTestSuite(FilterSetTest.class);
 		
 		return suite;
 	}
