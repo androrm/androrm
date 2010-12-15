@@ -3,15 +3,14 @@ package com.orm.andorm.test.implementation;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.test.AndroidTestCase;
+
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.FilterSet;
 import com.orm.androrm.Model;
-import com.orm.androrm.NoSuchFieldException;
 import com.orm.androrm.impl.Branch;
 import com.orm.androrm.impl.Product;
 import com.orm.androrm.impl.Supplier;
-
-import android.test.AndroidTestCase;
 
 public class FieldResulutionTest extends AndroidTestCase {
 
@@ -65,7 +64,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		mS1 = s1;
 	}
 	
-	public void testOneToManyResolutionOnlyField() throws NoSuchFieldException {
+	public void testOneToManyResolutionOnlyField() {
 		List<Branch> branches = new ArrayList<Branch>();
 		branches.add(mB1);
 		branches.add(mB2);
@@ -187,6 +186,45 @@ public class FieldResulutionTest extends AndroidTestCase {
 		suppliers = Supplier.filter(getContext(), filter);
 		
 		assertEquals(0, suppliers.size());
+	}
+	
+	public void testManyToManyFieldResolutionLastField() {
+		List<Supplier> suppliers = new ArrayList<Supplier>();
+		suppliers.add(mS1);
+		
+		FilterSet filter = new FilterSet();
+		filter.in("mBranches__mSuppliers", suppliers);
+		
+		List<Product> products = Product.filter(getContext(), filter);
+		
+		assertEquals(1, products.size());
+		assertTrue(products.contains(mP1));
+		
+		suppliers.clear();
+		
+		filter = new FilterSet();
+		filter.in("mBranches__mSuppliers", suppliers);
+		
+		products = Product.filter(getContext(), filter);
+		
+		assertEquals(0, products.size());
+	}
+	
+	public void testManyToManyFieldResolutionInBetween() {
+		FilterSet filter = new FilterSet();
+		filter.is("mBranches__mSuppliers__mName", "ACME");
+		
+		List<Product> products = Product.filter(getContext(), filter);
+		
+		assertEquals(1, products.size());
+		assertTrue(products.contains(mP1));
+		
+		filter = new FilterSet();
+		filter.is("mBranches__mSuppliers__mName", "fail");
+		
+		products = Product.filter(getContext(), filter);
+		
+		assertEquals(0, products.size());
 	}
 	
 	@Override
