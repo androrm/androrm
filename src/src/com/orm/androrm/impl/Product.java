@@ -7,7 +7,6 @@ import android.content.Context;
 import com.orm.androrm.CharField;
 import com.orm.androrm.FilterSet;
 import com.orm.androrm.Model;
-import com.orm.androrm.NoSuchFieldException;
 import com.orm.androrm.OneToManyField;
 
 public class Product extends Model {
@@ -17,8 +16,7 @@ public class Product extends Model {
 	}
 	
 	public static final List<Product> filter(Context context, 
-			FilterSet filter) 
-	throws NoSuchFieldException {
+			FilterSet filter) {
 		
 		return filter(context, Product.class, filter);
 	}

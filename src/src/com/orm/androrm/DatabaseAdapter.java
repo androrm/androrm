@@ -29,7 +29,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 /**
  * This class provides access to the underlying SQLite database. The keys defined here
@@ -39,10 +38,6 @@ import android.util.Log;
  */
 public class DatabaseAdapter {
 	
-	/**
-	 * Tag that can be used for logging.
-	 */
-	private static final String TAG = "ANDRORM:ADAPTER";
 	private static String DATABASE_NAME;
 	
 	public static final void setDatabaseName(String name) {
@@ -67,6 +62,8 @@ public class DatabaseAdapter {
 		open();
 		
 		mDbHelper.setModels(mDb, models);
+		
+		close();
 	}
 	
 	/**
@@ -99,8 +96,6 @@ public class DatabaseAdapter {
 	 */
 	public void drop() {
 		open();
-		
-		Log.d(TAG, "attempting to drop the database");
 		
 		mDbHelper.drop(mDb);		
 		mDbHelper.onCreate(mDb);
@@ -189,16 +184,6 @@ public class DatabaseAdapter {
 		return result;
 	}
 	
-	public int doInsert(String table, ContentValues values) {
-		int result; 
-		
-		open();
-		result = (int) mDb.insert(table, null, values);
-		close();
-		
-		return result;
-	}
-
 	/**
 	 * Delete one object or a set of objects from a specific table.
 	 * 

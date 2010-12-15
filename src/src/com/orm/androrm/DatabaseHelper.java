@@ -66,7 +66,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		super(context, dbName, null, DATABASE_VERSION);
 	}
 	
-	public void setModels(SQLiteDatabase db, List<Class<? extends Model>> models) {
+	protected void setModels(SQLiteDatabase db, List<Class<? extends Model>> models) {
 		mModels = new HashSet<Class<? extends Model>>();
 		mModels.addAll(models);
 		
@@ -89,7 +89,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * Drops all tables of the database.
 	 * @param db {@link SQLiteDatabase}.
 	 */
-	public void drop(SQLiteDatabase db) {
+	protected void drop(SQLiteDatabase db) {
 		for(String table: getTables()) {
 			db.execSQL("DROP TABLE IF EXISTS " + table);
 		}
