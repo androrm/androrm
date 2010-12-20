@@ -78,6 +78,11 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 		
 		return mValue;
 	}
+
+	public void release() {
+		mValue = null;
+		mReference = 0;
+	}
 	
 	public void set(int id) {
 		mReference = id;

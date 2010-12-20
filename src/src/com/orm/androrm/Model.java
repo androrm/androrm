@@ -685,7 +685,11 @@ public abstract class Model {
 			DatabaseAdapter adapter = new DatabaseAdapter(context);
 			int affectedRows = adapter.delete(getTableName(getClass()), where);
 			
-			return affectedRows != 0;
+			if(affectedRows != 0) {
+				mId.set(0);
+				
+				return true;
+			}
 		}
 		
 		return false;

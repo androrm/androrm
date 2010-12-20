@@ -68,7 +68,7 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 			FilterSet filter = new FilterSet();
 			filter.is(fieldName, l);
 			
-			List<R> result = Model.filter(context, mTargetClass, filter);
+			List<R> result = Model.filter(context, mTargetClass, filter, limit);
 			
 			mValues.addAll(result);
 		}
