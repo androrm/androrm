@@ -25,17 +25,29 @@ package com.orm.androrm;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-
 /**
+ * This is the database field for {@link Double} values. 
+ * 
  * @author Philipp Giese
- *
  */
 public class DoubleField extends DataField<Double> {
 
+	/**
+	 * Initializes a standard double field without
+	 * restrictions. The maximum length of double 
+	 * values is 16.
+	 */
 	public DoubleField() {
 		setUp();
 	}
 	
+	/**
+	 * Initializes the field and sets the maximum length
+	 * to the given value, if this value is greater than
+	 * 0 and less then or equal to 16.
+	 * 
+	 * @param maxLength
+	 */
 	public DoubleField(int maxLength) {
 		setUp();
 		

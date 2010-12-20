@@ -32,17 +32,33 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 /**
- * 
+ * This class represents a {@link Date} field. 
  * 
  * @author Philipp Giese
  */
 public class DateField extends DataField<Date> {
 
+	/**
+	 * Initializes this field. Note, that dates will be
+	 * stored as strings into the database. Therefore
+	 * the database type of this field is <b>varchar</b>
+	 * and it's length is set to 19 characters, as this
+	 * is the exact length of the date string.
+	 */
 	public DateField() {
 		mType = "varchar";
 		mMaxLength = 19;
 	}
 	
+	/**
+	 * Creates the string representation of the date
+	 * {@link DataField#mValue} is currently set to. 
+	 * <br /><br />
+	 * Format of that string is:<br />
+	 * YYYY-MM-DDTHH:MM:SS
+	 * 
+	 * @return	String representation of {@link DataField#mValue}.
+	 */
 	public String getDateString() {
 		if(mValue != null) {
 			Calendar cal = Calendar.getInstance();
@@ -69,6 +85,12 @@ public class DateField extends DataField<Date> {
 		return null;
 	}
 	
+	/**
+	 * Constructs a {@link Date} object from the given string. <br />
+	 * The String must be in the format: YYYY-MM-DDTHH:MM:SS.
+	 * 
+	 * @param date	String representing the date.
+	 */
 	public void fromString(String date) {
 		Pattern pattern = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})");
 		

@@ -22,15 +22,28 @@
  */
 package com.orm.androrm;
 
-
 /**
+ * A {@link Filter} is used by {@link FilterSet Filter Sets}
+ * to create complex queries on the database. Each filter consists
+ * of a certain key leading to the field is applied to and 
+ * the {@link Statement}, that will be used for the query. 
+ * 
  * @author Philipp Giese
  */
 public class Filter {
-	
+
+	/**
+	 * The key leads to the field this filter
+	 * is applied on. This can be the plain name
+	 * of a field like "mName" or a series of 
+	 * field names like "mSupplier__mBranches__mName".
+	 */
 	private String mKey; 
+	/**
+	 * The statement of a field is only valid for the
+	 * last field name in {@link Filter#mKey}. 
+	 */
 	private Statement mStatement;
-	
 	
 	public Filter(String key, Statement statement) {
 		mKey = key;
