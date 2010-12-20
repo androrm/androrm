@@ -8,7 +8,6 @@ import android.test.AndroidTestCase;
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.ForeignKeyField;
 import com.orm.androrm.Model;
-import com.orm.androrm.QueryBuilder;
 import com.orm.androrm.impl.Branch;
 import com.orm.androrm.impl.Product;
 
@@ -34,7 +33,7 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 		assertEquals("FOREIGN KEY (product_id) REFERENCES " 
 					+ targetTable 
 					+ " (" 
-					+ QueryBuilder.PK 
+					+ Model.PK 
 					+ ") ON DELETE CASCADE", fk.getConstraint("product_id"));
 		
 		assertNull(fk.get(getContext()));

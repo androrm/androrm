@@ -52,6 +52,19 @@ public class ModelTest extends AndroidTestCase {
 		assertTrue(m.save(getContext()));
 	}
 	
+	public void testDelete() {
+		Model m = new BlankModel();
+		
+		assertFalse(m.delete(getContext()));
+		
+		m.save(getContext());
+		
+		int id = m.getId();
+		
+		assertTrue(m.delete(getContext()));
+		assertNull(Model.get(getContext(), BlankModel.class, id));
+	}
+	
 	public void testEquals() {
 		BlankModel m = new BlankModel();
 		m.setName("test");
