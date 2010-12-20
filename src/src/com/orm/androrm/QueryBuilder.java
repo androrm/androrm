@@ -39,8 +39,6 @@ public class QueryBuilder {
 	
 	private static final String TAG = "ANDRORM:QUERY:BUILDER";
 	
-	public static final String PK = "mId";
-	
 	public static final <T extends Model> SelectStatement buildQuery(Class<T> clazz, 
 			List<Filter> filters,
 			int depth) 
@@ -116,7 +114,7 @@ public class QueryBuilder {
 						fields, 
 						filter, 
 						depth), "outer" + right)
-				.on(PK, tableName);
+				.on(Model.PK, tableName);
 			
 			subSelect.from(join)
 				  	 .select("outer" + left + ".*");
@@ -127,7 +125,7 @@ public class QueryBuilder {
 		}
 		
 		selfJoin.right(subSelect, "self" + (depth + 1))
-				.on(PK, PK);
+				.on(Model.PK, Model.PK);
 		
 		JoinStatement outerSelfJoin = new JoinStatement();
 		outerSelfJoin.left(subSelect, "outerSelf" + depth)
@@ -136,7 +134,7 @@ public class QueryBuilder {
 									 filters.size()), 
 							 (depth + 2)), 
 							 "outerSelf" + (depth + 1))
-					 .on(PK, PK);
+					 .on(Model.PK, Model.PK);
 		
 		SelectStatement select = new SelectStatement();
 		select.from(outerSelfJoin)
@@ -177,23 +175,13 @@ public class QueryBuilder {
 		 * Field of the left table that will be considered 
 		 * during the join. 
 		 */
-		String onLeft = Model.getTableName(target);
 		joinParams.put("onLeft", Model.getTableName(target));
-		/*
-		 * Field of the right table that will be matched 
-		 * against the field of the left table during the join.
-		 */
-		joinParams.put("onRight", onLeft);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private static final <T extends Model> void unwrapForeignKeyRelation(Map<String, String> joinParams,
 			String fieldName,
 			Class<T> clazz,
 			Relation r) {
-		
-		ForeignKeyField<? extends Model> f = (ForeignKeyField<? extends Model>) r;
-		Class<? extends Model> target = f.getTarget();
 		
 		/*
 		 * As ForeignKeyFields are real fields in the
@@ -202,13 +190,13 @@ public class QueryBuilder {
 		 * we are currently examining.
 		 */
 		String leftTable = Model.getTableName(clazz);
-		joinParams.put("leftTable", Model.getTableName(clazz));
+		joinParams.put("leftTable", leftTable);
 		/*
 		 * As we do not operate on a relation table
 		 * we need to select the id field of our 
 		 * current table. 
 		 */
-		joinParams.put("selectField", PK);
+		joinParams.put("selectField", Model.PK);
 		/*
 		 * In order to work along with ManyToManyFields
 		 * we select the Id field as the table name
@@ -221,11 +209,6 @@ public class QueryBuilder {
 		 * during the join.
 		 */
 		joinParams.put("onLeft", fieldName);
-		/*
-		 * Field of the right table, that will be matched
-		 * against the field of the left table during the join.
-		 */
-		joinParams.put("onRight", Model.getTableName(target));
 	}
 	
 	private static final <T extends Model> void unwrapOneToManyField(Map<String, String> joinParams, 
@@ -239,8 +222,7 @@ public class QueryBuilder {
 		 * One to Many fields have no field representation in their origin 
 		 * class. Therefore we must determine the target class for the join.
 		 */
-		String leftTable = Model.getTableName(target);
-		joinParams.put("leftTable", leftTable);
+		joinParams.put("leftTable", Model.getTableName(target));
 		
 		/*
 		 * On the target class we select the field pointing back to 
@@ -257,14 +239,7 @@ public class QueryBuilder {
 		 * We have to join over the primary key of the target class,
 		 * as this is our indirect reference
 		 */
-		joinParams.put("onLeft", PK);
-		
-		/*
-		 * Everything thereafter has to be a child of the target 
-		 * class and has to mask its select field with the alias
-		 * of the target class.
-		 */
-		joinParams.put("onRight", leftTable);
+		joinParams.put("onLeft", Model.PK);
 	}
 	
 	protected static final boolean isDatabaseField(Object field) {
@@ -412,7 +387,7 @@ public class QueryBuilder {
 							
 							select.from(tableName)
 								  .distinct()
-								  .select(PK + " AS " + tableName)
+								  .select(Model.PK + " AS " + tableName)
 								  .where(where);
 							
 							return select;
@@ -442,7 +417,7 @@ public class QueryBuilder {
 						String selectField = joinParams.get("selectField");
 						String selectAs = joinParams.get("selectAs");
 						String onLeft = joinParams.get("onLeft");
-						String onRight = joinParams.get("onRight");
+						String onRight = Model.getTableName(target);
 						
 						/*
 						 * After the steps above the left side of the join is always known. 

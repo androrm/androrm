@@ -41,7 +41,7 @@ public abstract class Model {
 	
 	private static final String TAG = "ANDRORM:MODEL";
 	
-	protected static final String PK = "mId";
+	public static final String PK = "mId";
 	
 	private static final String COUNT = "count";
 	
@@ -511,7 +511,7 @@ public abstract class Model {
 	}
 	
 	protected PrimaryKeyField mId;
-	
+
 	public Model() {
 		mId = new PrimaryKeyField(true);
 	}
