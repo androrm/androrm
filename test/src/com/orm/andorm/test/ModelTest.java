@@ -63,6 +63,7 @@ public class ModelTest extends AndroidTestCase {
 		
 		assertTrue(m.delete(getContext()));
 		assertNull(Model.get(getContext(), BlankModel.class, id));
+		assertEquals(0, m.getId());
 	}
 	
 	public void testEquals() {

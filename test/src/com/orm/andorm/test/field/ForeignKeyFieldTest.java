@@ -75,6 +75,24 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 		assertEquals(p.getName(), fk.get(getContext()).getName());
 	}
 	
+	public void testRelease() {
+		Product p = new Product();
+		p.setName("test product");
+		p.save(getContext());
+		
+		ForeignKeyField<Product> fk = new ForeignKeyField<Product>(Product.class);
+		
+		fk.set(p);
+		fk.release();
+		
+		assertNull(fk.get(getContext()));
+		
+		fk.set(p.getId());
+		fk.release();
+		
+		assertNull(fk.get(getContext()));
+	}
+	
 	@Override
 	public void tearDown() {
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
