@@ -23,10 +23,25 @@
 package com.orm.androrm;
 
 /**
+ * This class represents an AND statement. The characteristics of this
+ * statement are, that it's left and right side are also statements, 
+ * that are separated by the word AND.
+ * 
  * @author Philipp Giese
  */
 public class AndStatement extends ComposedStatement{
 	
+	/**
+	 * This constructor is only a convenience constructor. 
+	 * It will construct a basic statement with key and value 
+	 * but <b>NOT</b> an actual AND statement.
+	 * <br /><br />
+	 * Usage is discouraged. 
+	 * @param key	Key for the statement.
+	 * @param value	Value of the statement.
+	 * 
+	 * @deprecated
+	 */
 	public AndStatement(String key, String value) {
 		super(key, value);
 	}

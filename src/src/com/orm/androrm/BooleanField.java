@@ -26,8 +26,14 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 /**
+ * This class can be used if a boolean field is needed in a
+ * model class. Boolean fields can only have the value 
+ * <code>true</code> or <code>false</code>. 
+ * <br /><br />
+ * In the database this field is represented through an 
+ * integer fields with the length 1. 
+ * 
  * @author Philipp Giese
- *
  */
 public class BooleanField extends DataField<Boolean>{
 

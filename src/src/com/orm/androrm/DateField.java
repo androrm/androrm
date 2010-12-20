@@ -32,8 +32,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 /**
+ * 
+ * 
  * @author Philipp Giese
- *
  */
 public class DateField extends DataField<Date> {
 

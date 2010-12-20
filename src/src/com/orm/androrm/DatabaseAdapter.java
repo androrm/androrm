@@ -31,15 +31,23 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
- * This class provides access to the underlying SQLite database. The keys defined here
- * are to be used throughout the application for reasons of consistency.
+ * This class provides access to the underlying SQLite database. 
  * 
  * @author Philipp Giese
  */
 public class DatabaseAdapter {
 	
-	private static String DATABASE_NAME;
+	/**
+	 * Name that will be used for the database. Defaults
+	 * to "my_database".
+	 */
+	private static String DATABASE_NAME = "my_database";
 	
+	/**
+	 * Set the name, that will be used for the database.
+	 * 
+	 * @param name	Name of the database.
+	 */
 	public static final void setDatabaseName(String name) {
 		DATABASE_NAME = name;
 	}
@@ -58,6 +66,12 @@ public class DatabaseAdapter {
 		mDbHelper = new DatabaseHelper(context, DATABASE_NAME);
 	}
 	
+	/**
+	 * Registers all models, that will then be handled by the
+	 * ORM. 
+	 * 
+	 * @param models	{@link List} of classes inheriting from {@link Model}.
+	 */
 	public void setModels(List<Class<? extends Model>> models) {
 		open();
 		

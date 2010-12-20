@@ -22,12 +22,29 @@
  */
 package com.orm.androrm;
 
-
-
+/**
+ * This class is the superclass for all database fields,
+ * that need a real field in the database. This for example 
+ * is a {@link IntegerField} field, but not a {@link OneToManyField}. 
+ * 
+ * @author Philipp Giese
+ *
+ * @param <T>	The Java data type this field represents. 
+ */
 public abstract class DataField<T> implements DatabaseField<T> {
 	
+	/**
+	 * Type descriptor of this field used for the 
+	 * database definition.
+	 */
 	protected String mType;
+	/**
+	 * Value of that field. 
+	 */
 	protected T mValue;
+	/**
+	 * Maximum length of that field.
+	 */
 	protected int mMaxLength;
 	
 	@Override

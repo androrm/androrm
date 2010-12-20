@@ -32,20 +32,37 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
- * Class to open up a database Connection. 
+ * Class to open up a database connection. 
+ * 
  * @author Philipp Giese
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
+	/**
+	 * Tag for logging.
+	 */
 	private static final String TAG = "ANDRORM:DB:HELPER";
 	/**
 	 * Version of the database.
 	 */
 	private static final int DATABASE_VERSION = 1;
-	
+	/**
+	 * {@link Set} containing names of all tables, that were
+	 * created by this class.
+	 */
 	private static Set<String> mTables;
+	/**
+	 * {@link Set} containing all classes, that are handled
+	 * by the ORM.
+	 */
 	private static Set<Class<? extends Model>> mModels;
 	
+	/**
+	 * Get a {@link Set} of all tables, that were created
+	 * by this class.
+	 * 
+	 * @return {@link Set} of tablenames.
+	 */
 	private static final Set<String> getTables() {
 		if(mTables == null) {
 			mTables = new HashSet<String>();
@@ -54,6 +71,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return mTables;
 	}
 	
+	/**
+	 * Get a {@link Set} of model classes, that are handled by 
+	 * the ORM. 
+	 * 
+	 * @return {@link Set} of model classes.
+	 */
 	private static final Set<Class<? extends Model>> getModels() {
 		if(mModels == null) {
 			mModels = new HashSet<Class<? extends Model>>();
@@ -66,6 +89,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		super(context, dbName, null, DATABASE_VERSION);
 	}
 	
+	/**
+	 * Registers all given models with the ORM and triggers {@link DatabaseHelper#onCreate(SQLiteDatabase)}
+	 * to create the database. 
+	 * 
+	 * @param db		{@link SQLiteDatabase Database} instance. 
+	 * @param models	{@link List} of classes inheriting from {@link Model}. 
+	 */
 	protected void setModels(SQLiteDatabase db, List<Class<? extends Model>> models) {
 		mModels = new HashSet<Class<? extends Model>>();
 		mModels.addAll(models);

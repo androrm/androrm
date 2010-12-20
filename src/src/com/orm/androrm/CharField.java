@@ -25,13 +25,30 @@ package com.orm.androrm;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-
+/**
+ * This class can be used for any fields containing 
+ * strings, that will then be serialized into the
+ * database.
+ *  
+ * @author Philipp Giese
+ */
 public class CharField extends DataField<String> {
 
+	/**
+	 * Initializes a standard field with implicit 
+	 * maximum length of 255 characters.
+	 */
 	public CharField() {
 		mType = "varchar";
 	}
 	
+	/**
+	 * Initializes a field and sets the maximum length,
+	 * if this value is greater than 0 and less than or equal
+	 * to 255.
+	 * 
+	 * @param maxLength	Maximum number of characters allowed for this field.
+	 */
 	public CharField(int maxLength) {
 		mType = "varchar";
 		
