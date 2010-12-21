@@ -32,9 +32,8 @@ import android.content.Context;
 
 /**
  * @author Philipp Giese
- *
  */
-public class OneToManyField<L extends Model, R extends Model> implements XToManyRelation<L> {
+public class OneToManyField<L extends Model, R extends Model> implements XToManyRelation<L, R> {
 
 	private Set<R> mValues;
 	private Class<R> mTargetClass;
@@ -51,16 +50,19 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 		return mTargetClass;
 	}
 	
-	public void add(L origin, R value) {
+	@Override
+	public void add(R value) {
 		mValues.add(value);
 	}
 	
-	public void addAll(L origin, Collection<R> values) {
+	@Override
+	public void addAll(Collection<R> values) {
 		for(R value: values) {
-			add(origin, value);
+			add(value);
 		}
 	}
 	
+	@Override
 	public List<R> get(Context context, L l, Limit limit) {
 		if(mValues.isEmpty()) {
 			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
@@ -76,6 +78,7 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 		return new ArrayList<R>(mValues);
 	}
 
+	@Override
 	public List<R> get(Context context, L l) {
 		return get(context, l, null);
 	}

@@ -40,11 +40,11 @@ public class Product extends Model {
 	}
 	
 	public void addBranch(Branch branch) {
-		mBranches.add(this, branch);
+		mBranches.add(branch);
 	}
 	
 	public void addBranches(List<Branch> branches) {
-		mBranches.addAll(this, branches);
+		mBranches.addAll(branches);
 	}
 	
 	public List<Branch> getBranches(Context context) {

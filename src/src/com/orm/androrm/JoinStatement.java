@@ -22,8 +22,14 @@
  */
 package com.orm.androrm;
 
-
+/**
+ * This class is the abstract representation of a JOIN
+ * statement. 
+ * 
+ * @author Philipp Giese
+ */
 public class JoinStatement {
+	
 	private SelectStatement mLeft;
 	private SelectStatement mRight;
 	private String mLeftAlias;
@@ -31,6 +37,15 @@ public class JoinStatement {
 	private String mLeftColumn;
 	private String mRightColumn;
 
+	/**
+	 * Creates the left side of the join from a subselect and 
+	 * masks it with the given alias. 
+	 * 
+	 * @param left	Left side of the join as {@link SelectStatement subselect}. 
+	 * @param as	Alias for the left side. 
+	 * 
+	 * @return	<code>this</code> for chaining.
+	 */
 	public JoinStatement left(SelectStatement left, String as) {
 		mLeft = left;
 		mLeftAlias = as;
@@ -38,6 +53,15 @@ public class JoinStatement {
 		return this;
 	}
 	
+	/**
+	 * Sets the given table as the left side of the join and
+	 * masks it with the given alias. 
+	 * 
+	 * @param tableName	Table name.
+	 * @param as		Alias.
+	 * 
+	 * @return <code>this</code> for chaining.
+	 */
 	public JoinStatement left(String tableName, String as) {
 		SelectStatement select = new SelectStatement();
 		select.from(tableName);
@@ -45,6 +69,15 @@ public class JoinStatement {
 		return left(select, as);
 	}
 	
+	/**
+	 * Creates the right side of the join from a subselect and 
+	 * masks it with the given alias. 
+	 * 
+	 * @param right	Right side of the join as {@link SelectStatement subselect}. 
+	 * @param as	Alias for the right side. 
+	 * 
+	 * @return	<code>this</code> for chaining.
+	 */
 	public JoinStatement right(SelectStatement right, String as) {
 		mRight = right;
 		mRightAlias = as;
@@ -52,6 +85,15 @@ public class JoinStatement {
 		return this;
 	}
 	
+	/**
+	 * Sets the given table as the right side of the join and
+	 * masks it with the given alias. 
+	 * 
+	 * @param tableName	Table name.
+	 * @param as		Alias.
+	 * 
+	 * @return <code>this</code> for chaining.
+	 */
 	public JoinStatement right(String tableName, String as) {
 		SelectStatement select = new SelectStatement();
 		select.from(tableName);
@@ -59,6 +101,14 @@ public class JoinStatement {
 		return right(select, as);
 	}
 	
+	/**
+	 * Defines on which columns this join should happen. 
+	 * 
+	 * @param leftColum		Name of the column in the left table.
+	 * @param rightColumn	Name of the column in the right table.
+	 * 
+	 * @return <code>this</code> for chaining.
+	 */
 	public JoinStatement on(String leftColum, String rightColumn) {
 		mLeftColumn = leftColum;
 		mRightColumn = rightColumn;
@@ -67,7 +117,6 @@ public class JoinStatement {
 	}
 	
 	private String buildStatement(int counter) {
-		
 		String join = "(" +
 				mLeft.toString() + 
 			") AS " + mLeftAlias + 
@@ -83,6 +132,7 @@ public class JoinStatement {
 				
 	}
 	
+	@Override
 	public String toString() {
 		return buildStatement(0);
 	}

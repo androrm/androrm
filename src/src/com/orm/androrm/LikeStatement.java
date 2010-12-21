@@ -23,6 +23,14 @@
 package com.orm.androrm;
 
 /**
+ * This class can be used to create LIKE statement
+ * for queries on the database. 
+ * <br /><br />
+ * Example: <br />
+ * <pre>
+ * SELECT * FROM table WHERE name LIKE '%foo%'
+ * </pre>
+ * 
  * @author Philipp Giese
  */
 public class LikeStatement extends Statement {

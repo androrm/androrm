@@ -24,6 +24,7 @@ package com.orm.androrm;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,13 +35,19 @@ import android.util.Log;
 
 
 /**
+ * This is the superclass of all models, that can be stored/ read
+ * to/ from the database automatically. 
+ * 
  * @author Philipp Giese
- *
  */
 public abstract class Model {
 	
 	private static final String TAG = "ANDRORM:MODEL";
 	
+	/**
+	 * Name used for the primary key field, that is
+	 * automatically assigned to each model. 
+	 */
 	public static final String PK = "mId";
 	
 	private static final String COUNT = "count";
@@ -79,6 +86,22 @@ public abstract class Model {
 		}
 	}
 	
+	/**
+	 * Retrieves all fields of a given class, that are
+	 * <ol>
+	 * 	<li><b>NOT</b> private</li>
+	 * 	<li>Database fields</li>
+	 * </ol>
+	 * In addition these fields are set to be accessible, so
+	 * that they can then be further processed. 
+	 * 
+	 * @param <T>
+	 * @param clazz		Class to extract the fields from. 
+	 * @param instance	Instance of that class. 
+	 * 
+	 * @return {@link List} of all fields, that are database fields, 
+	 * 		   and that are <b>NOT</b> private. 
+	 */
 	protected static final <T extends Model> List<Field> getFields(Class<T> clazz, T instance) {
 		Field[] declaredFields = clazz.getDeclaredFields();
 		List<Field> fields = new ArrayList<Field>();
@@ -86,11 +109,14 @@ public abstract class Model {
 		try {
 			for(int i = 0, length = declaredFields.length; i < length; i++) {
 				Field field = declaredFields[i];
-				field.setAccessible(true);
-				Object f = field.get(instance);
 				
-				if(QueryBuilder.isDatabaseField(f)) {
-					fields.add(field);
+				if(!Modifier.isPrivate(field.getModifiers())) {
+					field.setAccessible(true);
+					Object f = field.get(instance);
+					
+					if(QueryBuilder.isDatabaseField(f)) {
+						fields.add(field);
+					}
 				}
 			}
 		} catch (IllegalAccessException e) {
@@ -99,6 +125,25 @@ public abstract class Model {
 		}
 		
 		return fields;
+	}
+	
+	protected static final <T extends Model> Field getField(Class<T> clazz, T instance, String fieldName) {
+		Field field = null;
+		
+		if(clazz != null) {
+			for(Field f: getFields(clazz, instance)) {
+				if(f.getName().equals(fieldName)) {
+					field = f;
+					break;
+				}
+			}
+			
+			if(field == null) {
+				field = getField(getSuperclass(clazz), instance, fieldName);
+			}
+		}
+		
+		return field;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -321,24 +366,25 @@ public abstract class Model {
 	protected static final<T extends Model> List<TableDefinition> getTableDefinitions(Class<T> clazz) {
 		List<TableDefinition> definitions = new ArrayList<TableDefinition>();
 		
-		// TODO: only create table definition, if class is not abstract.
-		try {
-			Constructor<T> constructor = clazz.getConstructor();
-			T object = constructor.newInstance();
-			
-			TableDefinition definition = new TableDefinition(getTableName(clazz));
-			
-			getFieldDefinitions(object, clazz, definition);
-			
-			definitions.add(definition);
-			
-			for(Class<? extends Model> c: definition.getRelationalClasses()) {
-				definitions.addAll(getRelationDefinitions(c));
+		if(!Modifier.isAbstract(clazz.getModifiers())) {
+			try {
+				Constructor<T> constructor = clazz.getConstructor();
+				T object = constructor.newInstance();
+				
+				TableDefinition definition = new TableDefinition(getTableName(clazz));
+				
+				getFieldDefinitions(object, clazz, definition);
+				
+				definitions.add(definition);
+				
+				for(Class<? extends Model> c: definition.getRelationalClasses()) {
+					definitions.addAll(getRelationDefinitions(c));
+				}
+				
+				return definitions;
+			} catch(Exception e) {
+				Log.e(TAG, "an exception has been thrown while gathering the database structure information.", e);
 			}
-			
-			return definitions;
-		} catch(Exception e) {
-			Log.e(TAG, "an exception has been thrown while gathering the database structure information.", e);
 		}
 		
 		return null;
@@ -513,7 +559,7 @@ public abstract class Model {
 	protected PrimaryKeyField mId;
 
 	public Model() {
-		mId = new PrimaryKeyField(true);
+		mId = new PrimaryKeyField();
 	}
 	
 	public Model(boolean suppressAutoincrement) {
@@ -702,6 +748,12 @@ public abstract class Model {
 	private class PrimaryKeyField extends IntegerField {
 		
 		private boolean mAutoIncrement;
+		
+		public PrimaryKeyField() {
+			super();
+			
+			mAutoIncrement = true;
+		}
 		
 		public PrimaryKeyField(boolean autoincrement) {
 			super();

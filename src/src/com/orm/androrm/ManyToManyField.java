@@ -31,9 +31,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
-
-
-public class ManyToManyField<L extends Model, R extends Model> implements XToManyRelation<L> {
+/**
+ * @author Philipp Giese
+ *
+ * @param <L>	Type of the origin class.
+ * @param <R>	Type of the target class.
+ */
+public class ManyToManyField<L extends Model, 
+							 R extends Model> 
+implements XToManyRelation<L, R> {
 
 	private static final String TAG = "ANDRORM:M2M";
 	
@@ -77,13 +83,15 @@ public class ManyToManyField<L extends Model, R extends Model> implements XToMan
 	public String getRelationTableName() {
 		return mTableName;
 	}
-
+	
+	@Override
 	public void add(R value) {
 		if(value != null) {
 			mValues.add(value);
 		}
 	}
 	
+	@Override
 	public void addAll(Collection<R> values) {
 		if(values != null) {
 			mValues.addAll(values);
@@ -154,10 +162,12 @@ public class ManyToManyField<L extends Model, R extends Model> implements XToMan
 		return values;
 	}
 	
+	@Override
 	public List<R> get(Context context, L l) {
 		return get(context, l, null);
 	}
 	
+	@Override
 	public List<R> get(Context context, L l, Limit limit) {
 		if(mValues.isEmpty()) {
 			SelectStatement select = getQuery(l.getId(), limit);

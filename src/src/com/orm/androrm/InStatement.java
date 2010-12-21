@@ -25,8 +25,15 @@ package com.orm.androrm;
 import java.util.List;
 
 /**
+ * This class can be used to create an IN statement
+ * for database queries. 
+ * <br /><br />
+ * Example: <br />
+ * <pre>
+ * SELECT * FROM table WHERE id IN (1,3,5)
+ * </pre>
+ * 
  * @author Philipp Giese
- *
  */
 public class InStatement extends Statement {
 

@@ -25,14 +25,30 @@ package com.orm.androrm;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-
+/**
+ * Use this class if you want to represent an 
+ * integer field in the database. 
+ * 
+ * @author Philipp Giese
+ */
 public class IntegerField extends DataField<Integer> {
 
+	/**
+	 * Initializes a new {@link IntegerField} with default 
+	 * value 0.
+	 */
 	public IntegerField() {
 		mType = "integer";
 		mValue = 0;
 	}
 	
+	/**
+	 * Initializes a new {@link IntegerField} with default 
+	 * value 0 and sets the maximum length to maxLength if
+	 * it is greater than 0 and less than or equal to 16.
+	 * 
+	 * @param maxLength	Maximum length of this field. 
+	 */
 	public IntegerField(int maxLength) {
 		mType = "integer";
 		

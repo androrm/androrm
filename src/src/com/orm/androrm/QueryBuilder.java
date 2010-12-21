@@ -70,7 +70,7 @@ public class QueryBuilder {
 			}
 			
 			if(instance != null) {
-				Field field = getField(clazz, instance, fieldName);
+				Field field = Model.getField(clazz, instance, fieldName);
 				
 				if(field != null) {
 					Object o = null;
@@ -267,25 +267,6 @@ public class QueryBuilder {
 		return false;
 	}
 	
-	private static final <T extends Model> Field getField(Class<T> clazz, T instance, String fieldName) {
-		Field field = null;
-		
-		if(clazz != null) {
-			for(Field f: Model.getFields(clazz, instance)) {
-				if(f.getName().equals(fieldName)) {
-					field = f;
-					break;
-				}
-			}
-			
-			if(field == null) {
-				field = getField(Model.getSuperclass(clazz), instance, fieldName);
-			}
-		}
-		
-		return field;
-	}
-	
 	@SuppressWarnings("unchecked")
 	private static final <T extends Model> SelectStatement getRelationSelection(Relation r, Class<T> clazz, Filter filter) {
 		if(r instanceof ManyToManyField) {
@@ -350,7 +331,7 @@ public class QueryBuilder {
 		
 		if(instance != null) {
 		
-			Field field = getField(clazz, instance, fieldName);
+			Field field = Model.getField(clazz, instance, fieldName);
 			
 			if(field == null) {
 				throw new NoSuchFieldException("Could not resolve " 

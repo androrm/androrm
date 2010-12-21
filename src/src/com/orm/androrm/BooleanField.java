@@ -38,19 +38,14 @@ import android.database.Cursor;
 public class BooleanField extends DataField<Boolean>{
 
 	public BooleanField() {
-		mType = "integer";
+		setUp();
+		
 		mValue = false;
-		mMaxLength = 1;
 	}
 	
-	@Override
-	public String getDefinition(String fieldName) {
-		return fieldName 
-			+ " " 
-			+ mType 
-			+ "(" 
-			+ mMaxLength 
-			+ ")";
+	private void setUp() {
+		mType = "integer";
+		mMaxLength = 1;
 	}
 
 	@Override
