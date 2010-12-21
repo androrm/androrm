@@ -173,19 +173,31 @@ public abstract class Model {
 		}
 	}
 	
-	protected static final <T extends Model> T createObject(Class<T> clazz,
-			Cursor c) {
-		
-		T object = null;
+	protected static final <T extends Model> T getInstace(Class<T> clazz) {
+		T instance = null;
 		
 		try {
 			Constructor<T> constructor = clazz.getConstructor();
-			object = constructor.newInstance();
-			
-			fillUpData(object, clazz, c);
+			instance = constructor.newInstance();
 		} catch(Exception e) {
-			Log.e(TAG, "exception thrown while gathering representation for object of class " 
+			Log.e(TAG, "exception thrown while trying to create representation of " 
 					+ clazz.getSimpleName(), e);
+		}
+		
+		return instance;
+	}
+	
+	protected static final <T extends Model> T createObject(Class<T> clazz,
+			Cursor c) {
+		
+		T object = getInstace(clazz);
+		
+		try {
+			fillUpData(object, clazz, c);
+		} catch(IllegalAccessException e) {
+			Log.e(TAG, "exception thrown while filling instance of " 
+					+ clazz.getSimpleName()
+					+ " with data.", e);
 		}
 		
 		return object;
@@ -286,20 +298,15 @@ public abstract class Model {
 			for(Field field: getFields(clazz, instance)) {
 				String name = field.getName();
 
-				try {
-					Object o = field.get(instance);
-					
-					if(o instanceof DataField) {
-						DataField<?> fieldObject = (DataField<?>) o;
-						modelTable.addField(name, fieldObject);
-					}
-					
-					if(o instanceof ManyToManyField) {
-						modelTable.addRelationalClass(clazz);
-					}
-				} catch(IllegalAccessException e) {
-					Log.e(TAG, "could not create field definitions for class " 
-							+ clazz.getSimpleName(), e);	
+				Object o = field.get(instance);
+				
+				if(o instanceof DataField) {
+					DataField<?> fieldObject = (DataField<?>) o;
+					modelTable.addField(name, fieldObject);
+				}
+				
+				if(o instanceof ManyToManyField) {
+					modelTable.addRelationalClass(clazz);
 				}
 			}
 			
@@ -346,19 +353,8 @@ public abstract class Model {
 	private static final<T extends Model> List<TableDefinition> getRelationDefinitions(Class<T> clazz) {
 		List<TableDefinition> definitions = new ArrayList<TableDefinition>();
 		
-		T object = null;
-		
-		try {
-			Constructor<T> constructor = clazz.getConstructor();
-			object = constructor.newInstance();
-			
-			getRelationDefinitions(object, clazz, definitions);
-		} catch(Exception e) {
-			Log.e(TAG, "could not create instance of class " 
-					+ clazz.getSimpleName(), e);
-		}
-		
-		
+		T object = getInstace(clazz);
+		getRelationDefinitions(object, clazz, definitions);
 		
 		return definitions;
 	}
@@ -368,9 +364,7 @@ public abstract class Model {
 		
 		if(!Modifier.isAbstract(clazz.getModifiers())) {
 			try {
-				Constructor<T> constructor = clazz.getConstructor();
-				T object = constructor.newInstance();
-				
+				T object = getInstace(clazz);
 				TableDefinition definition = new TableDefinition(getTableName(clazz));
 				
 				getFieldDefinitions(object, clazz, definition);
@@ -382,7 +376,7 @@ public abstract class Model {
 				}
 				
 				return definitions;
-			} catch(Exception e) {
+			} catch(IllegalAccessException e) {
 				Log.e(TAG, "an exception has been thrown while gathering the database structure information.", e);
 			}
 		}
@@ -472,11 +466,8 @@ public abstract class Model {
 		Field fk = null;
 		
 		try {
-			Constructor<O> constructor = originClass.getConstructor();
-			O origin = constructor.newInstance();
-			
-			fk = getForeignKeyField(targetClass, originClass, origin);
-		}  catch (Exception e) {
+			fk = getForeignKeyField(targetClass, originClass, getInstace(originClass));
+		}  catch (IllegalAccessException e) {
 			Log.e(TAG, "an exception has been thrown trying to gather the foreign key field pointing to " 
 					+ targetClass.getSimpleName() 
 					+ " from origin class " 
@@ -569,9 +560,7 @@ public abstract class Model {
 	private boolean handledByPrimaryKey(Object field) {
 		if(field instanceof PrimaryKeyField) {
 			PrimaryKeyField pk = (PrimaryKeyField) field;
-			if(pk.isAutoincrement()) {
-				return true;
-			}
+			return pk.isAutoincrement();
 		}
 		
 		return false;
@@ -604,10 +593,13 @@ public abstract class Model {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private <T extends Model> void saveM2MToDatabase(Context context, 
 			Class<T> clazz, 
-			List<? extends Model> targets,
-			ManyToManyField<T, ?> m) {
+			Object field) {
+		
+		ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) field;
+		List<? extends Model> targets = m.get(context, (T) this);
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(context);
 		
@@ -631,6 +623,26 @@ public abstract class Model {
 	}
 	
 	@SuppressWarnings("unchecked")
+	private <O extends Model, T extends Model> void saveO2MToDatabase(Context context, 
+			Object field) 
+	throws NoSuchFieldException {
+		
+		OneToManyField<T, ?> om = (OneToManyField<T, ?>) field;
+		List<? extends Model> targets = om.get(context, (T) this);
+		
+		for(Model target: targets) {
+			/*
+			 * Only save the target, if it has already been saved once to the database.
+			 * Otherwise we could save objects, that shouldn't be saved. 
+			 */
+			if(target.getId() != 0) {
+				setBackLink((T) this, (Class<T>) getClass(), (O) target, (Class<O>) target.getClass());
+				target.save(context);
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
 	private <T extends Model, O extends Model> void persistRelations(Context context, 
 			Class<T> clazz) 
 	throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
@@ -641,22 +653,11 @@ public abstract class Model {
 				Object o = field.get(this);
 				
 				if(o instanceof ManyToManyField) {
-					ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) o;
-					List<? extends Model> targets = m.get(context, (T) this);
-					
-					saveM2MToDatabase(context, clazz, targets, m);
+					saveM2MToDatabase(context, clazz, o);
 				}
 				
 				if(o instanceof OneToManyField) {
-					OneToManyField<T, ?> om = (OneToManyField<T, ?>) o;
-					List<? extends Model> targets = om.get(context, (T) this);
-					
-					for(Model target: targets) {
-						if(target.getId() != 0) {
-							setBackLink((T) this, (Class<T>) getClass(), (O) target, (Class<O>) target.getClass());
-							target.save(context);
-						}
-					}
+					saveO2MToDatabase(context, o);
 				}
 			}
 			

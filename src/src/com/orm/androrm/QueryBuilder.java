@@ -22,7 +22,6 @@
  */
 package com.orm.androrm;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,51 +56,28 @@ public class QueryBuilder {
 		if(fields.size() == 1) {
 			String fieldName = fields.get(0);
 			
-			T instance = null;
-			
-			try {
-				Constructor<T> constructor = clazz.getConstructor();
-				instance = constructor.newInstance();
-			} catch(Exception e) {
-				Log.e(TAG, "exception thrown while trying to create representation of " 
-						+ clazz.getSimpleName() 
-						+ " and fetching field object for field " 
-						+ fieldName, e);
-			}
+			T instance = Model.getInstace(clazz);
 			
 			if(instance != null) {
-				Field field = Model.getField(clazz, instance, fieldName);
+				Object o = getFieldInstance(clazz, instance, fieldName);
 				
-				if(field != null) {
-					Object o = null;
+				if(isRelationalField(o)) {
+					// gather ids for fields
+					SelectStatement s = buildJoin(clazz, fields, filter, depth);
 					
-					try {
-						o = field.get(instance);
-					} catch(IllegalAccessException e) {
-						Log.e(TAG, "exception thrown while trying to create representation of " 
-								+ clazz.getSimpleName() 
-								+ " and fetching field object for field " 
-								+ fieldName, e);
-					}
+					JoinStatement join = new JoinStatement();
+					join.left(tableName, "a")
+						.right(s, "b")
+						.on(Model.PK, tableName);
 					
-					if(isRelationalField(o)) {
-						// gather ids for fields
-						SelectStatement s = buildJoin(clazz, fields, filter, depth);
-						
-						JoinStatement join = new JoinStatement();
-						join.left(tableName, "a")
-							.right(s, "b")
-							.on(Model.PK, tableName);
-						
-						subSelect.from(join)
-								 .select("a.*");
-					} else {
-						Where where = new Where();
-						where.setStatement(filter.getStatement());
-						
-						subSelect.from(tableName)
-							  	 .where(where);
-					}
+					subSelect.from(join)
+							 .select("a.*");
+				} else {
+					Where where = new Where();
+					where.setStatement(filter.getStatement());
+					
+					subSelect.from(tableName)
+						  	 .where(where);
 				}
 			}
 		} else {
@@ -147,10 +123,9 @@ public class QueryBuilder {
 	@SuppressWarnings("unchecked")
 	private static final <T extends Model> void unwrapManyToManyRelation(Map<String, String> joinParams, 
 			Class<T> clazz, 
-			Relation r) {
+			Relation<?> r) {
 		
-		ManyToManyField<T, ? extends Model> m = (ManyToManyField<T, ? extends Model>) r;
-		Class<? extends Model> target = m.getTarget();
+		ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) r;
 		
 		/*
 		 * As ManyToManyFields are represented in a separate
@@ -175,13 +150,13 @@ public class QueryBuilder {
 		 * Field of the left table that will be considered 
 		 * during the join. 
 		 */
-		joinParams.put("onLeft", Model.getTableName(target));
+		joinParams.put("onLeft", Model.getTableName(m.getTarget()));
 	}
 	
 	private static final <T extends Model> void unwrapForeignKeyRelation(Map<String, String> joinParams,
 			String fieldName,
 			Class<T> clazz,
-			Relation r) {
+			Relation<?> r) {
 		
 		/*
 		 * As ForeignKeyFields are real fields in the
@@ -214,7 +189,7 @@ public class QueryBuilder {
 	private static final <T extends Model> void unwrapOneToManyField(Map<String, String> joinParams, 
 			String fieldName,
 			Class<T> clazz,
-			Relation r) {
+			Relation<?> r) {
 		
 		Class<? extends Model> target = r.getTarget();
 		
@@ -268,45 +243,149 @@ public class QueryBuilder {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static final <T extends Model> SelectStatement getRelationSelection(Relation r, Class<T> clazz, Filter filter) {
+	private static final <T extends Model> SelectStatement getRelationSelection(Relation<?> r, Class<T> clazz, Filter filter) {
+		Class<? extends Model> target = r.getTarget();
+		Statement stmt = filter.getStatement();
+		Where where = new Where();
+		SelectStatement select = new SelectStatement();
+		
 		if(r instanceof ManyToManyField) {
 			ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) r;
-			Class<? extends Model> target = r.getTarget();
 			
-			Statement stmt = filter.getStatement();
 			stmt.setKey(Model.getTableName(target));
 			
-			Where where = new Where();
 			where.setStatement(stmt);
 			
-			SelectStatement s = new SelectStatement();
-			s.from(m.getRelationTableName())
-			 .distinct()
-			 .select(Model.getTableName(clazz))
-			 .where(where);
-			
-			return s;
-		} else if(r instanceof OneToManyField) {
-			Class<? extends Model> target = r.getTarget();
-			
+			select.from(m.getRelationTableName())
+			 	  .select(Model.getTableName(clazz));
+		} 
+		
+		if(r instanceof OneToManyField) {
 			String backLinkFieldName = Model.getBackLinkFieldName(target, clazz);
 			
-			Statement stmt = filter.getStatement();
 			stmt.setKey(backLinkFieldName);
 			
-			Where where = new Where();
 			where.setStatement(stmt);
 			
-			SelectStatement s = new SelectStatement();
-			s.from(Model.getTableName(target))
-			 .distinct()
-			 .select(backLinkFieldName + " AS " + Model.getTableName(clazz))
-			 .where(where);
-			
-			return s;
+			select.from(Model.getTableName(target))
+			 	  .select(backLinkFieldName + " AS " + Model.getTableName(clazz));
 		}	
 		
-		return null;
+		select.where(where)
+			  .distinct();
+		
+		return select;
+	}
+	
+	private static final <T extends Model> Object getFieldInstance(Class<T> clazz, T instance, String fieldName) {
+		Field field = Model.getField(clazz, instance, fieldName);
+		Object fieldInstance = null;
+		
+		if(field != null) {
+			try {
+				fieldInstance = field.get(instance);
+			} catch(IllegalAccessException e) {
+				Log.e(TAG, "exception thrown while trying to create representation of " 
+						+ clazz.getSimpleName() 
+						+ " and fetching field object for field " 
+						+ fieldName, e);
+			}
+		}
+		
+		return fieldInstance;
+	}
+	
+	private static final <T extends Model> SelectStatement resolveLastField(Object field, 
+			Class<T> clazz, 
+			Filter filter) {
+		
+		SelectStatement select = new SelectStatement();
+		
+		if(isRelationalField(field) 
+				&& !(field instanceof ForeignKeyField)) {
+			
+			Relation<?> r = (Relation<?>) field;
+			
+			return getRelationSelection(r, clazz, filter);
+		} 
+		
+		String tableName = Model.getTableName(clazz);
+		
+		Where where = new Where();
+		where.setStatement(filter.getStatement());
+		
+		select.from(tableName)
+			  .distinct()
+			  .select(Model.PK + " AS " + tableName)
+			  .where(where);
+		
+		return select;
+	}
+	
+	private static final <T extends Model> void unwrapRelation(Relation<?> r, 
+			String fieldName,
+			Class<T> clazz, 
+			Map<String, String> joinParams) {
+		
+		if(r instanceof ManyToManyField) {
+			unwrapManyToManyRelation(joinParams, clazz, r);
+		} else if(r instanceof ForeignKeyField) {
+			unwrapForeignKeyRelation(joinParams, fieldName, clazz, r);
+		} else if(r instanceof OneToManyField) {
+			unwrapOneToManyField(joinParams, fieldName, clazz, r);
+		}
+	}
+	
+	private static final <T extends Model> SelectStatement resolveRelationField(Object field, 
+			Class<T> clazz, 
+			List<String> fields, 
+			Filter filter,
+			int depth) 
+	throws NoSuchFieldException {
+		
+		Relation<?> r = (Relation<?>) field;
+		SelectStatement select = new SelectStatement();
+		
+		Class<? extends Model> target = r.getTarget();
+		
+		Map<String, String> joinParams = new HashMap<String, String>();
+		unwrapRelation(r, fields.get(0), clazz, joinParams);
+		
+		String leftTable = joinParams.get("leftTable");
+		String selectField = joinParams.get("selectField");
+		String selectAs = joinParams.get("selectAs");
+		String onLeft = joinParams.get("onLeft");
+		String onRight = Model.getTableName(target);
+		
+		/*
+		 * After the steps above the left side of the join is always known. 
+		 * What is currently unknown is, if there are any further sub-joins
+		 * needed in order to accomplish the query. Therefore the right side
+		 * of the join is provided with the result of this function. 
+		 */
+		JoinStatement join = new JoinStatement();
+		join.left(leftTable, "table" + depth)
+			.right(buildJoin(target, 
+					fields.subList(1, fields.size()), 
+					filter, 
+					depth + 2), 
+					"table" + (depth + 1))
+			.on(onLeft, onRight);
+		
+		/*
+		 * The select will fetch the correct field from the previous join
+		 * that will be needed in the next step. 
+		 */
+		select.from(join)
+			  .distinct()
+		 	  .select("table" 
+		 			  + depth 
+		 			  + "."
+		 			  + selectField
+		 			  + " AS "
+		 			  + selectAs);
+		
+		return select;
 	}
 	
 	public static final <T extends Model> SelectStatement buildJoin(Class<T> clazz,
@@ -314,124 +393,20 @@ public class QueryBuilder {
 			Filter filter, 
 			int depth) throws NoSuchFieldException {
 		
-		T instance = null;
-		String fieldName = fields.get(0);
-		
-		try {
-			Constructor<T> constructor = clazz.getConstructor();
-			instance = constructor.newInstance();
-		} catch(Exception e) {
-			Log.e(TAG, "exception thrown while trying to create representation of " 
-					+ clazz.getSimpleName() 
-					+ " and fetching field object for field " 
-					+ fieldName, e);
-		}
-		
-		SelectStatement select = new SelectStatement();
+		T instance = Model.getInstace(clazz);
 		
 		if(instance != null) {
-		
-			Field field = Model.getField(clazz, instance, fieldName);
+			Object fieldInstance = getFieldInstance(clazz, instance, fields.get(0));
 			
-			if(field == null) {
-				throw new NoSuchFieldException("Could not resolve " 
-						+ fieldName 
-						+ " into class "
-						+ clazz.getSimpleName()
-						+ ". Choices are: " + 
-						Model.getEligableFields(clazz, instance).toString());
-			} else {
-				Object o = null;
-				
-				try {
-					o = field.get(instance);
-				} catch(IllegalAccessException e) {
-					Log.e(TAG, "exception thrown while trying to create representation of " 
-							+ clazz.getSimpleName() 
-							+ " and fetching field object for field " 
-							+ fieldName, e);
-				}
-				
-				if(isDatabaseField(o)) {
-					if(fields.size() == 1) {
-						if(isRelationalField(o) 
-								&& !(o instanceof ForeignKeyField)) {
-							
-							Relation r = (Relation) o;
-							
-							return getRelationSelection(r, clazz, filter);
-						} else {
-							String tableName = Model.getTableName(clazz);
-							
-							Where where = new Where();
-							where.setStatement(filter.getStatement());
-							
-							select.from(tableName)
-								  .distinct()
-								  .select(Model.PK + " AS " + tableName)
-								  .where(where);
-							
-							return select;
-						}
-					} 
-					
-					if(isRelationalField(o)) {
-						Relation r = (Relation) o;
-						
-						Class<? extends Model> target = r.getTarget();
-						
-						Map<String, String> joinParams = new HashMap<String, String>();
-						
-						if(r instanceof ManyToManyField) {
-							unwrapManyToManyRelation(joinParams, clazz, r);
-						}
-						
-						if(r instanceof ForeignKeyField) {
-							unwrapForeignKeyRelation(joinParams, fieldName, clazz, r);
-						}
-						
-						if(r instanceof OneToManyField) {
-							unwrapOneToManyField(joinParams, fieldName, clazz, r);
-						}
-						
-						String leftTable = joinParams.get("leftTable");
-						String selectField = joinParams.get("selectField");
-						String selectAs = joinParams.get("selectAs");
-						String onLeft = joinParams.get("onLeft");
-						String onRight = Model.getTableName(target);
-						
-						/*
-						 * After the steps above the left side of the join is always known. 
-						 * What is currently unknown is, if there are any further sub-joins
-						 * needed in order to accomplish the query. Therefore the right side
-						 * of the join is provided with the result of this function. 
-						 */
-						JoinStatement join = new JoinStatement();
-						join.left(leftTable, "table" + depth)
-							.right(buildJoin(target, 
-									fields.subList(1, fields.size()), 
-									filter, 
-									depth + 2), 
-									"table" + (depth + 1))
-							.on(onLeft, onRight);
-						
-						/*
-						 * The select will fetch the correct field from the previous join
-						 * that will be needed in the next step. 
-						 */
-						select.from(join)
-							  .distinct()
-						 	  .select("table" 
-						 			  + depth 
-						 			  + "."
-						 			  + selectField
-						 			  + " AS "
-						 			  + selectAs);
-					}
-				}
+			if(fields.size() == 1) {
+				return resolveLastField(fieldInstance, clazz, filter);
+			} 
+			
+			if(isRelationalField(fieldInstance)) {
+				return resolveRelationField(fieldInstance, clazz, fields, filter, depth);
 			}
 		}
 		
-		return select;
+		return null;
 	}
 }

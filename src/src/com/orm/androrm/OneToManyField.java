@@ -46,7 +46,7 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 	}
 	
 	@Override
-	public Class<? extends Model> getTarget() {
+	public Class<R> getTarget() {
 		return mTargetClass;
 	}
 	

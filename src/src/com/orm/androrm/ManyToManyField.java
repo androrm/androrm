@@ -68,7 +68,7 @@ implements XToManyRelation<L, R> {
 	}
 	
 	@Override
-	public Class<? extends Model> getTarget() {
+	public Class<R> getTarget() {
 		return mTargetClass;
 	}
 	

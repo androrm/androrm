@@ -36,7 +36,7 @@ import android.database.Cursor;
  *
  * @param <T>	Type of the linked model. 
  */
-public class ForeignKeyField<T extends Model> extends DataField<T> implements Relation {
+public class ForeignKeyField<T extends Model> extends DataField<T> implements Relation<T> {
 
 	private Class<T> mTarget;
 	private int mReference;
@@ -109,7 +109,7 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 	}
 	
 	@Override
-	public Class<? extends Model> getTarget() {
+	public Class<T> getTarget() {
 		return mTarget;
 	}
 	

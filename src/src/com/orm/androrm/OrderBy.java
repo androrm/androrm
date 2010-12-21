@@ -24,7 +24,6 @@ package com.orm.androrm;
 
 /**
  * @author Philipp Giese
- *
  */
 public class OrderBy {
 

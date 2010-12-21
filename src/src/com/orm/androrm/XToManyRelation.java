@@ -14,7 +14,7 @@ import android.content.Context;
  * 
  * @author Philipp Giese
  */
-public interface XToManyRelation<O extends Model, T extends Model> extends Relation {
+public interface XToManyRelation<O extends Model, T extends Model> extends Relation<T> {
 	public int count(Context context, O origin);
 	public List<T> get(Context context, O origin);
 	public List<T> get(Context context, O origin, Limit limit);
