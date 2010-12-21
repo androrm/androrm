@@ -11,6 +11,7 @@ public class AllTest extends TestSuite {
 		suite.addTest(com.orm.andorm.test.definition.AllTest.suite());
 		suite.addTest(com.orm.andorm.test.statement.AllTest.suite());
 		suite.addTest(com.orm.andorm.test.field.AllTest.suite());
+		suite.addTest(com.orm.andorm.test.implementation.AllTest.suite());
 		
 		suite.addTestSuite(ModelTest.class);
 		suite.addTestSuite(FilterTest.class);
