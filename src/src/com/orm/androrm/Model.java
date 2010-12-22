@@ -50,7 +50,7 @@ public abstract class Model {
 	 */
 	public static final String PK = "mId";
 	
-	private static final String COUNT = "count";
+	public static final String COUNT = "count";
 	
 	public static final String getTableName(Class<?> clazz) {
 		return clazz.getSimpleName().toLowerCase();

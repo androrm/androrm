@@ -69,6 +69,20 @@ public class FilterSet {
 		return fields[fields.length - 1];
 	}
 	
+	private List<Integer> filterValues(List<?> values) {
+		List<Integer> filteredValues = new ArrayList<Integer>();		
+		for(Object value: values) {
+			if(value instanceof Integer) {
+				filteredValues.add((Integer) value);
+			} else if(value instanceof Model) {
+				Model m = (Model) value;
+				filteredValues.add(m.getId());
+			}
+		}
+		
+		return filteredValues;
+	}
+	
 	/**
 	 * Use this function, if you want the value of the field
 	 * to be in the {@link List} of values you hand in. 
@@ -82,17 +96,7 @@ public class FilterSet {
 	 * @return	<code>this</code> for chaining.
 	 */
 	public FilterSet in(String key, List<?> values) {
-		List<Integer> filteredValues = new ArrayList<Integer>();		
-		for(Object value: values) {
-			if(value instanceof Integer) {
-				filteredValues.add((Integer) value);
-			} else if(value instanceof Model) {
-				Model m = (Model) value;
-				filteredValues.add(m.getId());
-			}
-		}
-		
-		mFilters.add(new Filter(key, new InStatement(getFieldName(key), filteredValues)));
+		mFilters.add(new Filter(key, new InStatement(getFieldName(key), filterValues(values))));
 		
 		return this;
 	}

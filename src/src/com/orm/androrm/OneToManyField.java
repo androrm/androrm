@@ -31,6 +31,11 @@ import java.util.Set;
 import android.content.Context;
 
 /**
+ * This field implicitly assumes Foreign Key relations
+ * from the target class to the class implementing
+ * the One To Many Field. This way you can walk this
+ * relations backwards. 
+ * 
  * @author Philipp Giese
  */
 public class OneToManyField<L extends Model, R extends Model> implements XToManyRelation<L, R> {

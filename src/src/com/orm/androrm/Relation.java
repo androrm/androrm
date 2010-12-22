@@ -26,5 +26,11 @@ package com.orm.androrm;
  * @author Philipp Giese
  */
 public interface Relation<T extends Model> {
+	/**
+	 * Retrieves the target class of this specific
+	 * relation. 
+	 * 
+	 * @return The {@link Class} of the target model.
+	 */
 	public Class<T> getTarget();
 }

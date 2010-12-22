@@ -63,7 +63,7 @@ public class TableDefinition {
 		return mRelationalClasses;
 	}
 	
-	private <T extends DataField<?>> String getFieldDefintions(Map<String, T> fields) {
+	private <T extends DataField<?>> String getFieldDefintions(Map<String, T> fields, boolean addConstraints) {
 		boolean first = true;
 		
 		Set<Entry<String, T>> entries = fields.entrySet();
@@ -73,7 +73,15 @@ public class TableDefinition {
 		while(iterator.hasNext()) {
 			Entry<String, T> entry = iterator.next();
 			
-			String part = entry.getValue().getDefinition(entry.getKey());
+			T value = entry.getValue();
+			String part = value.getDefinition(entry.getKey());
+			
+			if(addConstraints 
+					&& value instanceof ForeignKeyField) {
+				
+				ForeignKeyField<?> fk = (ForeignKeyField<?>) value;
+				part = fk.getConstraint(entry.getKey());
+			}
 			
 			if(first) {
 				definition += part;
@@ -86,38 +94,13 @@ public class TableDefinition {
 		return definition;
 	}
 	
-	private String getForeignKeys(Map<String, 
-			ForeignKeyField<? extends Model>> keys) {
-		
-		boolean first = true;
-		
-		Set<Entry<String, ForeignKeyField<? extends Model>>> entries = keys.entrySet();
-		Iterator<Entry<String, ForeignKeyField<? extends Model>>> iterator = entries.iterator();
-		String definition = "";
-		
-		while(iterator.hasNext()) {
-			Entry<String, ForeignKeyField<? extends Model>> entry = iterator.next();
-			
-			String part = entry.getValue().getConstraint(entry.getKey());
-			
-			if(first) {
-				definition += part;
-				first = false;
-			} else {
-				definition += ", " + part;
-			}
-		}
-		
-		return definition;
-	}
-	
 	public String toString() {
 		
-		String definition = getFieldDefintions(mFields);
+		String definition = getFieldDefintions(mFields, false);
 		
 		if(!mRelations.isEmpty()) {
 			definition += ",";
-			definition += getForeignKeys(mRelations);
+			definition += getFieldDefintions(mRelations, true);
 		}
 		
 		definition = "CREATE TABLE IF NOT EXISTS " + mTableName + " (" + definition + ");";

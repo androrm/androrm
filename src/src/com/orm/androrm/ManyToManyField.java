@@ -98,34 +98,26 @@ implements XToManyRelation<L, R> {
 		}
 	}
 	
-	private SelectStatement getLeftJoinSide(int id) {
-		SelectStatement left = new SelectStatement();
-		
-		left.from(Model.getTableName(mTargetClass));
-		
-		return left;
-	}
-	
 	private SelectStatement getRightJoinSide(int id) {
+		String leftTable = Model.getTableName(mOriginClass);
+		String rightTable = Model.getTableName(mTargetClass);
+		
 		Where where = new Where();
-		where.setStatement(new Statement(Model.getTableName(mOriginClass), id));
+		where.setStatement(new Statement(leftTable, id));
 		
 		SelectStatement relation = new SelectStatement();
 		relation.from(mTableName)
-				.select(new String[] {
-						Model.getTableName(mOriginClass), 
-						Model.getTableName(mTargetClass)
-				})
+				.select(leftTable, rightTable)
 		 		.where(where);
 		
 		JoinStatement join = new JoinStatement();
 		join.left(relation, "left")
-			.right(Model.getTableName(mTargetClass), "right")
-			.on(Model.getTableName(mTargetClass), Model.PK);
+			.right(rightTable, "right")
+			.on(rightTable, Model.PK);
 		
 		SelectStatement select = new SelectStatement();
 		select.from(join)
-			  .select(new String[] {"left." + Model.getTableName(mTargetClass) + " AS " + Model.getTableName(mTargetClass)});
+			  .select("left." + rightTable + " AS " + rightTable);
 		
 		return select;
 	}
@@ -133,7 +125,7 @@ implements XToManyRelation<L, R> {
 	private JoinStatement getJoin(String leftAlias, String rightAlias, int id) {
 		JoinStatement join = new JoinStatement();
 		
-		join.left(getLeftJoinSide(id), leftAlias)
+		join.left(Model.getTableName(mTargetClass), leftAlias)
 			.right(getRightJoinSide(id), rightAlias)
 			.on(Model.PK, Model.getTableName(mTargetClass));
 		
@@ -143,7 +135,7 @@ implements XToManyRelation<L, R> {
 	private SelectStatement getQuery(int id, Limit limit) {
 		SelectStatement select = new SelectStatement();
 		
-		select.select(new String[] {"a.*"})
+		select.select("a.*")
 		  	  .from(getJoin("a", "b", id))
 		  	  .limit(limit);
 		
