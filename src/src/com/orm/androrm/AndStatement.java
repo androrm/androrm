@@ -46,6 +46,15 @@ public class AndStatement extends ComposedStatement{
 		super(key, value);
 	}
 	
+	/**
+	 * Use this constructor to initialize a new AND
+	 * statement. The left {@link Statement} and the
+	 * right {@link Statement} will be separated by
+	 * the keyword AND.
+	 * 
+	 * @param left
+	 * @param right
+	 */
 	public AndStatement(Statement left, Statement right) {
 		super(left, right);
 		
