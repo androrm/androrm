@@ -69,9 +69,22 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 		mOnDeleteCascade = false;
 	}
 	
-	@Override
-	public String getDefinition(String fieldName) {
-		return new IntegerField().getDefinition(fieldName);
+	/**
+	 * As foreign keys may require database access in order to 
+	 * get their value, you have to use this function. The
+	 * regular {@link DataField#get()} won't work at all times. 
+	 * 
+	 * @param context	{@link Context} of the application.
+	 * 
+	 * @return	An instance of the references model or <code>null</code>
+	 * 			if nothing could be found. 
+	 */
+	public T get(Context context) {
+		if(mValue == null) {
+			return Model.get(context, mTarget, mReference);
+		}
+		
+		return mValue;
 	}
 
 	/**
@@ -93,6 +106,16 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 		return constraint;
 	}
 	
+	@Override
+	public String getDefinition(String fieldName) {
+		return new IntegerField().getDefinition(fieldName);
+	}
+	
+	@Override
+	public Class<T> getTarget() {
+		return mTarget;
+	}
+	
 	/**
 	 * This method can be called in order to determine, if the
 	 * referenced model has already been persisted to the database. 
@@ -107,30 +130,12 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 		
 		return false;
 	}
-	
-	@Override
-	public Class<T> getTarget() {
-		return mTarget;
-	}
-	
-	/**
-	 * As foreign keys may require database access in order to 
-	 * get their value, you have to use this function. The
-	 * regular {@link DataField#get()} won't work at all times. 
-	 * 
-	 * @param context	{@link Context} of the application.
-	 * 
-	 * @return	An instance of the references model or <code>null</code>
-	 * 			if nothing could be found. 
-	 */
-	public T get(Context context) {
-		if(mValue == null) {
-			return Model.get(context, mTarget, mReference);
-		}
-		
-		return mValue;
-	}
 
+	@Override
+	public void putData(String key, ContentValues values) {
+		values.put(key, mReference);
+	}
+	
 	/**
 	 * When models are deleted you may wish to also release
 	 * all references to other models on the instance in order
@@ -143,6 +148,11 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 		mReference = 0;
 	}
 	
+	@Override
+	public void set(Cursor c, int columnIndex) {
+		set(c.getInt(columnIndex));
+	}
+
 	/**
 	 * As an alternative you don't have to hand in an instance of
 	 * the model class, this field references. You can also only
@@ -153,22 +163,12 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 	public void set(int id) {
 		mReference = id;
 	}
-	
+
 	@Override
 	public void set(T value) {
 		mReference = value.getId();
 		
 		super.set(value);
-	}
-
-	@Override
-	public void set(Cursor c, int columnIndex) {
-		set(c.getInt(columnIndex));
-	}
-
-	@Override
-	public void putData(String key, ContentValues values) {
-		values.put(key, mReference);
 	}
 
 }

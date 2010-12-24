@@ -48,6 +48,11 @@ public abstract class DataField<T> implements DatabaseField<T> {
 	protected int mMaxLength;
 	
 	@Override
+	public T get() {
+		return mValue;
+	}
+	
+	@Override
 	public String getDefinition(String fieldName) {
 		String definition = fieldName + " " + mType;
 		
@@ -56,11 +61,6 @@ public abstract class DataField<T> implements DatabaseField<T> {
 		}
 		
 		return definition;
-	}
-	
-	@Override
-	public T get() {
-		return mValue;
 	}
 	
 	@Override

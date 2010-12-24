@@ -68,6 +68,11 @@ public class Statement {
 	 */
 	public Statement() {}
 	
+	public Statement(String key, int value) {
+		mKey = key;
+		mValue = String.valueOf(value);
+	}
+	
 	/**
 	 * This constructor sets the key and value field of this 
 	 * statement.
@@ -78,15 +83,6 @@ public class Statement {
 	public Statement(String key, String value) {
 		mKey = key;
 		mValue = value;
-	}
-	
-	public Statement(String key, int value) {
-		mKey = key;
-		mValue = String.valueOf(value);
-	}
-	
-	public String toString() {
-		return mKey + " = '" + mValue + "'";
 	}
 	
 	/**
@@ -103,5 +99,10 @@ public class Statement {
 	
 	public void setKey(String key) {
 		mKey = key;
+	}
+	
+	@Override
+	public String toString() {
+		return mKey + " = '" + mValue + "'";
 	}
 }

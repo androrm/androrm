@@ -67,36 +67,6 @@ public class DatabaseAdapter {
 	}
 	
 	/**
-	 * Registers all models, that will then be handled by the
-	 * ORM. 
-	 * 
-	 * @param models	{@link List} of classes inheriting from {@link Model}.
-	 */
-	public void setModels(List<Class<? extends Model>> models) {
-		open();
-		
-		mDbHelper.setModels(mDb, models);
-		
-		close();
-	}
-	
-	/**
-	 * This opens a new database connection. If a connection or database already exists
-	 * the system will ensure that getWritableDatabase() will return this Database.
-	 * 
-	 * DO NOT try to do caching by yourself because this could result in an
-	 * inappropriate state of the database.
-	 * 
-	 * @return this to enable chaining.
-	 * @throws SQLException
-	 */
-	public DatabaseAdapter open() throws SQLException {
-		mDb = mDbHelper.getWritableDatabase();
-		
-		return this;
-	}
-	
-	/**
 	 * Closes the current connection to the database.
 	 * Call this method after every database interaction to prevent
 	 * data leaks.
@@ -106,65 +76,18 @@ public class DatabaseAdapter {
 	}
 	
 	/**
-	 * Drops all tables of the current database. 
-	 */
-	public void drop() {
-		open();
-		
-		mDbHelper.drop(mDb);		
-		mDbHelper.onCreate(mDb);
-		
-		close();
-	}
-	
-	/**
-	 * Drops a specific table
+	 * Delete one object or a set of objects from a specific table.
 	 * 
-	 * @param 	tableName	Name of the table to drop.
+	 * @param 	table 	Query table.
+	 * @param 	where	{@link Where} clause to find the object.
+	 * @return	Number of affected rows.
 	 */
-	public void drop(String tableName) {
-		open();
-		
-		String sql = "DROP TABLE IF EXISTS " + tableName + ";";
-		mDb.execSQL(sql);
-		mDbHelper.onCreate(mDb);
-		
+	public int delete(String table, Where where) {
+		open();	
+		int affectedRows = mDb.delete(table, where.toString().replace(" WHERE ", ""), null);
 		close();
-	}
-	
-	public Cursor query(SelectStatement select) {
-		return mDb.rawQuery(select.toString(), null);
-	}
-	
-	/**
-	 * Query the database for a specific item.
-	 * 
-	 * @param 	table	Query table.
-	 * @param 	where	{@link Where} clause to apply.
-	 * @param 	limit	{@link Limit} clause to apply.
-	 * @return	{@link Cursor} that represents the query result.
-	 */
-	private Cursor get(String table, Where where, Limit limit) {
-		String whereClause = null;
-		if(where != null) {
-			whereClause = where.toString().replace(" WHERE ", "");
-		} 
 		
-		String limitClause = null;
-		if(limit != null) {
-			limitClause = limit.toString().replace(" LIMIT ", "");
-		}
-		
-		Cursor result = mDb.query(table, 
-				null, 
-				whereClause, 
-				null, 
-				null, 
-				null, 
-				null, 
-				limitClause);
-		
-		return result;
+		return affectedRows;
 	}
 	
 	/**
@@ -199,17 +122,94 @@ public class DatabaseAdapter {
 	}
 	
 	/**
-	 * Delete one object or a set of objects from a specific table.
-	 * 
-	 * @param 	table 	Query table.
-	 * @param 	where	{@link Where} clause to find the object.
-	 * @return	Number of affected rows.
+	 * Drops all tables of the current database. 
 	 */
-	public int delete(String table, Where where) {
-		open();	
-		int affectedRows = mDb.delete(table, where.toString().replace(" WHERE ", ""), null);
-		close();
+	public void drop() {
+		open();
 		
-		return affectedRows;
+		mDbHelper.drop(mDb);		
+		mDbHelper.onCreate(mDb);
+		
+		close();
+	}
+	
+	/**
+	 * Drops a specific table
+	 * 
+	 * @param 	tableName	Name of the table to drop.
+	 */
+	public void drop(String tableName) {
+		open();
+		
+		String sql = "DROP TABLE IF EXISTS " + tableName + ";";
+		mDb.execSQL(sql);
+		mDbHelper.onCreate(mDb);
+		
+		close();
+	}
+	
+	/**
+	 * Query the database for a specific item.
+	 * 
+	 * @param 	table	Query table.
+	 * @param 	where	{@link Where} clause to apply.
+	 * @param 	limit	{@link Limit} clause to apply.
+	 * @return	{@link Cursor} that represents the query result.
+	 */
+	private Cursor get(String table, Where where, Limit limit) {
+		String whereClause = null;
+		if(where != null) {
+			whereClause = where.toString().replace(" WHERE ", "");
+		} 
+		
+		String limitClause = null;
+		if(limit != null) {
+			limitClause = limit.toString().replace(" LIMIT ", "");
+		}
+		
+		Cursor result = mDb.query(table, 
+				null, 
+				whereClause, 
+				null, 
+				null, 
+				null, 
+				null, 
+				limitClause);
+		
+		return result;
+	}
+	
+	/**
+	 * This opens a new database connection. If a connection or database already exists
+	 * the system will ensure that getWritableDatabase() will return this Database.
+	 * 
+	 * DO NOT try to do caching by yourself because this could result in an
+	 * inappropriate state of the database.
+	 * 
+	 * @return this to enable chaining.
+	 * @throws SQLException
+	 */
+	public DatabaseAdapter open() throws SQLException {
+		mDb = mDbHelper.getWritableDatabase();
+		
+		return this;
+	}
+	
+	public Cursor query(SelectStatement select) {
+		return mDb.rawQuery(select.toString(), null);
+	}
+	
+	/**
+	 * Registers all models, that will then be handled by the
+	 * ORM. 
+	 * 
+	 * @param models	{@link List} of classes inheriting from {@link Model}.
+	 */
+	public void setModels(List<Class<? extends Model>> models) {
+		open();
+		
+		mDbHelper.setModels(mDb, models);
+		
+		close();
 	}
 }

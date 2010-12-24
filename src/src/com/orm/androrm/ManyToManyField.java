@@ -57,33 +57,6 @@ implements XToManyRelation<L, R> {
 		mTableName = createTableName();
 	}
 	
-	private String createTableName() {
-		List<String> tableNames = new ArrayList<String>();
-		tableNames.add(Model.getTableName(mOriginClass));
-		tableNames.add(Model.getTableName(mTargetClass));
-		
-		Collections.sort(tableNames);
-		
-		return tableNames.get(0) + "_" + tableNames.get(1);
-	}
-	
-	@Override
-	public Class<R> getTarget() {
-		return mTargetClass;
-	}
-	
-	public ForeignKeyField<L> getLeftLinkDescriptor() {
-		return new ForeignKeyField<L>(mOriginClass);
-	}
-	
-	public ForeignKeyField<R> getRightHandDescriptor() {
-		return new ForeignKeyField<R>(mTargetClass);
-	}
-	
-	public String getRelationTableName() {
-		return mTableName;
-	}
-	
 	@Override
 	public void add(R value) {
 		if(value != null) {
@@ -98,60 +71,39 @@ implements XToManyRelation<L, R> {
 		}
 	}
 	
-	private SelectStatement getRightJoinSide(int id) {
-		String leftTable = Model.getTableName(mOriginClass);
-		String rightTable = Model.getTableName(mTargetClass);
-		
-		Where where = new Where();
-		where.setStatement(new Statement(leftTable, id));
-		
-		SelectStatement relation = new SelectStatement();
-		relation.from(mTableName)
-				.select(leftTable, rightTable)
-		 		.where(where);
-		
-		JoinStatement join = new JoinStatement();
-		join.left(relation, "left")
-			.right(rightTable, "right")
-			.on(rightTable, Model.PK);
-		
-		SelectStatement select = new SelectStatement();
-		select.from(join)
-			  .select("left." + rightTable + " AS " + rightTable);
-		
-		return select;
-	}
-	
-	private JoinStatement getJoin(String leftAlias, String rightAlias, int id) {
-		JoinStatement join = new JoinStatement();
-		
-		join.left(Model.getTableName(mTargetClass), leftAlias)
-			.right(getRightJoinSide(id), rightAlias)
-			.on(Model.PK, Model.getTableName(mTargetClass));
-		
-		return join;
-	}
-	
-	private SelectStatement getQuery(int id, Limit limit) {
-		SelectStatement select = new SelectStatement();
-		
-		select.select("a.*")
-		  	  .from(getJoin("a", "b", id))
-		  	  .limit(limit);
-		
-		return select;
-	}
-	
-	private List<R> getObjects(Cursor c) {
-		List<R> values = new ArrayList<R>();
-		
-		while(c.moveToNext()) {
-			R object = Model.createObject(mTargetClass, c);
+	@Override
+	public int count(Context context, L origin) {
+		if(origin.getId() != 0) {
+			SelectStatement select = new SelectStatement();
+			select.from(getJoin("a", "b", origin.getId()))
+				  .distinct()
+				  .count();
 			
-			values.add(object);
+			DatabaseAdapter adapter = new DatabaseAdapter(context);
+			adapter.open();
+			
+			Cursor c = adapter.query(select);
+			int count = 0;
+			if(c.moveToNext()) {
+				count = c.getInt(c.getColumnIndexOrThrow("count"));
+			}
+			
+			c.close();
+			adapter.close();
+			return count;
 		}
 		
-		return values;
+		return mValues.size();
+	}
+	
+	private String createTableName() {
+		List<String> tableNames = new ArrayList<String>();
+		tableNames.add(Model.getTableName(mOriginClass));
+		tableNames.add(Model.getTableName(mTargetClass));
+		
+		Collections.sort(tableNames);
+		
+		return tableNames.get(0) + "_" + tableNames.get(1);
 	}
 	
 	@Override
@@ -185,30 +137,78 @@ implements XToManyRelation<L, R> {
 		
 		return mValues;
 	}
-
-	@Override
-	public int count(Context context, L origin) {
-		if(origin.getId() != 0) {
-			SelectStatement select = new SelectStatement();
-			select.from(getJoin("a", "b", origin.getId()))
-				  .distinct()
-				  .count();
+	
+	private JoinStatement getJoin(String leftAlias, String rightAlias, int id) {
+		JoinStatement join = new JoinStatement();
+		
+		join.left(Model.getTableName(mTargetClass), leftAlias)
+			.right(getRightJoinSide(id), rightAlias)
+			.on(Model.PK, Model.getTableName(mTargetClass));
+		
+		return join;
+	}
+	
+	public ForeignKeyField<L> getLeftLinkDescriptor() {
+		return new ForeignKeyField<L>(mOriginClass);
+	}
+	
+	private List<R> getObjects(Cursor c) {
+		List<R> values = new ArrayList<R>();
+		
+		while(c.moveToNext()) {
+			R object = Model.createObject(mTargetClass, c);
 			
-			DatabaseAdapter adapter = new DatabaseAdapter(context);
-			adapter.open();
-			
-			Cursor c = adapter.query(select);
-			int count = 0;
-			if(c.moveToNext()) {
-				count = c.getInt(c.getColumnIndexOrThrow("count"));
-			}
-			
-			c.close();
-			adapter.close();
-			return count;
+			values.add(object);
 		}
 		
-		return mValues.size();
+		return values;
+	}
+	
+	private SelectStatement getQuery(int id, Limit limit) {
+		SelectStatement select = new SelectStatement();
+		
+		select.select("a.*")
+		  	  .from(getJoin("a", "b", id))
+		  	  .limit(limit);
+		
+		return select;
+	}
+	
+	public String getRelationTableName() {
+		return mTableName;
+	}
+	
+	public ForeignKeyField<R> getRightHandDescriptor() {
+		return new ForeignKeyField<R>(mTargetClass);
+	}
+	
+	private SelectStatement getRightJoinSide(int id) {
+		String leftTable = Model.getTableName(mOriginClass);
+		String rightTable = Model.getTableName(mTargetClass);
+		
+		Where where = new Where();
+		where.setStatement(new Statement(leftTable, id));
+		
+		SelectStatement relation = new SelectStatement();
+		relation.from(mTableName)
+				.select(leftTable, rightTable)
+		 		.where(where);
+		
+		JoinStatement join = new JoinStatement();
+		join.left(relation, "left")
+			.right(rightTable, "right")
+			.on(rightTable, Model.PK);
+		
+		SelectStatement select = new SelectStatement();
+		select.from(join)
+			  .select("left." + rightTable + " AS " + rightTable);
+		
+		return select;
+	}
+
+	@Override
+	public Class<R> getTarget() {
+		return mTargetClass;
 	}
 
 }

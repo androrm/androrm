@@ -51,11 +51,6 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 	}
 	
 	@Override
-	public Class<R> getTarget() {
-		return mTargetClass;
-	}
-	
-	@Override
 	public void add(R value) {
 		mValues.add(value);
 	}
@@ -67,27 +62,6 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 		}
 	}
 	
-	@Override
-	public List<R> get(Context context, L l, Limit limit) {
-		if(mValues.isEmpty()) {
-			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
-			
-			FilterSet filter = new FilterSet();
-			filter.is(fieldName, l);
-			
-			List<R> result = Model.filter(context, mTargetClass, filter, limit);
-			
-			mValues.addAll(result);
-		}
-		
-		return new ArrayList<R>(mValues);
-	}
-
-	@Override
-	public List<R> get(Context context, L l) {
-		return get(context, l, null);
-	}
-
 	@Override
 	public int count(Context context, L l) {
 		if(l.getId() != 0) {
@@ -106,5 +80,31 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 		 * list.
 		 */
 		return mValues.size();
+	}
+	
+	@Override
+	public List<R> get(Context context, L l) {
+		return get(context, l, null);
+	}
+
+	@Override
+	public List<R> get(Context context, L l, Limit limit) {
+		if(mValues.isEmpty()) {
+			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
+			
+			FilterSet filter = new FilterSet();
+			filter.is(fieldName, l);
+			
+			List<R> result = Model.filter(context, mTargetClass, filter, limit);
+			
+			mValues.addAll(result);
+		}
+		
+		return new ArrayList<R>(mValues);
+	}
+
+	@Override
+	public Class<R> getTarget() {
+		return mTargetClass;
 	}
 }

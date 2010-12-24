@@ -33,21 +33,6 @@ public class OrStatement extends ComposedStatement {
 		mSeparator = " OR ";
 	}
 	
-	/**
-	 * This constructor is only a convenience constructor. 
-	 * It will construct a basic statement with key and value 
-	 * but <b>NOT</b> an actual OR statement.
-	 * <br /><br />
-	 * Usage is discouraged. 
-	 * @param key	Key for the statement.
-	 * @param value	Value of the statement.
-	 * 
-	 * @deprecated
-	 */
-	public OrStatement(String key, String value) {
-		super(key, value);
-	}
-	
 	@Override
 	public String toString() {
 		String or = super.toString();

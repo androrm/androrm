@@ -43,9 +43,9 @@ public class BooleanField extends DataField<Boolean>{
 		mValue = false;
 	}
 	
-	private void setUp() {
-		mType = "integer";
-		mMaxLength = 1;
+	@Override
+	public void putData(String key, ContentValues values) {
+		values.put(key, get());
 	}
 
 	@Override
@@ -53,9 +53,9 @@ public class BooleanField extends DataField<Boolean>{
 		set(c.getInt(columnIndex) == 1);
 	}
 
-	@Override
-	public void putData(String key, ContentValues values) {
-		values.put(key, get());
+	private void setUp() {
+		mType = "integer";
+		mMaxLength = 1;
 	}
 
 }

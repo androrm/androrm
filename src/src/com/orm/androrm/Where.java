@@ -51,35 +51,6 @@ public class Where {
 	}
 	
 	/**
-	 * Overwrite or set the current statement represented by this
-	 * where clause. In order to create AND or OR statements rather
-	 * use the respective functions. 
-	 * 
-	 * @param stmt {@link Statement} to apply.
-	 */
-	public void setStatement(Statement stmt) {
-		mKeys = stmt.getKeys();
-		mStatement = stmt;
-	}
-	
-	/**
-	 * Adds an AND constraint.
-	 * 
-	 * @param key	Name of the table column.
-	 * @param value	Value of this column.
-	 */
-	public Where and(String key, String value) {
-		return and(new Statement(key, value));
-	}
-	
-	/**
-	 * See {@link Where#and(String, String)}. 
-	 */
-	public Where and(String key, int value) {
-		return and(key, String.valueOf(value));
-	}
-	
-	/**
 	 * Attaches the given {@link Statement} as the right side of the
 	 * AND statement.
 	 * 
@@ -99,21 +70,30 @@ public class Where {
 	}
 	
 	/**
-	 * Adds and OR constraint.
-	 * 
-	 * @param key Name of the table column.
-	 * @param value Expected value of the column.
-	 * @return <code>this</code> for chaining.
+	 * See {@link Where#and(String, String)}. 
 	 */
-	public Where or(String key, String value) {
-		return or(new Statement(key, value));
+	public Where and(String key, int value) {
+		return and(key, String.valueOf(value));
 	}
 	
 	/**
-	 * See {@link Where#or(String, String)}.
+	 * Adds an AND constraint.
+	 * 
+	 * @param key	Name of the table column.
+	 * @param value	Value of this column.
 	 */
-	public Where or(String key, int value) {
-		return or(key, String.valueOf(value));
+	public Where and(String key, String value) {
+		return and(new Statement(key, value));
+	}
+	
+	/**
+	 * Checks if there is a constraint for the given column.
+	 * 
+	 * @param key	Column name.
+	 * @return True if one exists. False otherwise.
+	 */
+	public boolean hasConstraint(String key) {
+		return mKeys.contains(key);
 	}
 	
 	/**
@@ -136,13 +116,33 @@ public class Where {
 	}
 	
 	/**
-	 * Checks if there is a constraint for the given column.
-	 * 
-	 * @param key	Column name.
-	 * @return True if one exists. False otherwise.
+	 * See {@link Where#or(String, String)}.
 	 */
-	public boolean hasConstraint(String key) {
-		return mKeys.contains(key);
+	public Where or(String key, int value) {
+		return or(key, String.valueOf(value));
+	}
+	
+	/**
+	 * Adds and OR constraint.
+	 * 
+	 * @param key Name of the table column.
+	 * @param value Expected value of the column.
+	 * @return <code>this</code> for chaining.
+	 */
+	public Where or(String key, String value) {
+		return or(new Statement(key, value));
+	}
+	
+	/**
+	 * Overwrite or set the current statement represented by this
+	 * where clause. In order to create AND or OR statements rather
+	 * use the respective functions. 
+	 * 
+	 * @param stmt {@link Statement} to apply.
+	 */
+	public void setStatement(Statement stmt) {
+		mKeys = stmt.getKeys();
+		mStatement = stmt;
 	}
 	
 	@Override

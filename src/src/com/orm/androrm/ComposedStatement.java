@@ -55,21 +55,6 @@ public abstract class ComposedStatement extends Statement {
 		mRight = right;
 	}
 	
-	/**
-	 * This constructor is only a convenience constructor. 
-	 * It will construct a basic statement with key and value 
-	 * but <b>NOT</b> an actual AND statement.
-	 * <br /><br />
-	 * Usage is discouraged. 
-	 * @param key	Key for the statement.
-	 * @param value	Value of the statement.
-	 * 
-	 * @deprecated
-	 */
-	public ComposedStatement(String key, String value) {
-		super(key, value);
-	}
-	
 	@Override
 	public Set<String> getKeys() {
 		Set<String> keys = new HashSet<String>();

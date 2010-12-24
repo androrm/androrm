@@ -50,11 +50,11 @@ public class Filter {
 		mStatement = statement;
 	}
 	
-	public Statement getStatement() {
-		return mStatement;
-	}
-	
 	public String getKey() {
 		return mKey;
+	}
+	
+	public Statement getStatement() {
+		return mStatement;
 	}
 }

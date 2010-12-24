@@ -43,10 +43,6 @@ public class TableDefinition {
 		mRelationalClasses = new ArrayList<Class<? extends Model>>();
 	}
 	
-	public String getTableName() {
-		return mTableName;
-	}
-	
 	public void addField(String fieldName, DataField<?> field) {
 		mFields.put(fieldName, field);
 		
@@ -57,10 +53,6 @@ public class TableDefinition {
 	
 	public <T extends Model> void addRelationalClass(Class<T> clazz) {
 		mRelationalClasses.add(clazz);
-	}
-	
-	public List<Class<? extends Model>> getRelationalClasses() {
-		return mRelationalClasses;
 	}
 	
 	private <T extends DataField<?>> String getFieldDefintions(Map<String, T> fields, boolean addConstraints) {
@@ -94,6 +86,15 @@ public class TableDefinition {
 		return definition;
 	}
 	
+	public List<Class<? extends Model>> getRelationalClasses() {
+		return mRelationalClasses;
+	}
+	
+	public String getTableName() {
+		return mTableName;
+	}
+	
+	@Override
 	public String toString() {
 		
 		String definition = getFieldDefintions(mFields, false);

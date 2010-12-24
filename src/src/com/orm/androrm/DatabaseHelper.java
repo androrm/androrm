@@ -58,20 +58,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static Set<Class<? extends Model>> mModels;
 	
 	/**
-	 * Get a {@link Set} of all tables, that were created
-	 * by this class.
-	 * 
-	 * @return {@link Set} of tablenames.
-	 */
-	private static final Set<String> getTables() {
-		if(mTables == null) {
-			mTables = new HashSet<String>();
-		}
-		
-		return mTables;
-	}
-	
-	/**
 	 * Get a {@link Set} of model classes, that are handled by 
 	 * the ORM. 
 	 * 
@@ -84,37 +70,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		
 		return mModels;
 	}
+	
+	/**
+	 * Get a {@link Set} of all tables, that were created
+	 * by this class.
+	 * 
+	 * @return {@link Set} of tablenames.
+	 */
+	private static final Set<String> getTables() {
+		if(mTables == null) {
+			mTables = new HashSet<String>();
+		}
+		
+		return mTables;
+	}
 
 	public DatabaseHelper(Context context, String dbName) {
 		super(context, dbName, null, DATABASE_VERSION);
 	}
 	
-	/**
-	 * Registers all given models with the ORM and triggers {@link DatabaseHelper#onCreate(SQLiteDatabase)}
-	 * to create the database. 
-	 * 
-	 * @param db		{@link SQLiteDatabase Database} instance. 
-	 * @param models	{@link List} of classes inheriting from {@link Model}. 
-	 */
-	protected void setModels(SQLiteDatabase db, List<Class<? extends Model>> models) {
-		mModels = new HashSet<Class<? extends Model>>();
-		mModels.addAll(models);
-		
-		onCreate(db);
-	}
-	
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-		for(Class<? extends Model> model: getModels()) {
-			List<TableDefinition> tableDefinitions = Model.getTableDefinitions(model);
-			
-			for(TableDefinition definition: tableDefinitions) {
-				db.execSQL(definition.toString());
-				getTables().add(definition.getTableName());
-			}
-		}
-	}
-
 	/**
 	 * Drops all tables of the database.
 	 * @param db {@link SQLiteDatabase}.
@@ -129,6 +103,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 	
 	@Override
+	public void onCreate(SQLiteDatabase db) {
+		for(Class<? extends Model> model: getModels()) {
+			List<TableDefinition> tableDefinitions = Model.getTableDefinitions(model);
+			
+			for(TableDefinition definition: tableDefinitions) {
+				db.execSQL(definition.toString());
+				getTables().add(definition.getTableName());
+			}
+		}
+	}
+
+	@Override
+	public void onOpen(SQLiteDatabase db) {
+		super.onOpen(db);
+		
+		if (!db.isReadOnly()) {
+			// Enable foreign key constraints
+			db.execSQL("PRAGMA foreign_keys=ON;");
+		}
+	}
+	
+	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.w(TAG, "Upgrading database from version " + oldVersion + " to " +
 				newVersion + ", which will destroy all data.");
@@ -138,13 +134,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		
 	}
 	
-	@Override
-	public void onOpen(SQLiteDatabase db) {
-		super.onOpen(db);
+	/**
+	 * Registers all given models with the ORM and triggers {@link DatabaseHelper#onCreate(SQLiteDatabase)}
+	 * to create the database. 
+	 * 
+	 * @param db		{@link SQLiteDatabase Database} instance. 
+	 * @param models	{@link List} of classes inheriting from {@link Model}. 
+	 */
+	protected void setModels(SQLiteDatabase db, List<Class<? extends Model>> models) {
+		mModels = new HashSet<Class<? extends Model>>();
+		mModels.addAll(models);
 		
-		if (!db.isReadOnly()) {
-			// Enable foreign key constraints
-			db.execSQL("PRAGMA foreign_keys=ON;");
-		}
+		onCreate(db);
 	}
 }

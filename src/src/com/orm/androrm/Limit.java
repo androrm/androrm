@@ -37,9 +37,9 @@ public class Limit {
 	 */
 	private int mLimit;
 	
-	public Limit(int offset, int limit) {
-		mOffset = offset;
-		mLimit = limit;
+	public Limit() {
+		mLimit = 0;
+		mOffset = 0;
 	}
 	
 	public Limit(int limit) {
@@ -47,9 +47,9 @@ public class Limit {
 		mOffset = 0;
 	}
 	
-	public Limit() {
-		mLimit = 0;
-		mOffset = 0;
+	public Limit(int offset, int limit) {
+		mOffset = offset;
+		mLimit = limit;
 	}
 	
 	/**
@@ -63,19 +63,19 @@ public class Limit {
 	}
 	
 	/**
+	 * @return The offset to start.
+	 */
+	public int getOffset() {
+		return mOffset;
+	}
+	
+	/**
 	 * The raw limit is simply the count of objects that shall be fetched.
 	 * 
 	 * @return The raw limit.
 	 */
 	public int getRawLimit() {
 		return mLimit;
-	}
-	
-	/**
-	 * @return The offset to start.
-	 */
-	public int getOffset() {
-		return mOffset;
 	}
 	
 	@Override

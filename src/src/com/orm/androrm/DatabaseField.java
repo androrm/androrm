@@ -37,6 +37,12 @@ import android.database.Cursor;
  */
 public interface DatabaseField<T> {
 	/**
+	 * Used to gather the current value of this field.
+	 * @return The value of the field.
+	 */
+	public T get();
+	
+	/**
 	 * Creates the database specific definition for this
 	 * type of field.
 	 * 
@@ -46,17 +52,16 @@ public interface DatabaseField<T> {
 	public String getDefinition(String fieldName);
 	
 	/**
-	 * Used to gather the current value of this field.
-	 * @return The value of the field.
+	 * When this field is serialized into the database this method is
+	 * called. The field can then put it's data into the {@link ContentValues}
+	 * variable under the given fieldName. 
+	 *  
+	 * @param fieldName	Key for the {@link ContentValues} variable and also name
+	 * 					of this field in the object, that is being serialized. 
+	 * @param values	{@link ContentValues} object holding all data, that will
+	 * 					be written to the database.
 	 */
-	public T get();
-	
-	/**
-	 * Sets the value of this field. 
-	 * 
-	 * @param value	The value this field is set to.
-	 */
-	public void set(T value);
+	public void putData(String fieldName, ContentValues values);
 	
 	/**
 	 * This method is used to read the value in the right 
@@ -70,14 +75,9 @@ public interface DatabaseField<T> {
 	public void set(Cursor c, int columnIndex);
 	
 	/**
-	 * When this field is serialized into the database this method is
-	 * called. The field can then put it's data into the {@link ContentValues}
-	 * variable under the given fieldName. 
-	 *  
-	 * @param fieldName	Key for the {@link ContentValues} variable and also name
-	 * 					of this field in the object, that is being serialized. 
-	 * @param values	{@link ContentValues} object holding all data, that will
-	 * 					be written to the database.
+	 * Sets the value of this field. 
+	 * 
+	 * @param value	The value this field is set to.
 	 */
-	public void putData(String fieldName, ContentValues values);
+	public void set(T value);
 }

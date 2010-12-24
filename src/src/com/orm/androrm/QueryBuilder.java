@@ -38,6 +38,28 @@ public class QueryBuilder {
 	
 	private static final String TAG = "ANDRORM:QUERY:BUILDER";
 	
+	public static final <T extends Model> SelectStatement buildJoin(Class<T> clazz,
+			List<String> fields, 
+			Filter filter, 
+			int depth) throws NoSuchFieldException {
+		
+		T instance = Model.getInstace(clazz);
+		
+		if(instance != null) {
+			Object fieldInstance = getFieldInstance(clazz, instance, fields.get(0));
+			
+			if(fields.size() == 1) {
+				return resolveLastField(fieldInstance, clazz, filter);
+			} 
+			
+			if(isRelationalField(fieldInstance)) {
+				return resolveRelationField(fieldInstance, clazz, fields, filter, depth);
+			}
+		}
+		
+		return null;
+	}
+	
 	public static final <T extends Model> SelectStatement buildQuery(Class<T> clazz, 
 			List<Filter> filters,
 			int depth) 
@@ -120,126 +142,22 @@ public class QueryBuilder {
 		
 	}
 	
-	@SuppressWarnings("unchecked")
-	private static final <T extends Model> void unwrapManyToManyRelation(Map<String, String> joinParams, 
-			Class<T> clazz, 
-			Relation<?> r) {
+	private static final <T extends Model> Object getFieldInstance(Class<T> clazz, T instance, String fieldName) {
+		Field field = Model.getField(clazz, instance, fieldName);
+		Object fieldInstance = null;
 		
-		ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) r;
-		
-		/*
-		 * As ManyToManyFields are represented in a separate
-		 * relation table this table has to be considered for
-		 * the join.
-		 */
-		joinParams.put("leftTable", m.getRelationTableName());
-		/*
-		 * By convention the fields in a relation table are named
-		 * after the classes they represent. Thus we select the field
-		 * with the name of the class we are currently examining.
-		 */
-		String selectField = Model.getTableName(clazz);
-		joinParams.put("selectField", Model.getTableName(clazz));
-		/*
-		 * When dealing with foreign keys the selection field has
-		 * to be renamed to the field name in the representing class.
-		 * ManyToManyFields do not need this.
-		 */
-		joinParams.put("selectAs", selectField);
-		/*
-		 * Field of the left table that will be considered 
-		 * during the join. 
-		 */
-		joinParams.put("onLeft", Model.getTableName(m.getTarget()));
-	}
-	
-	private static final <T extends Model> void unwrapForeignKeyRelation(Map<String, String> joinParams,
-			String fieldName,
-			Class<T> clazz,
-			Relation<?> r) {
-		
-		/*
-		 * As ForeignKeyFields are real fields in the
-		 * database our left table for the join
-		 * is the table corresponding to the class,
-		 * we are currently examining.
-		 */
-		String leftTable = Model.getTableName(clazz);
-		joinParams.put("leftTable", leftTable);
-		/*
-		 * As we do not operate on a relation table
-		 * we need to select the id field of our 
-		 * current table. 
-		 */
-		joinParams.put("selectField", Model.PK);
-		/*
-		 * In order to work along with ManyToManyFields
-		 * we select the Id field as the table name
-		 * corresponding to our class. 
-		 */
-		joinParams.put("selectAs", leftTable);
-		
-		/*
-		 * Field of the left table, that will be considered
-		 * during the join.
-		 */
-		joinParams.put("onLeft", fieldName);
-	}
-	
-	private static final <T extends Model> void unwrapOneToManyField(Map<String, String> joinParams, 
-			String fieldName,
-			Class<T> clazz,
-			Relation<?> r) {
-		
-		Class<? extends Model> target = r.getTarget();
-		
-		/*
-		 * One to Many fields have no field representation in their origin 
-		 * class. Therefore we must determine the target class for the join.
-		 */
-		joinParams.put("leftTable", Model.getTableName(target));
-		
-		/*
-		 * On the target class we select the field pointing back to 
-		 * the origin class
-		 */
-		joinParams.put("selectField", Model.getBackLinkFieldName(target, clazz));
-		
-		/*
-		 * This field has to be selected under the alias of the origin class.
-		 */
-		joinParams.put("selectAs", Model.getTableName(clazz));
-		
-		/*
-		 * We have to join over the primary key of the target class,
-		 * as this is our indirect reference
-		 */
-		joinParams.put("onLeft", Model.PK);
-	}
-	
-	protected static final boolean isDatabaseField(Object field) {
 		if(field != null) {
-			if(field instanceof DataField
-					|| isRelationalField(field)) {
-				
-				return true;
+			try {
+				fieldInstance = field.get(instance);
+			} catch(IllegalAccessException e) {
+				Log.e(TAG, "exception thrown while trying to create representation of " 
+						+ clazz.getSimpleName() 
+						+ " and fetching field object for field " 
+						+ fieldName, e);
 			}
 		}
 		
-		return false;
-	}
-	
-	protected static final boolean isRelationalField(Object field) {
-		if(field != null) {
-			if(field instanceof ForeignKeyField
-					|| field instanceof OneToManyField
-					|| field instanceof ManyToManyField) {
-				
-				return true;
-			}
-		}
-		
-		return false;
+		return fieldInstance;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -277,22 +195,29 @@ public class QueryBuilder {
 		return select;
 	}
 	
-	private static final <T extends Model> Object getFieldInstance(Class<T> clazz, T instance, String fieldName) {
-		Field field = Model.getField(clazz, instance, fieldName);
-		Object fieldInstance = null;
-		
+	protected static final boolean isDatabaseField(Object field) {
 		if(field != null) {
-			try {
-				fieldInstance = field.get(instance);
-			} catch(IllegalAccessException e) {
-				Log.e(TAG, "exception thrown while trying to create representation of " 
-						+ clazz.getSimpleName() 
-						+ " and fetching field object for field " 
-						+ fieldName, e);
+			if(field instanceof DataField
+					|| isRelationalField(field)) {
+				
+				return true;
 			}
 		}
 		
-		return fieldInstance;
+		return false;
+	}
+	
+	protected static final boolean isRelationalField(Object field) {
+		if(field != null) {
+			if(field instanceof ForeignKeyField
+					|| field instanceof OneToManyField
+					|| field instanceof ManyToManyField) {
+				
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	private static final <T extends Model> SelectStatement resolveLastField(Object field, 
@@ -320,20 +245,6 @@ public class QueryBuilder {
 			  .where(where);
 		
 		return select;
-	}
-	
-	private static final <T extends Model> void unwrapRelation(Relation<?> r, 
-			String fieldName,
-			Class<T> clazz, 
-			Map<String, String> joinParams) {
-		
-		if(r instanceof ManyToManyField) {
-			unwrapManyToManyRelation(joinParams, clazz, r);
-		} else if(r instanceof ForeignKeyField) {
-			unwrapForeignKeyRelation(joinParams, fieldName, clazz, r);
-		} else if(r instanceof OneToManyField) {
-			unwrapOneToManyField(joinParams, fieldName, clazz, r);
-		}
 	}
 	
 	private static final <T extends Model> SelectStatement resolveRelationField(Object field, 
@@ -388,25 +299,114 @@ public class QueryBuilder {
 		return select;
 	}
 	
-	public static final <T extends Model> SelectStatement buildJoin(Class<T> clazz,
-			List<String> fields, 
-			Filter filter, 
-			int depth) throws NoSuchFieldException {
+	private static final <T extends Model> void unwrapForeignKeyRelation(Map<String, String> joinParams,
+			String fieldName,
+			Class<T> clazz,
+			Relation<?> r) {
 		
-		T instance = Model.getInstace(clazz);
+		/*
+		 * As ForeignKeyFields are real fields in the
+		 * database our left table for the join
+		 * is the table corresponding to the class,
+		 * we are currently examining.
+		 */
+		String leftTable = Model.getTableName(clazz);
+		joinParams.put("leftTable", leftTable);
+		/*
+		 * As we do not operate on a relation table
+		 * we need to select the id field of our 
+		 * current table. 
+		 */
+		joinParams.put("selectField", Model.PK);
+		/*
+		 * In order to work along with ManyToManyFields
+		 * we select the Id field as the table name
+		 * corresponding to our class. 
+		 */
+		joinParams.put("selectAs", leftTable);
 		
-		if(instance != null) {
-			Object fieldInstance = getFieldInstance(clazz, instance, fields.get(0));
-			
-			if(fields.size() == 1) {
-				return resolveLastField(fieldInstance, clazz, filter);
-			} 
-			
-			if(isRelationalField(fieldInstance)) {
-				return resolveRelationField(fieldInstance, clazz, fields, filter, depth);
-			}
+		/*
+		 * Field of the left table, that will be considered
+		 * during the join.
+		 */
+		joinParams.put("onLeft", fieldName);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static final <T extends Model> void unwrapManyToManyRelation(Map<String, String> joinParams, 
+			Class<T> clazz, 
+			Relation<?> r) {
+		
+		ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) r;
+		
+		/*
+		 * As ManyToManyFields are represented in a separate
+		 * relation table this table has to be considered for
+		 * the join.
+		 */
+		joinParams.put("leftTable", m.getRelationTableName());
+		/*
+		 * By convention the fields in a relation table are named
+		 * after the classes they represent. Thus we select the field
+		 * with the name of the class we are currently examining.
+		 */
+		String selectField = Model.getTableName(clazz);
+		joinParams.put("selectField", Model.getTableName(clazz));
+		/*
+		 * When dealing with foreign keys the selection field has
+		 * to be renamed to the field name in the representing class.
+		 * ManyToManyFields do not need this.
+		 */
+		joinParams.put("selectAs", selectField);
+		/*
+		 * Field of the left table that will be considered 
+		 * during the join. 
+		 */
+		joinParams.put("onLeft", Model.getTableName(m.getTarget()));
+	}
+	
+	private static final <T extends Model> void unwrapOneToManyField(Map<String, String> joinParams, 
+			String fieldName,
+			Class<T> clazz,
+			Relation<?> r) {
+		
+		Class<? extends Model> target = r.getTarget();
+		
+		/*
+		 * One to Many fields have no field representation in their origin 
+		 * class. Therefore we must determine the target class for the join.
+		 */
+		joinParams.put("leftTable", Model.getTableName(target));
+		
+		/*
+		 * On the target class we select the field pointing back to 
+		 * the origin class
+		 */
+		joinParams.put("selectField", Model.getBackLinkFieldName(target, clazz));
+		
+		/*
+		 * This field has to be selected under the alias of the origin class.
+		 */
+		joinParams.put("selectAs", Model.getTableName(clazz));
+		
+		/*
+		 * We have to join over the primary key of the target class,
+		 * as this is our indirect reference
+		 */
+		joinParams.put("onLeft", Model.PK);
+	}
+	
+	private static final <T extends Model> void unwrapRelation(Relation<?> r, 
+			String fieldName,
+			Class<T> clazz, 
+			Map<String, String> joinParams) {
+		
+		if(r instanceof ManyToManyField) {
+			unwrapManyToManyRelation(joinParams, clazz, r);
+		} else if(r instanceof ForeignKeyField) {
+			unwrapForeignKeyRelation(joinParams, fieldName, clazz, r);
+		} else if(r instanceof OneToManyField) {
+			unwrapOneToManyField(joinParams, fieldName, clazz, r);
 		}
-		
-		return null;
 	}
 }

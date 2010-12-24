@@ -19,6 +19,21 @@ import android.content.Context;
  */
 public interface XToManyRelation<O extends Model, T extends Model> extends Relation<T> {
 	/**
+	 * Adds a new value to the list of referenced models.
+	 * 
+	 * @param value	Model instance that shall be referenced. 
+	 */
+	public void add(T value);
+	
+	/**
+	 * Adds all items of the {@link Collection} to the list
+	 * of referenced models.
+	 * 
+	 * @param values {@link Collection} of models. 
+	 */
+	public void addAll(Collection<T> values);
+	
+	/**
 	 * Get the number of referenced models.
 	 * 
 	 * @param context	{@link Context} of the application.
@@ -49,19 +64,4 @@ public interface XToManyRelation<O extends Model, T extends Model> extends Relat
 	 * @return {@link List} of referenced model classes. 
 	 */
 	public List<T> get(Context context, O origin, Limit limit);
-	
-	/**
-	 * Adds a new value to the list of referenced models.
-	 * 
-	 * @param value	Model instance that shall be referenced. 
-	 */
-	public void add(T value);
-	
-	/**
-	 * Adds all items of the {@link Collection} to the list
-	 * of referenced models.
-	 * 
-	 * @param values {@link Collection} of models. 
-	 */
-	public void addAll(Collection<T> values);
 }

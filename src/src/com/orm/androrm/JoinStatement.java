@@ -37,6 +37,22 @@ public class JoinStatement {
 	private String mLeftColumn;
 	private String mRightColumn;
 
+	private String buildStatement(int counter) {
+		String join = "(" +
+				mLeft.toString() + 
+			") AS " + mLeftAlias + 
+			" JOIN (" +
+				mRight.toString() +
+			") AS " + mRightAlias +
+			" ON " + 
+				mLeftAlias + "." + mLeftColumn + 
+				"=" +
+				mRightAlias + "." + mRightColumn;
+		
+		return join;
+				
+	}
+	
 	/**
 	 * Creates the left side of the join from a subselect and 
 	 * masks it with the given alias. 
@@ -70,6 +86,21 @@ public class JoinStatement {
 	}
 	
 	/**
+	 * Defines on which columns this join should happen. 
+	 * 
+	 * @param leftColum		Name of the column in the left table.
+	 * @param rightColumn	Name of the column in the right table.
+	 * 
+	 * @return <code>this</code> for chaining.
+	 */
+	public JoinStatement on(String leftColum, String rightColumn) {
+		mLeftColumn = leftColum;
+		mRightColumn = rightColumn;
+		
+		return this;
+	}
+	
+	/**
 	 * Creates the right side of the join from a subselect and 
 	 * masks it with the given alias. 
 	 * 
@@ -99,37 +130,6 @@ public class JoinStatement {
 		select.from(tableName);
 		
 		return right(select, as);
-	}
-	
-	/**
-	 * Defines on which columns this join should happen. 
-	 * 
-	 * @param leftColum		Name of the column in the left table.
-	 * @param rightColumn	Name of the column in the right table.
-	 * 
-	 * @return <code>this</code> for chaining.
-	 */
-	public JoinStatement on(String leftColum, String rightColumn) {
-		mLeftColumn = leftColum;
-		mRightColumn = rightColumn;
-		
-		return this;
-	}
-	
-	private String buildStatement(int counter) {
-		String join = "(" +
-				mLeft.toString() + 
-			") AS " + mLeftAlias + 
-			" JOIN (" +
-				mRight.toString() +
-			") AS " + mRightAlias +
-			" ON " + 
-				mLeftAlias + "." + mLeftColumn + 
-				"=" +
-				mRightAlias + "." + mRightColumn;
-		
-		return join;
-				
 	}
 	
 	@Override

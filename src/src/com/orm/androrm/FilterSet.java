@@ -56,17 +56,18 @@ public class FilterSet {
 	}
 	
 	/**
-	 * Retrieves the last field in the chain, 
-	 * to gather the correct field name for the 
-	 * statement. 
+	 * Use this function, if you want to express, that the value
+	 * of the field should contain the given string. Note, that this
+	 * function is <b>NOT</b> case sensitive. 
 	 * 
-	 * @param sequence	List of field names separated by __
-	 * @return The last field name in the chain.
+	 * @param key		Chain leading to the field.
+	 * @param needle	String that shall be contained. 
+	 * @return <code>this</code> for chaining.
 	 */
-	private String getFieldName(String sequence) {
-		String[] fields = sequence.split("__");
+	public FilterSet contains(String key, String needle) {
+		mFilters.add(new Filter(key, new LikeStatement(getFieldName(key), needle)));
 		
-		return fields[fields.length - 1];
+		return this;
 	}
 	
 	private List<Integer> filterValues(List<?> values) {
@@ -81,6 +82,24 @@ public class FilterSet {
 		}
 		
 		return filteredValues;
+	}
+	
+	/**
+	 * Retrieves the last field in the chain, 
+	 * to gather the correct field name for the 
+	 * statement. 
+	 * 
+	 * @param sequence	List of field names separated by __
+	 * @return The last field name in the chain.
+	 */
+	private String getFieldName(String sequence) {
+		String[] fields = sequence.split("__");
+		
+		return fields[fields.length - 1];
+	}
+	
+	public List<Filter> getFilters() {
+		return mFilters;
 	}
 	
 	/**
@@ -102,18 +121,17 @@ public class FilterSet {
 	}
 	
 	/**
-	 * Use this function, if you want to express, that the value
-	 * of the field should contain the given string. Note, that this
-	 * function is <b>NOT</b> case sensitive. 
-	 * 
-	 * @param key		Chain leading to the field.
-	 * @param needle	String that shall be contained. 
-	 * @return <code>this</code> for chaining.
+	 * See {@link FilterSet#is(String, String)}.
 	 */
-	public FilterSet contains(String key, String needle) {
-		mFilters.add(new Filter(key, new LikeStatement(getFieldName(key), needle)));
-		
-		return this;
+	public FilterSet is(String key, Integer value) {
+		return is(key, String.valueOf(value));
+	}
+	
+	/**
+	 * See {@link FilterSet#is(String, String)}.
+	 */
+	public FilterSet is(String key, Model value) {
+		return is(key, value.getId());
 	}
 	
 	/**
@@ -128,23 +146,5 @@ public class FilterSet {
 		mFilters.add(new Filter(key, new Statement(getFieldName(key), value)));
 		
 		return this;
-	}
-	
-	/**
-	 * See {@link FilterSet#is(String, String)}.
-	 */
-	public FilterSet is(String key, Integer value) {
-		return is(key, String.valueOf(value));
-	}
-	
-	/**
-	 * See {@link FilterSet#is(String, String)}.
-	 */
-	public FilterSet is(String key, Model value) {
-		return is(key, value.getId());
-	}
-	
-	public List<Filter> getFilters() {
-		return mFilters;
 	}
 }

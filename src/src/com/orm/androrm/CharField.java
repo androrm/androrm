@@ -60,13 +60,13 @@ public class CharField extends DataField<String> {
 	}
 
 	@Override
-	public void set(Cursor c, int columnIndex) {
-		set(c.getString(columnIndex));
+	public void putData(String key, ContentValues values) {
+		values.put(key, get());
 	}
 
 	@Override
-	public void putData(String key, ContentValues values) {
-		values.put(key, get());
+	public void set(Cursor c, int columnIndex) {
+		set(c.getString(columnIndex));
 	}
 
 }

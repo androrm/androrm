@@ -58,9 +58,9 @@ public class DoubleField extends DataField<Double> {
 		}
 	}
 	
-	private void setUp() {
-		mType = "numeric";
-		mValue = 0.0;
+	@Override
+	public void putData(String key, ContentValues values) {
+		values.put(key, get());
 	}
 
 	@Override
@@ -68,9 +68,9 @@ public class DoubleField extends DataField<Double> {
 		set(c.getDouble(columnIndex));
 	}
 
-	@Override
-	public void putData(String key, ContentValues values) {
-		values.put(key, get());
+	private void setUp() {
+		mType = "numeric";
+		mValue = 0.0;
 	}
 	
 }

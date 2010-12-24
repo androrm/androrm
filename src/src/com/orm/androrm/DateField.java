@@ -51,6 +51,33 @@ public class DateField extends DataField<Date> {
 	}
 	
 	/**
+	 * Constructs a {@link Date} object from the given string. <br />
+	 * The String must be in the format: YYYY-MM-DDTHH:MM:SS.
+	 * 
+	 * @param date	String representing the date.
+	 */
+	public void fromString(String date) {
+		Pattern pattern = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})");
+		
+		if(date != null) {
+			Matcher matcher = pattern.matcher(date);
+			
+			if(matcher.matches()) {
+				int year = Integer.valueOf(matcher.group(1));
+				int month = Integer.valueOf(matcher.group(2)) - 1;
+				int day = Integer.valueOf(matcher.group(3));
+				int hour = Integer.valueOf(matcher.group(4));
+				int minute = Integer.valueOf(matcher.group(5));
+				int second = Integer.valueOf(matcher.group(6));
+				
+				GregorianCalendar cal = new GregorianCalendar(year, month, day, hour, minute, second);
+				
+				mValue = cal.getTime();
+			}
+		}
+	}
+	
+	/**
 	 * Creates the string representation of the date
 	 * {@link DataField#mValue} is currently set to. 
 	 * <br /><br />
@@ -84,41 +111,14 @@ public class DateField extends DataField<Date> {
 		
 		return null;
 	}
-	
-	/**
-	 * Constructs a {@link Date} object from the given string. <br />
-	 * The String must be in the format: YYYY-MM-DDTHH:MM:SS.
-	 * 
-	 * @param date	String representing the date.
-	 */
-	public void fromString(String date) {
-		Pattern pattern = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})");
-		
-		if(date != null) {
-			Matcher matcher = pattern.matcher(date);
-			
-			if(matcher.matches()) {
-				int year = Integer.valueOf(matcher.group(1));
-				int month = Integer.valueOf(matcher.group(2)) - 1;
-				int day = Integer.valueOf(matcher.group(3));
-				int hour = Integer.valueOf(matcher.group(4));
-				int minute = Integer.valueOf(matcher.group(5));
-				int second = Integer.valueOf(matcher.group(6));
-				
-				GregorianCalendar cal = new GregorianCalendar(year, month, day, hour, minute, second);
-				
-				mValue = cal.getTime();
-			}
-		}
+
+	@Override
+	public void putData(String key, ContentValues values) {
+		values.put(key, getDateString());
 	}
 
 	@Override
 	public void set(Cursor c, int columnIndex) {
 		fromString(c.getString(columnIndex));
-	}
-
-	@Override
-	public void putData(String key, ContentValues values) {
-		values.put(key, getDateString());
 	}
 }
