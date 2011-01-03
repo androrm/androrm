@@ -19,12 +19,14 @@ public class Branch extends Model {
 	protected CharField mName;
 	protected ForeignKeyField<Product> mProduct;
 	protected ManyToManyField<Branch, Supplier> mSuppliers;
+	protected ManyToManyField<Branch, Product> mProducts;
 	
 	public Branch() {
 		super();
 
 		mName = new CharField(50);
 		mProduct = new ForeignKeyField<Product>(Product.class);
+		mProducts = new ManyToManyField<Branch, Product>(Branch.class, Product.class, true);
 		mSuppliers = new ManyToManyField<Branch, Supplier>(Branch.class, Supplier.class);
 	}
 
@@ -34,5 +36,13 @@ public class Branch extends Model {
 	
 	public Product getProduct(Context context) {
 		return mProduct.get(context);
+	}
+	
+	public void addProduct(Product product) {
+		mProducts.add(product);
+	}
+	
+	public List<Product> getProducts(Context context) {
+		return mProducts.get(context, this);
 	}
 }

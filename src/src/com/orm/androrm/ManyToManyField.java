@@ -25,6 +25,7 @@ package com.orm.androrm;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import android.content.Context;
@@ -43,7 +44,7 @@ implements XToManyRelation<L, R> {
 
 	private static final String TAG = "ANDRORM:M2M";
 	
-	private List<R> mValues;
+	private Collection<R> mValues;
 	private Class<L> mOriginClass;
 	private Class<R> mTargetClass;
 	private String mTableName;
@@ -51,9 +52,26 @@ implements XToManyRelation<L, R> {
 	public ManyToManyField(Class<L> origin, 
 			Class<R> target) {
 		
+		setUp(origin, target, false);
+	}
+	
+	public ManyToManyField(Class<L> origin,
+			Class<R> target,
+			boolean isSet) {
+		
+		setUp(origin, target, isSet);
+	}
+	
+	private void setUp(Class<L> origin, Class<R> target, boolean isSet) {
 		mOriginClass = origin;
 		mTargetClass = target;
-		mValues = new ArrayList<R>();
+		
+		if(isSet) {
+			mValues = new HashSet<R>();
+		} else {
+			mValues = new ArrayList<R>();
+		}
+		
 		mTableName = createTableName();
 	}
 	
@@ -135,7 +153,7 @@ implements XToManyRelation<L, R> {
 			mValues = values;
 		}
 		
-		return mValues;
+		return new ArrayList<R>(mValues);
 	}
 	
 	private JoinStatement getJoin(String leftAlias, String rightAlias, int id) {
