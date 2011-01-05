@@ -54,18 +54,4 @@ public class WhereTest extends AndroidTestCase {
 		assertTrue(where.hasConstraint("foo"));
 		assertTrue(where.hasConstraint("bar"));
 	}
-	// TODO: move to test for order by statement
-	/*
-	public void testOrderBy() {
-		Where where = new Where();
-		where.orderBy("foo");
-		assertEquals("foo ASC", where.getOrderBy());
-		
-		where.orderBy("+foo");
-		assertEquals("foo ASC", where.getOrderBy());
-		
-		where.orderBy("-foo");
-		assertEquals("foo DESC", where.getOrderBy());
-	}
-	*/
 }
