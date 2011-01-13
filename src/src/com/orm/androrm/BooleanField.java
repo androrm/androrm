@@ -49,8 +49,8 @@ public class BooleanField extends DataField<Boolean>{
 	}
 
 	@Override
-	public void set(Cursor c, int columnIndex) {
-		set(c.getInt(columnIndex) == 1);
+	public void set(Cursor c, String fieldName) {
+		set(c.getInt(c.getColumnIndexOrThrow(fieldName)) == 1);
 	}
 
 	private void setUp() {

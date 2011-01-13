@@ -63,7 +63,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * 
 	 * @return {@link Set} of model classes.
 	 */
-	private static final Set<Class<? extends Model>> getModels() {
+	protected static final Set<Class<? extends Model>> getModels() {
 		if(mModels == null) {
 			mModels = new HashSet<Class<? extends Model>>();
 		}
@@ -147,4 +147,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		
 		onCreate(db);
 	}
+	
 }

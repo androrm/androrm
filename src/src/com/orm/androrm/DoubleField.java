@@ -64,8 +64,8 @@ public class DoubleField extends DataField<Double> {
 	}
 
 	@Override
-	public void set(Cursor c, int columnIndex) {
-		set(c.getDouble(columnIndex));
+	public void set(Cursor c, String fieldName) {
+		set(c.getDouble(c.getColumnIndexOrThrow(fieldName)));
 	}
 
 	private void setUp() {

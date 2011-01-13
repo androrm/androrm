@@ -116,10 +116,8 @@ public abstract class Model {
 		
 		if(o instanceof DataField) {
 			DataField<?> f = (DataField<?>) o;
-			String fieldName = field.getName();
-			int columnIndex = c.getColumnIndexOrThrow(fieldName);
 		
-			f.set(c, columnIndex);
+			f.set(c, field.getName());
 		}
 	}
 	

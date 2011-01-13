@@ -72,7 +72,7 @@ public interface DatabaseField<T> {
 	 * @param c				{@link Cursor} pointing at data.
 	 * @param columnIndex	Index of the field value in the cursor. 
 	 */
-	public void set(Cursor c, int columnIndex);
+	public void set(Cursor c, String fieldName);
 	
 	/**
 	 * Sets the value of this field. 

@@ -149,8 +149,8 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 	}
 	
 	@Override
-	public void set(Cursor c, int columnIndex) {
-		set(c.getInt(columnIndex));
+	public void set(Cursor c, String fieldName) {
+		set(c.getInt(c.getColumnIndexOrThrow(fieldName)));
 	}
 
 	/**

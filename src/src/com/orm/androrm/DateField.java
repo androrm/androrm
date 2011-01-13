@@ -118,7 +118,7 @@ public class DateField extends DataField<Date> {
 	}
 
 	@Override
-	public void set(Cursor c, int columnIndex) {
-		fromString(c.getString(columnIndex));
+	public void set(Cursor c, String fieldName) {
+		fromString(c.getString(c.getColumnIndexOrThrow(fieldName)));
 	}
 }
