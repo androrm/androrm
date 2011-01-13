@@ -32,8 +32,16 @@ public class LocationField extends DataField<Location> {
 	
 	@Override
 	public void putData(String fieldName, ContentValues values) {
-		values.put(fieldName + "Lat", mValue.getLatitude());
-		values.put(fieldName + "Lng", mValue.getLongitude());
+		double lat = 0.0;
+		double lng = 0.0;
+		
+		if(mValue != null) {
+			lat = mValue.getLatitude();
+			lng = mValue.getLongitude();
+		}
+		
+		values.put(fieldName + "Lat", lat);
+		values.put(fieldName + "Lng", lng);
 	}
 	
 	@Override
