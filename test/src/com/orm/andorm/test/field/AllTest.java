@@ -14,6 +14,7 @@ public class AllTest extends TestSuite {
 		suite.addTestSuite(DoubleFieldTest.class);
 		suite.addTestSuite(ForeignKeyFieldTest.class);
 		suite.addTestSuite(IntegerFieldTest.class);
+		suite.addTestSuite(LocationFieldTest.class);
 		suite.addTestSuite(ManyToManyFieldTest.class);
 		suite.addTestSuite(OneToManyFieldTest.class);
 		
