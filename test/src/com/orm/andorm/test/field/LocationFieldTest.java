@@ -14,6 +14,7 @@ import com.orm.androrm.impl.BlankModel;
 
 public class LocationFieldTest extends AndroidTestCase {
 
+	@Override
 	public void setUp() {
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
 		models.add(BlankModel.class);
@@ -22,6 +23,12 @@ public class LocationFieldTest extends AndroidTestCase {
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
+	}
+	
+	@Override
+	public void tearDown() {
+		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		adapter.drop();
 	}
 	
 	public void testDefinition() {

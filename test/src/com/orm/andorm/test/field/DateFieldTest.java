@@ -1,14 +1,34 @@
 package com.orm.andorm.test.field;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import android.test.AndroidTestCase;
 
+import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.DateField;
+import com.orm.androrm.Model;
+import com.orm.androrm.impl.BlankModel;
 
 public class DateFieldTest extends AndroidTestCase {
 
+	public void setUp() {
+		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
+		models.add(BlankModel.class);
+		
+		DatabaseAdapter.setDatabaseName("test_db");
+		
+		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		adapter.setModels(models);
+	}
+	
+	public void tearDown() {
+		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		adapter.drop();
+	}
+	
 	public void testDefaults() {
 		DateField d = new DateField();
 		
@@ -56,5 +76,26 @@ public class DateFieldTest extends AndroidTestCase {
 		d.set(date);
 		
 		assertEquals(date, d.get());
+	}
+	
+	public void testStorage() {
+		Date date = Calendar.getInstance().getTime();
+		BlankModel model = new BlankModel();
+		model.setDate(date);
+		model.save(getContext());
+		
+		assertEquals(date, model.getDate());
+		
+		model = BlankModel.get(getContext(), BlankModel.class, model.getId());
+		Date newDate = model.getDate();
+		
+		assertNotNull(newDate);
+		
+		assertEquals(date.getYear(), newDate.getYear());
+		assertEquals(date.getMonth(), newDate.getMonth());
+		assertEquals(date.getDay(), newDate.getDay());
+		assertEquals(date.getHours(), newDate.getHours());
+		assertEquals(date.getMinutes(), newDate.getMinutes());
+		assertEquals(date.getSeconds(), newDate.getSeconds());
 	}
 }
