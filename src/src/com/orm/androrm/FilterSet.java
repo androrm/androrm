@@ -70,15 +70,16 @@ public class FilterSet {
 		return this;
 	}
 	
-	private List<Integer> filterValues(List<?> values) {
-		List<Integer> filteredValues = new ArrayList<Integer>();		
+	private List<Object> filterValues(List<?> values) {
+		List<Object> filteredValues = new ArrayList<Object>();		
 		for(Object value: values) {
-			if(value instanceof Integer) {
-				filteredValues.add((Integer) value);
+			if(value instanceof Integer 
+					|| value instanceof String) {
+				filteredValues.add(value);
 			} else if(value instanceof Model) {
 				Model m = (Model) value;
 				filteredValues.add(m.getId());
-			}
+			} 
 		}
 		
 		return filteredValues;

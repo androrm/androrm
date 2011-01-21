@@ -83,7 +83,7 @@ public abstract class Model {
 	 */
 	public static final String PK = "mId";
 	
-	public static final String COUNT = "count";
+	protected static final String COUNT = "count";
 	
 	public static final <T extends Model> List<T> all(Context context, Class<T> clazz, Limit limit) {
 		SelectStatement select = new SelectStatement();
