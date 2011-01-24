@@ -43,6 +43,7 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 	private Set<R> mValues;
 	private Class<R> mTargetClass;
 	private Class<L> mOriginClass;
+	private OrderBy mOrderBy;
 	
 	public OneToManyField(Class<L> origin, Class<R> target) {
 		mOriginClass = origin;
@@ -93,7 +94,8 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
 			
 			FilterSet filter = new FilterSet();
-			filter.is(fieldName, l);
+			filter.is(fieldName, l)
+				  .orderBy(mOrderBy);
 			
 			List<R> result = Model.filter(context, mTargetClass, filter, limit);
 			
@@ -106,5 +108,12 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 	@Override
 	public Class<R> getTarget() {
 		return mTargetClass;
+	}
+
+	@Override
+	public XToManyRelation<L, R> orderBy(String... columns) {
+		mOrderBy = new OrderBy(columns);
+		
+		return this;
 	}
 }

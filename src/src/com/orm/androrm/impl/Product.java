@@ -29,6 +29,7 @@ public class Product extends Model {
 		
 		mName = new CharField(50);
 		mBranches = new OneToManyField<Product, Branch>(Product.class, Branch.class);
+		mBranches.orderBy("mName");
 	}
 
 	public void setName(String name) {

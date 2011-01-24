@@ -179,6 +179,12 @@ public class SelectStatement {
 		return this;
 	}
 	
+	public SelectStatement orderBy(OrderBy ordering) {
+		mOrderBy = ordering;
+		
+		return this;
+	}
+	
 	/**
 	 * Hand in all fields, that shall be selected.
 	 * If no fields are specified * will be 

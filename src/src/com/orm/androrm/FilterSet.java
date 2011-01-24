@@ -50,6 +50,7 @@ public class FilterSet {
 	 * added to this set.
 	 */
 	private List<Filter> mFilters;
+	private OrderBy mOrderBy;
 	
 	public FilterSet() {
 		mFilters = new ArrayList<Filter>();
@@ -147,5 +148,21 @@ public class FilterSet {
 		mFilters.add(new Filter(key, new Statement(getFieldName(key), value)));
 		
 		return this;
+	}
+	
+	public FilterSet orderBy(String... columns) {
+		mOrderBy = new OrderBy(columns);
+		
+		return this;
+	}
+	
+	public FilterSet orderBy(OrderBy ordering) {
+		mOrderBy = ordering;
+		
+		return this;
+	}
+	
+	public OrderBy getOrdering() {
+		return mOrderBy;
 	}
 }

@@ -29,6 +29,7 @@ public class Supplier extends Model {
 		mName = new CharField(50);
 		mProducts = new ManyToManyField<Supplier, Product>(Supplier.class, Product.class);
 		mBranches = new ManyToManyField<Supplier, Branch>(Supplier.class, Branch.class);
+		mBranches.orderBy("mName");
 	}
 	
 	public void setName(String name) {
@@ -53,5 +54,9 @@ public class Supplier extends Model {
 	
 	public void addBranch(Branch b) {
 		mBranches.add(b);
+	}
+	
+	public List<Branch> getBranches(Context context) {
+		return mBranches.get(context, this);
 	}
 }
