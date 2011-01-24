@@ -76,7 +76,7 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 		
 		/*
 		 * even though the relation is not persisted objects
-		 * could have been added to via the add method. In this 
+		 * could have been added via the add method. In this 
 		 * case the result of count is the size of the mValues
 		 * list.
 		 */
@@ -90,7 +90,10 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 
 	@Override
 	public List<R> get(Context context, L l, Limit limit) {
-		if(mValues.isEmpty()) {
+		if(mValues.isEmpty()
+				|| (limit != null 
+						&& mValues.size() < limit.getComputedLimit())) {
+			
 			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
 			
 			FilterSet filter = new FilterSet();
