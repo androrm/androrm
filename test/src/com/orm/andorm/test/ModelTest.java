@@ -62,7 +62,7 @@ public class ModelTest extends AndroidTestCase {
 		int id = m.getId();
 		
 		assertTrue(m.delete(getContext()));
-		assertNull(Model.get(getContext(), BlankModel.class, id));
+		assertNull(Model.objects(getContext(), BlankModel.class).get(id));
 		assertEquals(0, m.getId());
 	}
 	
@@ -71,7 +71,7 @@ public class ModelTest extends AndroidTestCase {
 		m.setName("test");
 		m.save(getContext());
 		
-		BlankModel m2 = Model.get(getContext(), BlankModel.class, m.getId());
+		BlankModel m2 = Model.objects(getContext(), BlankModel.class).get(m.getId());
 		
 		assertEquals(m, m2);
 		

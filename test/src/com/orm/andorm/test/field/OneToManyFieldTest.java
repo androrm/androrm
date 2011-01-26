@@ -49,7 +49,7 @@ public class OneToManyFieldTest extends AndroidTestCase {
 		
 		p.save(getContext());
 		
-		p = Product.get(getContext(), p.getId());
+		p = Product.objects(getContext()).get(p.getId());
 		
 		branches = p.getBranches(getContext());
 		
@@ -74,7 +74,7 @@ public class OneToManyFieldTest extends AndroidTestCase {
 		p.addBranches(Arrays.asList(new Branch[] { b1, b2 }));
 		p.save(getContext());
 		
-		p = Product.get(getContext(), p.getId());
+		p = Product.objects(getContext()).get(p.getId());
 		
 		List<Branch> branches = p.getBranches(getContext());
 		
@@ -101,7 +101,7 @@ public class OneToManyFieldTest extends AndroidTestCase {
 		assertEquals(2, p.branchCount(getContext()));
 		
 		p.save(getContext());
-		p = Product.get(getContext(), p.getId());
+		p = Product.objects(getContext()).get(p.getId());
 		
 		assertEquals(2, p.branchCount(getContext()));
 	}

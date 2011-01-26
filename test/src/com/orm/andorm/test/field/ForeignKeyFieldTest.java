@@ -6,6 +6,7 @@ import java.util.List;
 import android.test.AndroidTestCase;
 
 import com.orm.androrm.DatabaseAdapter;
+import com.orm.androrm.DatabaseBuilder;
 import com.orm.androrm.ForeignKeyField;
 import com.orm.androrm.Model;
 import com.orm.androrm.impl.Branch;
@@ -27,7 +28,7 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 	
 	public void testGetDefauls() {
 		ForeignKeyField<Product> fk = new ForeignKeyField<Product>(Product.class);
-		String targetTable = Model.getTableName(Product.class);
+		String targetTable = DatabaseBuilder.getTableName(Product.class);
 		
 		assertEquals("product_id integer", fk.getDefinition("product_id"));
 		assertEquals("FOREIGN KEY (product_id) REFERENCES " 

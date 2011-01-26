@@ -71,7 +71,7 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		s.addProduct(p2);
 		s.save(getContext());
 		
-		s = Supplier.get(getContext(), s.getId());
+		s = Supplier.objects(getContext()).get(s.getId());
 		
 		List<Product> products = s.getProducts(getContext());
 		
@@ -94,7 +94,7 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		s.addProducts(Arrays.asList(new Product[] { p1, p2 }));
 		s.save(getContext());
 		
-		s = Supplier.get(getContext(), s.getId());
+		s = Supplier.objects(getContext()).get(s.getId());
 		
 		List<Product> products = s.getProducts(getContext());
 		
@@ -119,7 +119,7 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		assertEquals(2, s.productCount(getContext()));
 		
 		s.save(getContext());
-		s = Supplier.get(getContext(), s.getId());
+		s = Supplier.objects(getContext()).get(s.getId());
 		
 		assertEquals(2, s.productCount(getContext()));
 	}
@@ -137,7 +137,7 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		
 		b1.save(getContext());
 		
-		Branch b2 = Branch.get(getContext(), Branch.class, b1.getId());
+		Branch b2 = Branch.objects(getContext(), Branch.class).get(b1.getId());
 		
 		assertEquals(1, b2.getProducts(getContext()).size());
 		assertTrue(b2.getProducts(getContext()).contains(p));
