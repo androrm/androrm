@@ -50,6 +50,7 @@ public class FilterSet {
 	 * added to this set.
 	 */
 	private List<Filter> mFilters;
+	private OrderBy mOrderBy;
 	
 	public FilterSet() {
 		mFilters = new ArrayList<Filter>();
@@ -68,6 +69,16 @@ public class FilterSet {
 		mFilters.add(new Filter(key, new LikeStatement(getFieldName(key), needle)));
 		
 		return this;
+	}
+	
+	public FilterSet orderBy(OrderBy ordering) {
+		mOrderBy = ordering;
+		
+		return this;
+	}
+	
+	public OrderBy getOrdering() {
+		return mOrderBy;
 	}
 	
 	private List<Integer> filterValues(List<?> values) {

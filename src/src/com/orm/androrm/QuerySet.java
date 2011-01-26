@@ -29,6 +29,31 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		mClass = model;
 	}
 	
+	public T get(int id) {
+		Where where = new Where();
+		where.setStatement(new Statement("mId", id));
+		
+		if(mQuery == null) {
+			mQuery = new SelectStatement();
+			mQuery.from(Model.getTableName(mClass))
+				  .where(where);
+		} else {
+			mQuery.where(where);
+		}
+		
+		DatabaseAdapter adapter = new DatabaseAdapter(mContext);
+		adapter.open();
+		
+		Cursor c = adapter.query(mQuery);
+		
+		T object = createObject(c);
+		
+		c.close();
+		adapter.close();
+		
+		return object;
+	}
+	
 	public QuerySet<T> orderBy(String... columns) {
 		if(mQuery != null) {
 			mQuery.orderBy(columns);
@@ -102,6 +127,16 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		}
 	}
 	
+	private T createObject(Cursor c) {
+		T object = null;
+		
+		if(c.moveToNext()) {
+			object = Model.createObject(mClass, c);
+		}
+		
+		return object;
+	}
+	
 	private List<T> createObjects(Cursor c) {
 		List<T> items = new ArrayList<T>();
 		
@@ -137,9 +172,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	
 	@Override
 	public Iterator<T> iterator() {
-		List<T> items = getItems();
-		
-		return items.iterator();
+		return getItems().iterator();
 	}
 
 }

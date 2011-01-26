@@ -64,4 +64,6 @@ public interface XToManyRelation<O extends Model, T extends Model> extends Relat
 	 * @return {@link List} of referenced model classes. 
 	 */
 	public List<T> get(Context context, O origin, Limit limit);
+	
+	public void orderBy(String... columns);
 }

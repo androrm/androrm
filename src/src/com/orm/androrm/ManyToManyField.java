@@ -48,6 +48,7 @@ implements XToManyRelation<L, R> {
 	private Class<L> mOriginClass;
 	private Class<R> mTargetClass;
 	private String mTableName;
+	private OrderBy mOrderBy;
 	
 	public ManyToManyField(Class<L> origin, 
 			Class<R> target) {
@@ -132,7 +133,7 @@ implements XToManyRelation<L, R> {
 	@Override
 	public List<R> get(Context context, L l, Limit limit) {
 		if(mValues.isEmpty()) {
-			SelectStatement select = getQuery(l.getId(), limit);
+			SelectStatement select = getQuery(l.getId(), limit).orderBy(mOrderBy);
 			
 			DatabaseAdapter adapter = new DatabaseAdapter(context);
 			adapter.open();
@@ -227,6 +228,11 @@ implements XToManyRelation<L, R> {
 	@Override
 	public Class<R> getTarget() {
 		return mTargetClass;
+	}
+
+	@Override
+	public void orderBy(String... columns) {
+		mOrderBy = new OrderBy(columns);
 	}
 
 }

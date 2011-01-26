@@ -247,7 +247,8 @@ public abstract class Model {
 		
 		try {
 			select = QueryBuilder.buildQuery(clazz, filter.getFilters(), 0);
-			select.limit(limit);
+			select.limit(limit)
+				  .orderBy(filter.getOrdering());
 		} catch (NoSuchFieldException e) {
 			Log.e(TAG, "could not resolve fields into class.", e);
 		}
