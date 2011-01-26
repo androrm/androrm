@@ -24,9 +24,7 @@ package com.orm.androrm;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import android.content.Context;
 
@@ -40,7 +38,7 @@ import android.content.Context;
  */
 public class OneToManyField<L extends Model, R extends Model> implements XToManyRelation<L, R> {
 
-	private Set<R> mValues;
+	private Collection<R> mValues;
 	private Class<R> mTargetClass;
 	private Class<L> mOriginClass;
 	private OrderBy mOrderBy;
@@ -48,7 +46,7 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 	public OneToManyField(Class<L> origin, Class<R> target) {
 		mOriginClass = origin;
 		mTargetClass = target;
-		mValues = new HashSet<R>();
+		mValues = new ArrayList<R>();
 	}
 	
 	@Override
@@ -102,7 +100,15 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 			
 			List<R> result = Model.filter(context, mTargetClass, filter, limit);
 			
-			mValues.addAll(result);
+			for(R item : result) {
+				if(!mValues.contains(item)) {
+					mValues.add(item);
+				}
+			}
+		}
+		
+		if(limit != null && mValues.size() >= limit.getComputedLimit()) {
+			return (new ArrayList<R>(mValues)).subList(limit.getOffset(), limit.getComputedLimit());
 		}
 		
 		return new ArrayList<R>(mValues);
