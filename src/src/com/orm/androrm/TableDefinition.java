@@ -24,11 +24,9 @@ package com.orm.androrm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 public class TableDefinition {
 	private String mTableName;
@@ -58,13 +56,9 @@ public class TableDefinition {
 	private <T extends DataField<?>> String getFieldDefintions(Map<String, T> fields, boolean addConstraints) {
 		boolean first = true;
 		
-		Set<Entry<String, T>> entries = fields.entrySet();
-		Iterator<Entry<String, T>> iterator = entries.iterator();
 		String definition = "";
 		
-		while(iterator.hasNext()) {
-			Entry<String, T> entry = iterator.next();
-			
+		for(Entry<String, T> entry : fields.entrySet()) {
 			T value = entry.getValue();
 			String part = value.getDefinition(entry.getKey());
 			

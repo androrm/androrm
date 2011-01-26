@@ -23,10 +23,7 @@
 package com.orm.androrm;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import android.content.Context;
 
@@ -38,30 +35,12 @@ import android.content.Context;
  * 
  * @author Philipp Giese
  */
-public class OneToManyField<L extends Model, R extends Model> implements XToManyRelation<L, R> {
+public class OneToManyField<L extends Model, R extends Model> extends AbstractToManyRelation<L, R> {
 
-	private Set<R> mValues;
-	private Class<R> mTargetClass;
-	private Class<L> mOriginClass;
-	private OrderBy mOrderBy;
-	private boolean mInvalidated;
-	
 	public OneToManyField(Class<L> origin, Class<R> target) {
 		mOriginClass = origin;
 		mTargetClass = target;
-		mValues = new HashSet<R>();
-	}
-	
-	@Override
-	public void add(R value) {
-		mValues.add(value);
-	}
-	
-	@Override
-	public void addAll(Collection<R> values) {
-		for(R value: values) {
-			add(value);
-		}
+		mValues = new ArrayList<R>();
 	}
 	
 	@Override
@@ -85,11 +64,6 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 	}
 	
 	@Override
-	public List<R> get(Context context, L l) {
-		return get(context, l, null);
-	}
-
-	@Override
 	public List<R> get(Context context, L l, Limit limit) {
 		if(!mInvalidated 
 				&& (mValues.isEmpty()
@@ -110,25 +84,9 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 		}
 		
 		if(limit != null && mValues.size() >= limit.getComputedLimit()) {
-			return (new ArrayList<R>(mValues).subList(limit.getOffset(), limit.getComputedLimit()));
+			return ((ArrayList<R>) mValues).subList(limit.getOffset(), limit.getComputedLimit());
 		}
 		
 		return new ArrayList<R>(mValues);
-	}
-
-	@Override
-	public Class<R> getTarget() {
-		return mTargetClass;
-	}
-
-	@Override
-	public void orderBy(String... columns) {
-		mOrderBy = new OrderBy(columns);
-	}
-
-	@Override
-	public void reset() {
-		mValues.clear();
-		mInvalidated = true;
 	}
 }

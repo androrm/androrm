@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Filter Sets are a mechanism, to execute complex 
+ * Filters are a mechanism, to execute complex 
  * queries on the model classes in a very easy manner
  * by using the field names in these classes. 
  * <br /><br />
@@ -38,7 +38,7 @@ import java.util.List;
  * <br /><br />
  * 
  * <pre>
- * FilterSet filter = new FilterSet();
+ * Filter filter = new Filter();
  * filter.contains("mBranches__mName", "Pretoria");
  * </pre>
  * 
@@ -49,11 +49,11 @@ public class Filter {
 	 * {@link List} of all {@link Rule filters}, that were
 	 * added to this set.
 	 */
-	private List<Rule> mFilters;
+	private List<Rule> mRules;
 	private OrderBy mOrderBy;
 	
 	public Filter() {
-		mFilters = new ArrayList<Rule>();
+		mRules = new ArrayList<Rule>();
 	}
 	
 	/**
@@ -66,7 +66,7 @@ public class Filter {
 	 * @return <code>this</code> for chaining.
 	 */
 	public Filter contains(String key, String needle) {
-		mFilters.add(new Rule(key, new LikeStatement(getFieldName(key), needle)));
+		mRules.add(new Rule(key, new LikeStatement(getFieldName(key), needle)));
 		
 		return this;
 	}
@@ -109,8 +109,8 @@ public class Filter {
 		return fields[fields.length - 1];
 	}
 	
-	public List<Rule> getFilters() {
-		return mFilters;
+	public List<Rule> getRules() {
+		return mRules;
 	}
 	
 	/**
@@ -126,7 +126,7 @@ public class Filter {
 	 * @return	<code>this</code> for chaining.
 	 */
 	public Filter in(String key, List<?> values) {
-		mFilters.add(new Rule(key, new InStatement(getFieldName(key), filterValues(values))));
+		mRules.add(new Rule(key, new InStatement(getFieldName(key), filterValues(values))));
 		
 		return this;
 	}
@@ -154,7 +154,7 @@ public class Filter {
 	 * @return <code>this</code> for chaining.
 	 */
 	public Filter is(String key, String value) {
-		mFilters.add(new Rule(key, new Statement(getFieldName(key), value)));
+		mRules.add(new Rule(key, new Statement(getFieldName(key), value)));
 		
 		return this;
 	}

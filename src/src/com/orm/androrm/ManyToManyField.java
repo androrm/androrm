@@ -23,7 +23,6 @@
 package com.orm.androrm;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -40,16 +39,11 @@ import android.util.Log;
  */
 public class ManyToManyField<L extends Model, 
 							 R extends Model> 
-implements XToManyRelation<L, R> {
+extends AbstractToManyRelation<L, R> {
 
 	private static final String TAG = "ANDRORM:M2M";
 	
-	private Collection<R> mValues;
-	private Class<L> mOriginClass;
-	private Class<R> mTargetClass;
 	private String mTableName;
-	private OrderBy mOrderBy;
-	private boolean mInvalidated;
 	
 	public ManyToManyField(Class<L> origin, 
 			Class<R> target) {
@@ -75,20 +69,6 @@ implements XToManyRelation<L, R> {
 		}
 		
 		mTableName = createTableName();
-	}
-	
-	@Override
-	public void add(R value) {
-		if(value != null) {
-			mValues.add(value);
-		}
-	}
-	
-	@Override
-	public void addAll(Collection<R> values) {
-		if(values != null) {
-			mValues.addAll(values);
-		}
 	}
 	
 	@Override
@@ -124,11 +104,6 @@ implements XToManyRelation<L, R> {
 		Collections.sort(tableNames);
 		
 		return tableNames.get(0) + "_" + tableNames.get(1);
-	}
-	
-	@Override
-	public List<R> get(Context context, L l) {
-		return get(context, l, null);
 	}
 	
 	@Override
@@ -228,21 +203,4 @@ implements XToManyRelation<L, R> {
 		
 		return select;
 	}
-
-	@Override
-	public Class<R> getTarget() {
-		return mTargetClass;
-	}
-
-	@Override
-	public void orderBy(String... columns) {
-		mOrderBy = new OrderBy(columns);
-	}
-
-	@Override
-	public void reset() {
-		mValues.clear();
-		mInvalidated = true;
-	}
-
 }
