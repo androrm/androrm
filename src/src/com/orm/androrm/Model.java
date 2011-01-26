@@ -796,4 +796,8 @@ public abstract class Model {
 			}
 		}
 	}
+	
+	public static <T extends Model> QuerySet<T> objects(Context context, Class<T> clazz) {
+		return new QuerySet<T>(context, clazz);
+	}
 }
