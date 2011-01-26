@@ -68,5 +68,10 @@ public class IntegerField extends DataField<Integer> {
 	public void set(Cursor c, String fieldName) {
 		set(c.getInt(c.getColumnIndexOrThrow(fieldName)));
 	}
+
+	@Override
+	public void reset() {
+		mValue = 0;
+	}
 	
 }

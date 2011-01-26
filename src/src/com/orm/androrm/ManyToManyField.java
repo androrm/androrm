@@ -49,6 +49,7 @@ implements XToManyRelation<L, R> {
 	private Class<R> mTargetClass;
 	private String mTableName;
 	private OrderBy mOrderBy;
+	private boolean mInvalidated;
 	
 	public ManyToManyField(Class<L> origin, 
 			Class<R> target) {
@@ -132,7 +133,10 @@ implements XToManyRelation<L, R> {
 	
 	@Override
 	public List<R> get(Context context, L l, Limit limit) {
-		if(mValues.isEmpty()) {
+		// TODO: take limit into account
+		if(!mInvalidated 
+				&& mValues.isEmpty()) {
+			
 			SelectStatement select = getQuery(l.getId(), limit).orderBy(mOrderBy);
 			
 			DatabaseAdapter adapter = new DatabaseAdapter(context);
@@ -233,6 +237,12 @@ implements XToManyRelation<L, R> {
 	@Override
 	public void orderBy(String... columns) {
 		mOrderBy = new OrderBy(columns);
+	}
+
+	@Override
+	public void reset() {
+		mValues.clear();
+		mInvalidated = true;
 	}
 
 }

@@ -143,7 +143,8 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 	 * <br /><br />
 	 * To do this on a foreign key, call this function. 
 	 */
-	public void release() {
+	@Override
+	public void reset() {
 		mValue = null;
 		mReference = 0;
 	}

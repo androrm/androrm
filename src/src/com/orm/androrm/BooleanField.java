@@ -58,4 +58,9 @@ public class BooleanField extends DataField<Boolean>{
 		mMaxLength = 1;
 	}
 
+	@Override
+	public void reset() {
+		mValue = false;
+	}
+
 }

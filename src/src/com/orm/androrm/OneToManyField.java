@@ -44,6 +44,7 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 	private Class<R> mTargetClass;
 	private Class<L> mOriginClass;
 	private OrderBy mOrderBy;
+	private boolean mInvalidated;
 	
 	public OneToManyField(Class<L> origin, Class<R> target) {
 		mOriginClass = origin;
@@ -90,9 +91,10 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 
 	@Override
 	public List<R> get(Context context, L l, Limit limit) {
-		if(mValues.isEmpty()
+		if(!mInvalidated 
+				&& (mValues.isEmpty()
 				|| (limit != null &&
-						mValues.size() < limit.getComputedLimit())) {
+						mValues.size() < limit.getComputedLimit()))) {
 			
 			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
 			
@@ -122,5 +124,11 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 	@Override
 	public void orderBy(String... columns) {
 		mOrderBy = new OrderBy(columns);
+	}
+
+	@Override
+	public void reset() {
+		mValues.clear();
+		mInvalidated = true;
 	}
 }

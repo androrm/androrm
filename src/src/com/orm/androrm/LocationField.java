@@ -56,4 +56,9 @@ public class LocationField extends DataField<Location> {
 		mValue = l;
 	}
 
+	@Override
+	public void reset() {
+		mValue = null;
+	}
+
 }

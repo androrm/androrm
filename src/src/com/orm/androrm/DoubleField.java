@@ -72,5 +72,10 @@ public class DoubleField extends DataField<Double> {
 		mType = "numeric";
 		mValue = 0.0;
 	}
+
+	@Override
+	public void reset() {
+		mValue = 0.0;
+	}
 	
 }
