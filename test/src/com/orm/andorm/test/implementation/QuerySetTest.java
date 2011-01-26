@@ -6,7 +6,7 @@ import java.util.List;
 import android.test.AndroidTestCase;
 
 import com.orm.androrm.DatabaseAdapter;
-import com.orm.androrm.FilterSet;
+import com.orm.androrm.Filter;
 import com.orm.androrm.Model;
 import com.orm.androrm.QuerySet;
 import com.orm.androrm.impl.Branch;
@@ -43,19 +43,41 @@ public class QuerySetTest extends AndroidTestCase {
 		b3.save(getContext());
 	}
 	
-	public void testGeneralObject() {
-		FilterSet filter = new FilterSet();
-		filter.contains("mName", "pretoria");
+	public void testAll() {
+		QuerySet<Branch> branches = Branch.objects(getContext()).all();
 		
-		FilterSet filter2 = new FilterSet();
-		filter2.contains("mName", "plumb");
+		assertEquals(3, branches.count());
+	}
+	
+	public void testGet() {
+		assertEquals("Cashbuild Pretoria", Branch.objects(getContext()).get(1).getName());
+		// Triangulation
+		assertEquals("Plumblink Pretoria", Branch.objects(getContext()).get(2).getName());
+	}
+	
+	public void testFilter() {
+		Filter filter = new Filter();
+		filter.contains("mName", "Pretoria");
 		
-		QuerySet<Branch> branches = Branch.objects(getContext()).filter(filter2).filter(filter);
+		assertEquals(2, Branch.objects(getContext()).filter(filter).count());
+	}
+	
+	public void testLimit() {
+		assertEquals(1, Branch.objects(getContext()).all().limit(1).count());
+		assertEquals(2, Branch.objects(getContext()).all().limit(1, 2).count());
+	}
+	
+	public void testContains() {
+		Filter filter = new Filter();
+		filter.contains("mName", "Pretoria");
 		
-		for(Branch b : branches) {
-			int id = b.getId();
-		}
+		Branch contained = Branch.objects(getContext()).get(1);
+		Branch notContained = Branch.objects(getContext()).get(3);
 		
+		QuerySet<Branch> result = Branch.objects(getContext()).filter(filter);
+		
+		assertTrue(result.contains(contained));
+		assertFalse(result.contains(notContained));
 	}
 	
 	public void tearDown() {

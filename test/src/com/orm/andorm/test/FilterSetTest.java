@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.orm.androrm.DatabaseAdapter;
+import com.orm.androrm.Rule;
 import com.orm.androrm.Filter;
-import com.orm.androrm.FilterSet;
 import com.orm.androrm.InStatement;
 import com.orm.androrm.LikeStatement;
 import com.orm.androrm.Model;
@@ -33,11 +33,11 @@ public class FilterSetTest extends AndroidTestCase {
 	}
 	
 	public void testIs() {
-		FilterSet f = new FilterSet();
+		Filter f = new Filter();
 		f.is("product__name", "foo");
 		
-		List<Filter> filters = f.getFilters();
-		Filter filter = filters.get(0);
+		List<Rule> filters = f.getFilters();
+		Rule filter = filters.get(0);
 		Statement s = filter.getStatement();
 		Set<String> keys = s.getKeys();
 		
@@ -49,7 +49,7 @@ public class FilterSetTest extends AndroidTestCase {
 		p.setName("test product");
 		p.save(getContext());
 		
-		f = new FilterSet();
+		f = new Filter();
 		f.is("supplier__product", p);
 		
 		filters = f.getFilters();
@@ -63,7 +63,7 @@ public class FilterSetTest extends AndroidTestCase {
 	}
 	
 	public void testIn() {
-		FilterSet set = new FilterSet();
+		Filter set = new Filter();
 
 		List<Integer> values = new ArrayList<Integer>();
 		values.add(3);
@@ -71,8 +71,8 @@ public class FilterSetTest extends AndroidTestCase {
 		
 		set.in("product__id", values);
 		
-		List<Filter> filters = set.getFilters();
-		Filter filter = filters.get(0);
+		List<Rule> filters = set.getFilters();
+		Rule filter = filters.get(0);
 		Statement s = filter.getStatement();
 		Set<String> keys = s.getKeys();
 		
@@ -93,7 +93,7 @@ public class FilterSetTest extends AndroidTestCase {
 		products.add(p1);
 		products.add(p2);
 		
-		set = new FilterSet();
+		set = new Filter();
 		set.in("supplier__product", products);
 		
 		filters = set.getFilters();
@@ -108,11 +108,11 @@ public class FilterSetTest extends AndroidTestCase {
 	}
 	
 	public void testContains() {
-		FilterSet set = new FilterSet();
+		Filter set = new Filter();
 		set.contains("supplier__name", "foo");
 		
-		List<Filter> filters = set.getFilters();
-		Filter filter = filters.get(0);
+		List<Rule> filters = set.getFilters();
+		Rule filter = filters.get(0);
 		Statement s = filter.getStatement();
 		Set<String> keys = s.getKeys();
 		

@@ -6,7 +6,7 @@ import java.util.List;
 import android.test.AndroidTestCase;
 
 import com.orm.androrm.DatabaseAdapter;
-import com.orm.androrm.FilterSet;
+import com.orm.androrm.Filter;
 import com.orm.androrm.Model;
 import com.orm.androrm.QuerySet;
 import com.orm.androrm.impl.Branch;
@@ -70,7 +70,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		branches.add(mB1);
 		branches.add(mB2);
 		
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.in("mBranches", branches);
 		
 		QuerySet<Product> products = Product.objects(getContext()).filter(filter);
@@ -80,7 +80,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		
 		branches.remove(0);
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.in("mBranches", branches);
 		
 		products = Product.objects(getContext()).filter(filter);
@@ -93,7 +93,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		branches.add(mB1);
 		branches.add(mB2);
 		
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.in("mProducts__mBranches", branches);
 		
 		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
@@ -103,7 +103,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		
 		branches.remove(0);
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.in("mProducts__mBranches", branches);
 		
 		suppliers = Supplier.objects(getContext()).filter(filter);
@@ -112,7 +112,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 	}
 	
 	public void testOneToManyResolutionInBetween() {
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.contains("mProducts__mBranches__mName", "cash");
 		
 		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
@@ -120,7 +120,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		assertEquals(1, suppliers.count());
 		assertTrue(suppliers.contains(mS1));
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.contains("mProducts__mBranches__mName", "plumb");
 		
 		suppliers = Supplier.objects(getContext()).filter(filter);
@@ -129,7 +129,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 	}
 	
 	public void testForeignKeyResolutionOnlyField() {
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.is("mProduct", mP1);
 		
 		QuerySet<Branch> branches = Branch.objects(getContext()).filter(filter);
@@ -140,7 +140,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 	}
 	
 	public void testForeignKeyResolutionLastField() {
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.is("mBranches__mProduct", mP1);
 		
 		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
@@ -150,7 +150,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 	}
 	
 	public void testForeignKeyResolutionInBetween() {
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.contains("mBranches__mProduct__mName", "fen");
 		
 		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
@@ -158,7 +158,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		assertEquals(1, suppliers.count());
 		assertTrue(suppliers.contains(mS1));
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.is("mBranches__mProduct__mName", "false");
 		
 		suppliers = Supplier.objects(getContext()).filter(filter);
@@ -171,7 +171,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		branches.add(mB1);
 		branches.add(mB2);
 		
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.in("mBranches", branches);
 		
 		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
@@ -181,7 +181,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		
 		branches.remove(0);
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.in("mBranches", branches);
 		
 		suppliers = Supplier.objects(getContext()).filter(filter);
@@ -193,7 +193,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		List<Supplier> suppliers = new ArrayList<Supplier>();
 		suppliers.add(mS1);
 		
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.in("mBranches__mSuppliers", suppliers);
 		
 		QuerySet<Product> products = Product.objects(getContext()).filter(filter);
@@ -203,7 +203,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		
 		suppliers.clear();
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.in("mBranches__mSuppliers", suppliers);
 		
 		products = Product.objects(getContext()).filter(filter);
@@ -212,7 +212,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 	}
 	
 	public void testManyToManyFieldResolutionInBetween() {
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.is("mBranches__mSuppliers__mName", "ACME");
 		
 		QuerySet<Product> products = Product.objects(getContext()).filter(filter);
@@ -220,7 +220,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		assertEquals(1, products.count());
 		assertTrue(products.contains(mP1));
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.is("mBranches__mSuppliers__mName", "fail");
 		
 		products = Product.objects(getContext()).filter(filter);
