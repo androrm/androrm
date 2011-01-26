@@ -80,7 +80,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		return this;
 	}
 	
-	public QuerySet<T> filter(FilterSet filter) {
+	public QuerySet<T> filter(Filter filter) {
 		SelectStatement query = null;
 		
 		try {
@@ -132,8 +132,9 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	
 	public int count() {
 		if(mQuery != null) {
-			SelectStatement query = mQuery.clone();
-			query.count();
+			SelectStatement query = new SelectStatement();
+			query.from(mQuery)
+				 .count();
 			
 			DatabaseAdapter adapter = new DatabaseAdapter(mContext);
 			adapter.open();

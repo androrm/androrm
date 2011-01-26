@@ -154,6 +154,12 @@ public class SelectStatement implements Cloneable {
 		return this;
 	}
 	
+	public SelectStatement from(SelectStatement select) {
+		mFrom = "(" + select.toString() + ")";
+		
+		return this;
+	}
+	
 	/**
 	 * {@link Limit} the results of the select.
 	 * <br /><br />

@@ -40,7 +40,7 @@ public class QueryBuilder {
 	
 	public static final <T extends Model> SelectStatement buildJoin(Class<T> clazz,
 			List<String> fields, 
-			Filter filter, 
+			Rule filter, 
 			int depth) throws NoSuchFieldException {
 		
 		T instance = Model.getInstace(clazz);
@@ -61,7 +61,7 @@ public class QueryBuilder {
 	}
 	
 	public static final <T extends Model> SelectStatement buildQuery(Class<T> clazz, 
-			List<Filter> filters,
+			List<Rule> filters,
 			int depth) 
 	throws NoSuchFieldException {
 		
@@ -71,7 +71,7 @@ public class QueryBuilder {
 		selfJoin.left(tableName, "self" + depth);
 		
 		SelectStatement subSelect = new SelectStatement();
-		Filter filter = filters.get(0);
+		Rule filter = filters.get(0);
 		
 		List<String> fields = Arrays.asList(filter.getKey().split("__"));
 		
@@ -161,7 +161,7 @@ public class QueryBuilder {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static final <T extends Model> SelectStatement getRelationSelection(Relation<?> r, Class<T> clazz, Filter filter) {
+	private static final <T extends Model> SelectStatement getRelationSelection(Relation<?> r, Class<T> clazz, Rule filter) {
 		Class<? extends Model> target = r.getTarget();
 		Statement stmt = filter.getStatement();
 		Where where = new Where();
@@ -222,7 +222,7 @@ public class QueryBuilder {
 	
 	private static final <T extends Model> SelectStatement resolveLastField(Object field, 
 			Class<T> clazz, 
-			Filter filter) {
+			Rule filter) {
 		
 		SelectStatement select = new SelectStatement();
 		
@@ -250,7 +250,7 @@ public class QueryBuilder {
 	private static final <T extends Model> SelectStatement resolveRelationField(Object field, 
 			Class<T> clazz, 
 			List<String> fields, 
-			Filter filter,
+			Rule filter,
 			int depth) 
 	throws NoSuchFieldException {
 		

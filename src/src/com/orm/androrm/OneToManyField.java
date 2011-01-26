@@ -69,7 +69,7 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 		if(l.getId() != 0) {
 			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
 			
-			FilterSet filter = new FilterSet();
+			Filter filter = new Filter();
 			filter.is(fieldName, l);
 			
 			return Model.objects(context, mTargetClass).filter(filter).count();
@@ -98,7 +98,7 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 			
 			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
 			
-			FilterSet filter = new FilterSet();
+			Filter filter = new Filter();
 			filter.is(fieldName, l)
 				  .orderBy(mOrderBy);
 			

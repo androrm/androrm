@@ -22,39 +22,140 @@
  */
 package com.orm.androrm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * A {@link Filter} is used by {@link FilterSet Filter Sets}
- * to create complex queries on the database. Each filter consists
- * of a certain key leading to the field is applied to and 
- * the {@link Statement}, that will be used for the query. 
+ * Filter Sets are a mechanism, to execute complex 
+ * queries on the model classes in a very easy manner
+ * by using the field names in these classes. 
+ * <br /><br />
+ * 
+ * <b>Example:</b><br />
+ * If you for example want all Suppliers, that have a
+ * Branch which's name contains Pretoria the {@link Filter}
+ * would be the following. 
+ * <br /><br />
+ * 
+ * <pre>
+ * FilterSet filter = new FilterSet();
+ * filter.contains("mBranches__mName", "Pretoria");
+ * </pre>
  * 
  * @author Philipp Giese
  */
 public class Filter {
-
 	/**
-	 * The key leads to the field this filter
-	 * is applied on. This can be the plain name
-	 * of a field like "mName" or a series of 
-	 * field names like "mSupplier__mBranches__mName".
+	 * {@link List} of all {@link Rule filters}, that were
+	 * added to this set.
 	 */
-	private String mKey; 
-	/**
-	 * The statement of a field is only valid for the
-	 * last field name in {@link Filter#mKey}. 
-	 */
-	private Statement mStatement;
+	private List<Rule> mFilters;
+	private OrderBy mOrderBy;
 	
-	public Filter(String key, Statement statement) {
-		mKey = key;
-		mStatement = statement;
+	public Filter() {
+		mFilters = new ArrayList<Rule>();
 	}
 	
-	public String getKey() {
-		return mKey;
+	/**
+	 * Use this function, if you want to express, that the value
+	 * of the field should contain the given string. Note, that this
+	 * function is <b>NOT</b> case sensitive. 
+	 * 
+	 * @param key		Chain leading to the field.
+	 * @param needle	String that shall be contained. 
+	 * @return <code>this</code> for chaining.
+	 */
+	public Filter contains(String key, String needle) {
+		mFilters.add(new Rule(key, new LikeStatement(getFieldName(key), needle)));
+		
+		return this;
 	}
 	
-	public Statement getStatement() {
-		return mStatement;
+	public Filter orderBy(OrderBy ordering) {
+		mOrderBy = ordering;
+		
+		return this;
+	}
+	
+	public OrderBy getOrdering() {
+		return mOrderBy;
+	}
+	
+	private List<Integer> filterValues(List<?> values) {
+		List<Integer> filteredValues = new ArrayList<Integer>();		
+		for(Object value: values) {
+			if(value instanceof Integer) {
+				filteredValues.add((Integer) value);
+			} else if(value instanceof Model) {
+				Model m = (Model) value;
+				filteredValues.add(m.getId());
+			}
+		}
+		
+		return filteredValues;
+	}
+	
+	/**
+	 * Retrieves the last field in the chain, 
+	 * to gather the correct field name for the 
+	 * statement. 
+	 * 
+	 * @param sequence	List of field names separated by __
+	 * @return The last field name in the chain.
+	 */
+	private String getFieldName(String sequence) {
+		String[] fields = sequence.split("__");
+		
+		return fields[fields.length - 1];
+	}
+	
+	public List<Rule> getFilters() {
+		return mFilters;
+	}
+	
+	/**
+	 * Use this function, if you want the value of the field
+	 * to be in the {@link List} of values you hand in. 
+	 * <br /><br />
+	 * 
+	 * This can either be a list of {@link Integer integers} or 
+	 * a list of model classes. (Classes inheriting from {@link Model})
+	 * 
+	 * @param key		Chain to the field.
+	 * @param values	{@link List} of values.
+	 * @return	<code>this</code> for chaining.
+	 */
+	public Filter in(String key, List<?> values) {
+		mFilters.add(new Rule(key, new InStatement(getFieldName(key), filterValues(values))));
+		
+		return this;
+	}
+	
+	/**
+	 * See {@link Filter#is(String, String)}.
+	 */
+	public Filter is(String key, Integer value) {
+		return is(key, String.valueOf(value));
+	}
+	
+	/**
+	 * See {@link Filter#is(String, String)}.
+	 */
+	public Filter is(String key, Model value) {
+		return is(key, value.getId());
+	}
+	
+	/**
+	 * Use this function, if you want to express, that the value
+	 * of the field should be <b>exactly</b> the given value. 
+	 * 
+	 * @param key	Chain leading to the field.
+	 * @param value	Desired value of the field.
+	 * @return <code>this</code> for chaining.
+	 */
+	public Filter is(String key, String value) {
+		mFilters.add(new Rule(key, new Statement(getFieldName(key), value)));
+		
+		return this;
 	}
 }

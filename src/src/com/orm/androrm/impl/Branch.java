@@ -34,6 +34,10 @@ public class Branch extends Model {
 		mName.set(name);
 	}
 	
+	public String getName() {
+		return mName.get();
+	}
+	
 	public Product getProduct(Context context) {
 		return mProduct.get(context);
 	}
