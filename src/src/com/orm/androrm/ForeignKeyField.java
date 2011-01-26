@@ -81,7 +81,7 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 	 */
 	public T get(Context context) {
 		if(mValue == null) {
-			return Model.get(context, mTarget, mReference);
+			return Model.objects(context, mTarget).get(mReference);
 		}
 		
 		return mValue;
@@ -97,7 +97,7 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 	 */
 	public String getConstraint(String fieldName) {
 		String constraint = "FOREIGN KEY (" + fieldName + ") " +
-			"REFERENCES " + Model.getTableName(mTarget) + " (" + Model.PK + ")";
+			"REFERENCES " + DatabaseBuilder.getTableName(mTarget) + " (" + Model.PK + ")";
 		
 		if(mOnDeleteCascade) {
 			constraint += " ON DELETE CASCADE"; 

@@ -105,7 +105,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		for(Class<? extends Model> model: getModels()) {
-			List<TableDefinition> tableDefinitions = Model.getTableDefinitions(model);
+			List<TableDefinition> tableDefinitions = DatabaseBuilder.getTableDefinitions(model);
 			
 			for(TableDefinition definition: tableDefinitions) {
 				db.execSQL(definition.toString());

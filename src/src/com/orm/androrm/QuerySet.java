@@ -4,6 +4,7 @@
 package com.orm.androrm;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		
 		if(mQuery == null) {
 			mQuery = new SelectStatement();
-			mQuery.from(Model.getTableName(mClass))
+			mQuery.from(DatabaseBuilder.getTableName(mClass))
 				  .where(where);
 		} else {
 			mQuery.where(where);
@@ -73,7 +74,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	public QuerySet<T> all() {
 		if(mQuery == null) {
 			mQuery = new SelectStatement();
-			mQuery.from(Model.getTableName(mClass));
+			mQuery.from(DatabaseBuilder.getTableName(mClass));
 		}
 		
 		return this;
@@ -121,10 +122,37 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		return this;
 	}
 	
-	public void count() {
+	public QuerySet<T> limit(Limit limit) {
 		if(mQuery != null) {
-			mQuery.count();
+			mQuery.limit(limit);
 		}
+		
+		return this;
+	}
+	
+	public int count() {
+		if(mQuery != null) {
+			SelectStatement query = mQuery.clone();
+			query.count();
+			
+			DatabaseAdapter adapter = new DatabaseAdapter(mContext);
+			adapter.open();
+			
+			Cursor c = adapter.query(query);
+			
+			int count = 0;
+			
+			if(c.moveToNext()) {
+				count = c.getInt(c.getColumnIndexOrThrow(Model.COUNT));
+			}
+			
+			c.close();
+			adapter.close();
+			
+			return count;
+		}
+		
+		return 0;
 	}
 	
 	private T createObject(Cursor c) {
@@ -173,6 +201,18 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	@Override
 	public Iterator<T> iterator() {
 		return getItems().iterator();
+	}
+
+	public boolean contains(Object object) {
+		return getItems().contains(object);
+	}
+
+	public boolean containsAll(Collection<?> arg0) {
+		return getItems().containsAll(arg0);
+	}
+
+	public boolean isEmpty() {
+		return getItems().isEmpty();
 	}
 
 }

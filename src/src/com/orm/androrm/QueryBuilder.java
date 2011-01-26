@@ -65,7 +65,7 @@ public class QueryBuilder {
 			int depth) 
 	throws NoSuchFieldException {
 		
-		String tableName = Model.getTableName(clazz);
+		String tableName = DatabaseBuilder.getTableName(clazz);
 		
 		JoinStatement selfJoin = new JoinStatement();
 		selfJoin.left(tableName, "self" + depth);
@@ -170,12 +170,12 @@ public class QueryBuilder {
 		if(r instanceof ManyToManyField) {
 			ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) r;
 			
-			stmt.setKey(Model.getTableName(target));
+			stmt.setKey(DatabaseBuilder.getTableName(target));
 			
 			where.setStatement(stmt);
 			
 			select.from(m.getRelationTableName())
-			 	  .select(Model.getTableName(clazz));
+			 	  .select(DatabaseBuilder.getTableName(clazz));
 		} 
 		
 		if(r instanceof OneToManyField) {
@@ -185,8 +185,8 @@ public class QueryBuilder {
 			
 			where.setStatement(stmt);
 			
-			select.from(Model.getTableName(target))
-			 	  .select(backLinkFieldName + " AS " + Model.getTableName(clazz));
+			select.from(DatabaseBuilder.getTableName(target))
+			 	  .select(backLinkFieldName + " AS " + DatabaseBuilder.getTableName(clazz));
 		}	
 		
 		select.where(where)
@@ -234,7 +234,7 @@ public class QueryBuilder {
 			return getRelationSelection(r, clazz, filter);
 		} 
 		
-		String tableName = Model.getTableName(clazz);
+		String tableName = DatabaseBuilder.getTableName(clazz);
 		
 		Where where = new Where();
 		where.setStatement(filter.getStatement());
@@ -266,7 +266,7 @@ public class QueryBuilder {
 		String selectField = joinParams.get("selectField");
 		String selectAs = joinParams.get("selectAs");
 		String onLeft = joinParams.get("onLeft");
-		String onRight = Model.getTableName(target);
+		String onRight = DatabaseBuilder.getTableName(target);
 		
 		/*
 		 * After the steps above the left side of the join is always known. 
@@ -310,7 +310,7 @@ public class QueryBuilder {
 		 * is the table corresponding to the class,
 		 * we are currently examining.
 		 */
-		String leftTable = Model.getTableName(clazz);
+		String leftTable = DatabaseBuilder.getTableName(clazz);
 		joinParams.put("leftTable", leftTable);
 		/*
 		 * As we do not operate on a relation table
@@ -350,8 +350,8 @@ public class QueryBuilder {
 		 * after the classes they represent. Thus we select the field
 		 * with the name of the class we are currently examining.
 		 */
-		String selectField = Model.getTableName(clazz);
-		joinParams.put("selectField", Model.getTableName(clazz));
+		String selectField = DatabaseBuilder.getTableName(clazz);
+		joinParams.put("selectField", DatabaseBuilder.getTableName(clazz));
 		/*
 		 * When dealing with foreign keys the selection field has
 		 * to be renamed to the field name in the representing class.
@@ -362,7 +362,7 @@ public class QueryBuilder {
 		 * Field of the left table that will be considered 
 		 * during the join. 
 		 */
-		joinParams.put("onLeft", Model.getTableName(m.getTarget()));
+		joinParams.put("onLeft", DatabaseBuilder.getTableName(m.getTarget()));
 	}
 	
 	private static final <T extends Model> void unwrapOneToManyField(Map<String, String> joinParams, 
@@ -376,7 +376,7 @@ public class QueryBuilder {
 		 * One to Many fields have no field representation in their origin 
 		 * class. Therefore we must determine the target class for the join.
 		 */
-		joinParams.put("leftTable", Model.getTableName(target));
+		joinParams.put("leftTable", DatabaseBuilder.getTableName(target));
 		
 		/*
 		 * On the target class we select the field pointing back to 
@@ -387,7 +387,7 @@ public class QueryBuilder {
 		/*
 		 * This field has to be selected under the alias of the origin class.
 		 */
-		joinParams.put("selectAs", Model.getTableName(clazz));
+		joinParams.put("selectAs", DatabaseBuilder.getTableName(clazz));
 		
 		/*
 		 * We have to join over the primary key of the target class,

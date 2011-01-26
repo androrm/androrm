@@ -5,20 +5,14 @@ import java.util.List;
 import android.content.Context;
 
 import com.orm.androrm.CharField;
-import com.orm.androrm.FilterSet;
 import com.orm.androrm.Model;
 import com.orm.androrm.OneToManyField;
+import com.orm.androrm.QuerySet;
 
 public class Product extends Model {
 
-	public static final Product get(Context context, int id) {
-		return get(context, Product.class, id);
-	}
-	
-	public static final List<Product> filter(Context context, 
-			FilterSet filter) {
-		
-		return filter(context, Product.class, filter);
+	public static final QuerySet<Product> objects(Context context) {
+		return objects(context, Product.class);
 	}
 	
 	protected CharField mName;

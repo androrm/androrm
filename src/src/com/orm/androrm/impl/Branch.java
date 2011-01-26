@@ -5,7 +5,6 @@ import java.util.List;
 import android.content.Context;
 
 import com.orm.androrm.CharField;
-import com.orm.androrm.FilterSet;
 import com.orm.androrm.ForeignKeyField;
 import com.orm.androrm.ManyToManyField;
 import com.orm.androrm.Model;
@@ -13,10 +12,6 @@ import com.orm.androrm.QuerySet;
 
 public class Branch extends Model {
 
-	public static final List<Branch> filter(Context context, FilterSet filter) {
-		return filter(context, Branch.class, filter);
-	}
-	
 	public static QuerySet<Branch> objects(Context context) {
 		return objects(context, Branch.class);
 	}

@@ -117,8 +117,8 @@ implements XToManyRelation<L, R> {
 	
 	private String createTableName() {
 		List<String> tableNames = new ArrayList<String>();
-		tableNames.add(Model.getTableName(mOriginClass));
-		tableNames.add(Model.getTableName(mTargetClass));
+		tableNames.add(DatabaseBuilder.getTableName(mOriginClass));
+		tableNames.add(DatabaseBuilder.getTableName(mTargetClass));
 		
 		Collections.sort(tableNames);
 		
@@ -160,9 +160,9 @@ implements XToManyRelation<L, R> {
 	private JoinStatement getJoin(String leftAlias, String rightAlias, int id) {
 		JoinStatement join = new JoinStatement();
 		
-		join.left(Model.getTableName(mTargetClass), leftAlias)
+		join.left(DatabaseBuilder.getTableName(mTargetClass), leftAlias)
 			.right(getRightJoinSide(id), rightAlias)
-			.on(Model.PK, Model.getTableName(mTargetClass));
+			.on(Model.PK, DatabaseBuilder.getTableName(mTargetClass));
 		
 		return join;
 	}
@@ -202,8 +202,8 @@ implements XToManyRelation<L, R> {
 	}
 	
 	private SelectStatement getRightJoinSide(int id) {
-		String leftTable = Model.getTableName(mOriginClass);
-		String rightTable = Model.getTableName(mTargetClass);
+		String leftTable = DatabaseBuilder.getTableName(mOriginClass);
+		String rightTable = DatabaseBuilder.getTableName(mTargetClass);
 		
 		Where where = new Where();
 		where.setStatement(new Statement(leftTable, id));

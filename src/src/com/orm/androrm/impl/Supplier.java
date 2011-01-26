@@ -5,9 +5,9 @@ import java.util.List;
 import android.content.Context;
 
 import com.orm.androrm.CharField;
-import com.orm.androrm.FilterSet;
 import com.orm.androrm.ManyToManyField;
 import com.orm.androrm.Model;
+import com.orm.androrm.QuerySet;
 
 public class Supplier extends Model {
 
@@ -15,12 +15,8 @@ public class Supplier extends Model {
 	protected ManyToManyField<Supplier, Product> mProducts;
 	protected ManyToManyField<Supplier, Branch> mBranches;
 	
-	public static final Supplier get(Context context, int id) {
-		return get(context, Supplier.class, id);
-	}
-	
-	public static final List<Supplier> filter(Context context, FilterSet filter) {
-		return filter(context, Supplier.class, filter);
+	public static final QuerySet<Supplier> objects(Context context) {
+		return objects(context, Supplier.class);
 	}
 	
 	public Supplier() {

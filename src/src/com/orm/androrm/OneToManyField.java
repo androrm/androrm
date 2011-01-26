@@ -71,7 +71,7 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 			FilterSet filter = new FilterSet();
 			filter.is(fieldName, l);
 			
-			return Model.count(context, mTargetClass, filter);
+			return Model.objects(context, mTargetClass).filter(filter).count();
 		}
 		
 		/*
@@ -100,9 +100,11 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 			filter.is(fieldName, l)
 				  .orderBy(mOrderBy);
 			
-			List<R> result = Model.filter(context, mTargetClass, filter, limit);
-			
-			mValues.addAll(result);
+			QuerySet<R> result = Model.objects(context, mTargetClass).filter(filter).limit(limit);
+
+			for(R item : result) {
+				mValues.add(item);
+			}
 		}
 		
 		if(limit != null && mValues.size() >= limit.getComputedLimit()) {

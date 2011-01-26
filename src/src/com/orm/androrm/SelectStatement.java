@@ -22,13 +22,18 @@
  */
 package com.orm.androrm;
 
+import android.util.Log;
+
 /**
  * By utilizing this class you can build complex select statements. 
  * If no fields are given, SELECT * will be assumed.
  * 
  * @author Philipp Giese
  */
-public class SelectStatement {
+public class SelectStatement implements Cloneable {
+	
+	private static final String TAG = "ANDRORM:SELECT";
+	
 	private String[] mFields = new String[] { "*" };
 	private String mFrom;
 	private Where mWhere;
@@ -226,5 +231,16 @@ public class SelectStatement {
 		mWhere = where;
 		
 		return this;
+	}
+	
+	@Override
+	public SelectStatement clone() {
+		try {
+			return (SelectStatement) super.clone();
+		} catch(CloneNotSupportedException e) {
+			Log.e(TAG, "could not clone object", e);
+		}
+		
+		return null;
 	}
 }
