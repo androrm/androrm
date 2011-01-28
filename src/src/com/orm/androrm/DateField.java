@@ -100,6 +100,9 @@ public class DateField extends DataField<Date> {
 			
 			String dayString = String.valueOf(day);
 			String monthString = String.valueOf(month);
+			String hourString = String.valueOf(hour);
+			String minuteString = String.valueOf(minute);
+			String secondString = String.valueOf(second);
 			
 			if(day < 10) {
 				dayString = "0" + dayString;
@@ -109,9 +112,21 @@ public class DateField extends DataField<Date> {
 				monthString = "0" + monthString;
 			}
 			
+			if(hour < 10) {
+				hourString = "0" + hourString;
+			}
+			
+			if(minute < 10) {
+				minuteString = "0" + minuteString;
+			}
+			
+			if(second < 10) {
+				secondString = "0" + secondString;
+			}
+			
 			return year + "-" + monthString + "-" + dayString
 			 	+ "T"
-			 	+ hour + ":" + minute + ":" + second;
+			 	+ hourString + ":" + minuteString + ":" + secondString;
 		}
 		
 		return null;
