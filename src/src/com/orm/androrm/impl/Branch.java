@@ -1,7 +1,5 @@
 package com.orm.androrm.impl;
 
-import java.util.List;
-
 import android.content.Context;
 
 import com.orm.androrm.CharField;
@@ -46,7 +44,7 @@ public class Branch extends Model {
 		mProducts.add(product);
 	}
 	
-	public List<Product> getProducts(Context context) {
+	public QuerySet<Product> getProducts(Context context) {
 		return mProducts.get(context, this);
 	}
 }

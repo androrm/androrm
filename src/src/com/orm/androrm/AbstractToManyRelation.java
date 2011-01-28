@@ -23,9 +23,6 @@
 package com.orm.androrm;
 
 import java.util.Collection;
-import java.util.List;
-
-import android.content.Context;
 
 /**
  * @author Philipp Giese
@@ -37,8 +34,6 @@ implements XToManyRelation<O, T> {
 	protected Collection<T> mValues;
 	protected Class<O> mOriginClass;
 	protected Class<T> mTargetClass;
-	protected OrderBy mOrderBy;
-	protected boolean mInvalidated;
 	
 	@Override
 	public void add(T value) {
@@ -55,23 +50,17 @@ implements XToManyRelation<O, T> {
 	}
 	
 	@Override
-	public List<T> get(Context context, O origin) {
-		return get(context, origin, null);
-	}
-	
-	@Override
 	public Class<T> getTarget() {
 		return mTargetClass;
 	}
 
 	@Override
-	public void orderBy(String... columns) {
-		mOrderBy = new OrderBy(columns);
+	public void reset() {
+		mValues.clear();
 	}
 	
 	@Override
-	public void reset() {
-		mValues.clear();
-		mInvalidated = true;
+	public Collection<T> getCachedValues() {
+		return mValues;
 	}
 }

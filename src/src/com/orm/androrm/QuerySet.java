@@ -49,6 +49,10 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		mClass = model;
 	}
 	
+	protected void injectQuery(SelectStatement query) {
+		mQuery = query;
+	}
+	
 	public T get(int id) {
 		Where where = new Where();
 		where.setStatement(new Statement("mId", id));

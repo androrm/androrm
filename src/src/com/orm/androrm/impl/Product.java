@@ -41,12 +41,12 @@ public class Product extends Model {
 		mBranches.addAll(branches);
 	}
 	
-	public List<Branch> getBranches(Context context) {
+	public QuerySet<Branch> getBranches(Context context) {
 		return mBranches.get(context, this);
 	}
 	
 	public int branchCount(Context context) {
-		return mBranches.count(context, this);
+		return mBranches.get(context, this).count();
 	}
 	
 }

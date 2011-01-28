@@ -28,8 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
 
 /**
  * @author Philipp Giese
@@ -41,8 +39,6 @@ public class ManyToManyField<L extends Model,
 							 R extends Model> 
 extends AbstractToManyRelation<L, R> {
 
-	private static final String TAG = "ANDRORM:M2M";
-	
 	private String mTableName;
 	
 	public ManyToManyField(Class<L> origin, 
@@ -71,31 +67,6 @@ extends AbstractToManyRelation<L, R> {
 		mTableName = createTableName();
 	}
 	
-	@Override
-	public int count(Context context, L origin) {
-		if(origin.getId() != 0) {
-			SelectStatement select = new SelectStatement();
-			select.from(getJoin("a", "b", origin.getId()))
-				  .distinct()
-				  .count();
-			
-			DatabaseAdapter adapter = new DatabaseAdapter(context);
-			adapter.open();
-			
-			Cursor c = adapter.query(select);
-			int count = 0;
-			if(c.moveToNext()) {
-				count = c.getInt(c.getColumnIndexOrThrow("count"));
-			}
-			
-			c.close();
-			adapter.close();
-			return count;
-		}
-		
-		return mValues.size();
-	}
-	
 	private String createTableName() {
 		List<String> tableNames = new ArrayList<String>();
 		tableNames.add(DatabaseBuilder.getTableName(mOriginClass));
@@ -107,33 +78,11 @@ extends AbstractToManyRelation<L, R> {
 	}
 	
 	@Override
-	public List<R> get(Context context, L l, Limit limit) {
-		// TODO: take limit into account
-		if(!mInvalidated 
-				&& mValues.isEmpty()) {
-			
-			SelectStatement select = getQuery(l.getId(), limit).orderBy(mOrderBy);
-			
-			DatabaseAdapter adapter = new DatabaseAdapter(context);
-			adapter.open();
-			
-			List<R> values = new ArrayList<R>();
-			Cursor c = adapter.query(select);
-			
-			try {
-				values = getObjects(c);
-			} catch(Exception e) {
-				Log.e(TAG, "an error occurred creating objects for " 
-						+ mTargetClass.getSimpleName(), e);
-			} finally {
-				c.close();
-				adapter.close();
-			}
-			
-			mValues = values;
-		}
+	public QuerySet<R> get(Context context, L origin) {
+		QuerySet<R> querySet = new QuerySet<R>(context, mTargetClass);
+		querySet.injectQuery(getQuery(origin.getId()));
 		
-		return new ArrayList<R>(mValues);
+		return querySet;
 	}
 	
 	private JoinStatement getJoin(String leftAlias, String rightAlias, int id) {
@@ -150,24 +99,11 @@ extends AbstractToManyRelation<L, R> {
 		return new ForeignKeyField<L>(mOriginClass);
 	}
 	
-	private List<R> getObjects(Cursor c) {
-		List<R> values = new ArrayList<R>();
-		
-		while(c.moveToNext()) {
-			R object = Model.createObject(mTargetClass, c);
-			
-			values.add(object);
-		}
-		
-		return values;
-	}
-	
-	private SelectStatement getQuery(int id, Limit limit) {
+	private SelectStatement getQuery(int id) {
 		SelectStatement select = new SelectStatement();
 		
 		select.select("a.*")
-		  	  .from(getJoin("a", "b", id))
-		  	  .limit(limit);
+		  	  .from(getJoin("a", "b", id));
 		
 		return select;
 	}

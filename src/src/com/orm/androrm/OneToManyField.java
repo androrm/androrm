@@ -23,7 +23,6 @@
 package com.orm.androrm;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.content.Context;
 
@@ -35,7 +34,9 @@ import android.content.Context;
  * 
  * @author Philipp Giese
  */
-public class OneToManyField<L extends Model, R extends Model> extends AbstractToManyRelation<L, R> {
+public class OneToManyField<L extends Model, 
+							R extends Model> 
+extends AbstractToManyRelation<L, R> {
 
 	public OneToManyField(Class<L> origin, Class<R> target) {
 		mOriginClass = origin;
@@ -44,49 +45,15 @@ public class OneToManyField<L extends Model, R extends Model> extends AbstractTo
 	}
 	
 	@Override
-	public int count(Context context, L l) {
-		if(l.getId() != 0) {
-			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
-			
-			Filter filter = new Filter();
-			filter.is(fieldName, l);
-			
-			return Model.objects(context, mTargetClass).filter(filter).count();
-		}
+	public QuerySet<R> get(Context context, L origin) {
+		String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
 		
-		/*
-		 * even though the relation is not persisted objects
-		 * could have been added to via the add method. In this 
-		 * case the result of count is the size of the mValues
-		 * list.
-		 */
-		return mValues.size();
-	}
-	
-	@Override
-	public List<R> get(Context context, L l, Limit limit) {
-		if(!mInvalidated 
-				&& (mValues.isEmpty()
-				|| (limit != null &&
-						mValues.size() < limit.getComputedLimit()))) {
-			
-			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
-			
-			Filter filter = new Filter();
-			filter.is(fieldName, l)
-				  .orderBy(mOrderBy);
-			
-			QuerySet<R> result = Model.objects(context, mTargetClass).filter(filter).limit(limit);
-
-			for(R item : result) {
-				mValues.add(item);
-			}
-		}
+		Filter filter = new Filter();
+		filter.is(fieldName, origin);
 		
-		if(limit != null && mValues.size() >= limit.getComputedLimit()) {
-			return ((ArrayList<R>) mValues).subList(limit.getOffset(), limit.getComputedLimit());
-		}
+		QuerySet<R> querySet = new QuerySet<R>(context, mTargetClass);
+		querySet.filter(filter);
 		
-		return new ArrayList<R>(mValues);
+		return querySet;
 	}
 }

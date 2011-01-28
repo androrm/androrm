@@ -50,7 +50,6 @@ public class Filter {
 	 * added to this set.
 	 */
 	private List<Rule> mRules;
-	private OrderBy mOrderBy;
 	
 	public Filter() {
 		mRules = new ArrayList<Rule>();
@@ -69,16 +68,6 @@ public class Filter {
 		mRules.add(new Rule(key, new LikeStatement(getFieldName(key), needle)));
 		
 		return this;
-	}
-	
-	public Filter orderBy(OrderBy ordering) {
-		mOrderBy = ordering;
-		
-		return this;
-	}
-	
-	public OrderBy getOrdering() {
-		return mOrderBy;
 	}
 	
 	private List<Integer> filterValues(List<?> values) {

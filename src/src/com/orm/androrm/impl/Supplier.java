@@ -31,7 +31,7 @@ public class Supplier extends Model {
 		mName.set(name);
 	}
 	
-	public List<Product> getProducts(Context context) {
+	public QuerySet<Product> getProducts(Context context) {
 		return mProducts.get(context, this);
 	}
 	
@@ -44,7 +44,7 @@ public class Supplier extends Model {
 	}
 	
 	public int productCount(Context context) {
-		return mProducts.count(context, this);
+		return mProducts.get(context, this).count();
 	}
 	
 	public void addBranch(Branch b) {

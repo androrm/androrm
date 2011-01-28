@@ -25,6 +25,7 @@ package com.orm.androrm;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -475,7 +476,7 @@ public abstract class Model {
 			Object field) {
 		
 		ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) field;
-		List<? extends Model> targets = m.get(context, (T) this);
+		Collection<? extends Model> targets = m.getCachedValues();
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(context);
 		
@@ -504,7 +505,7 @@ public abstract class Model {
 	throws NoSuchFieldException {
 		
 		OneToManyField<T, ?> om = (OneToManyField<T, ?>) field;
-		List<? extends Model> targets = om.get(context, (T) this);
+		Collection<? extends Model> targets = om.getCachedValues();
 		
 		for(Model target: targets) {
 			/*

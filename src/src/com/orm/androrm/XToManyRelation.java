@@ -53,16 +53,6 @@ public interface XToManyRelation<O extends Model, T extends Model> extends Relat
 	public void addAll(Collection<T> values);
 	
 	/**
-	 * Get the number of referenced models.
-	 * 
-	 * @param context	{@link Context} of the application.
-	 * @param origin	Instance of the class, that is referencing. 
-	 * 
-	 * @return Number of referenced models. 
-	 */
-	public int count(Context context, O origin);
-	
-	/**
 	 * Retrieves a list of all referenced models. 
 	 * 
 	 * @param context	{@link Context} of the application.
@@ -70,19 +60,7 @@ public interface XToManyRelation<O extends Model, T extends Model> extends Relat
 	 * 
 	 * @return {@link List} of referenced model classes. 
 	 */
-	public List<T> get(Context context, O origin);
+	public QuerySet<T> get(Context context, O origin);
 	
-	/**
-	 * Same as {@link XToManyRelation#get(Context, Model)} only with a 
-	 * {@link Limit} parameter to slice the result. 
-	 * 
-	 * @param context	{@link Context} of the application.
-	 * @param origin	Instance of the class, that is referencing. 
-	 * @param limit		{@link Limit} clause.
-	 * 
-	 * @return {@link List} of referenced model classes. 
-	 */
-	public List<T> get(Context context, O origin, Limit limit);
-	
-	public void orderBy(String... columns);
+	public Collection<T> getCachedValues();
 }
