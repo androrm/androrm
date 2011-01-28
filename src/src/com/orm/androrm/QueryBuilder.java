@@ -38,7 +38,7 @@ public class QueryBuilder {
 	
 	private static final String TAG = "ANDRORM:QUERY:BUILDER";
 	
-	public static final <T extends Model> SelectStatement buildJoin(Class<T> clazz,
+	private static final <T extends Model> SelectStatement buildJoin(Class<T> clazz,
 			List<String> fields, 
 			Rule filter, 
 			int depth) throws NoSuchFieldException {
@@ -52,7 +52,7 @@ public class QueryBuilder {
 				return resolveLastField(fieldInstance, clazz, filter);
 			} 
 			
-			if(isRelationalField(fieldInstance)) {
+			if(DatabaseBuilder.isRelationalField(fieldInstance)) {
 				return resolveRelationField(fieldInstance, clazz, fields, filter, depth);
 			}
 		}
@@ -61,7 +61,7 @@ public class QueryBuilder {
 	}
 	
 	public static final <T extends Model> SelectStatement buildQuery(Class<T> clazz, 
-			List<Rule> filters,
+			List<Rule> rules,
 			int depth) 
 	throws NoSuchFieldException {
 		
@@ -71,9 +71,9 @@ public class QueryBuilder {
 		selfJoin.left(tableName, "self" + depth);
 		
 		SelectStatement subSelect = new SelectStatement();
-		Rule filter = filters.get(0);
+		Rule rule = rules.get(0);
 		
-		List<String> fields = Arrays.asList(filter.getKey().split("__"));
+		List<String> fields = Arrays.asList(rule.getKey().split("__"));
 		
 		if(fields.size() == 1) {
 			String fieldName = fields.get(0);
@@ -83,9 +83,9 @@ public class QueryBuilder {
 			if(instance != null) {
 				Object o = getFieldInstance(clazz, instance, fieldName);
 				
-				if(isRelationalField(o)) {
+				if(DatabaseBuilder.isRelationalField(o)) {
 					// gather ids for fields
-					SelectStatement s = buildJoin(clazz, fields, filter, depth);
+					SelectStatement s = buildJoin(clazz, fields, rule, depth);
 					
 					JoinStatement join = new JoinStatement();
 					join.left(tableName, "a")
@@ -96,7 +96,7 @@ public class QueryBuilder {
 							 .select("a.*");
 				} else {
 					Where where = new Where();
-					where.setStatement(filter.getStatement());
+					where.setStatement(rule.getStatement());
 					
 					subSelect.from(tableName)
 						  	 .where(where);
@@ -110,7 +110,7 @@ public class QueryBuilder {
 			join.left(tableName, "outer" + left)
 				.right(buildJoin(clazz, 
 						fields, 
-						filter, 
+						rule, 
 						depth), "outer" + right)
 				.on(Model.PK, tableName);
 			
@@ -118,7 +118,7 @@ public class QueryBuilder {
 				  	 .select("outer" + left + ".*");
 		}
 		
-		if(filters.size() == 1) {
+		if(rules.size() == 1) {
 			return subSelect;
 		}
 		
@@ -128,8 +128,8 @@ public class QueryBuilder {
 		JoinStatement outerSelfJoin = new JoinStatement();
 		outerSelfJoin.left(subSelect, "outerSelf" + depth)
 					 .right(buildQuery(clazz, 
-							 filters.subList(1, 
-									 filters.size()), 
+							 rules.subList(1, 
+									 rules.size()), 
 							 (depth + 2)), 
 							 "outerSelf" + (depth + 1))
 					 .on(Model.PK, Model.PK);
@@ -161,9 +161,9 @@ public class QueryBuilder {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static final <T extends Model> SelectStatement getRelationSelection(Relation<?> r, Class<T> clazz, Rule filter) {
+	private static final <T extends Model> SelectStatement getRelationSelection(Relation<?> r, Class<T> clazz, Rule rule) {
 		Class<? extends Model> target = r.getTarget();
-		Statement stmt = filter.getStatement();
+		Statement stmt = rule.getStatement();
 		Where where = new Where();
 		SelectStatement select = new SelectStatement();
 		
@@ -195,49 +195,24 @@ public class QueryBuilder {
 		return select;
 	}
 	
-	protected static final boolean isDatabaseField(Object field) {
-		if(field != null) {
-			if(field instanceof DataField
-					|| isRelationalField(field)) {
-				
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	protected static final boolean isRelationalField(Object field) {
-		if(field != null) {
-			if(field instanceof ForeignKeyField
-					|| field instanceof OneToManyField
-					|| field instanceof ManyToManyField) {
-				
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
 	private static final <T extends Model> SelectStatement resolveLastField(Object field, 
 			Class<T> clazz, 
-			Rule filter) {
+			Rule rule) {
 		
 		SelectStatement select = new SelectStatement();
 		
-		if(isRelationalField(field) 
+		if(DatabaseBuilder.isRelationalField(field) 
 				&& !(field instanceof ForeignKeyField)) {
 			
 			Relation<?> r = (Relation<?>) field;
 			
-			return getRelationSelection(r, clazz, filter);
+			return getRelationSelection(r, clazz, rule);
 		} 
 		
 		String tableName = DatabaseBuilder.getTableName(clazz);
 		
 		Where where = new Where();
-		where.setStatement(filter.getStatement());
+		where.setStatement(rule.getStatement());
 		
 		select.from(tableName)
 			  .distinct()
@@ -250,7 +225,7 @@ public class QueryBuilder {
 	private static final <T extends Model> SelectStatement resolveRelationField(Object field, 
 			Class<T> clazz, 
 			List<String> fields, 
-			Rule filter,
+			Rule rule,
 			int depth) 
 	throws NoSuchFieldException {
 		
@@ -259,8 +234,7 @@ public class QueryBuilder {
 		
 		Class<? extends Model> target = r.getTarget();
 		
-		Map<String, String> joinParams = new HashMap<String, String>();
-		unwrapRelation(r, fields.get(0), clazz, joinParams);
+		Map<String, String> joinParams = unwrapRelation(r, fields.get(0), clazz);
 		
 		String leftTable = joinParams.get("leftTable");
 		String selectField = joinParams.get("selectField");
@@ -278,7 +252,7 @@ public class QueryBuilder {
 		join.left(leftTable, "table" + depth)
 			.right(buildJoin(target, 
 					fields.subList(1, fields.size()), 
-					filter, 
+					rule, 
 					depth + 2), 
 					"table" + (depth + 1))
 			.on(onLeft, onRight);
@@ -299,10 +273,11 @@ public class QueryBuilder {
 		return select;
 	}
 	
-	private static final <T extends Model> void unwrapForeignKeyRelation(Map<String, String> joinParams,
-			String fieldName,
+	private static final <T extends Model> Map<String, String> unwrapForeignKeyRelation(String fieldName,
 			Class<T> clazz,
 			Relation<?> r) {
+		
+		Map<String, String> joinParams = new HashMap<String, String>();
 		
 		/*
 		 * As ForeignKeyFields are real fields in the
@@ -330,13 +305,15 @@ public class QueryBuilder {
 		 * during the join.
 		 */
 		joinParams.put("onLeft", fieldName);
+		
+		return joinParams;
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static final <T extends Model> void unwrapManyToManyRelation(Map<String, String> joinParams, 
-			Class<T> clazz, 
+	private static final <T extends Model> Map<String, String> unwrapManyToManyRelation(Class<T> clazz, 
 			Relation<?> r) {
 		
+		Map<String, String> joinParams = new HashMap<String, String>();
 		ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) r;
 		
 		/*
@@ -351,7 +328,7 @@ public class QueryBuilder {
 		 * with the name of the class we are currently examining.
 		 */
 		String selectField = DatabaseBuilder.getTableName(clazz);
-		joinParams.put("selectField", DatabaseBuilder.getTableName(clazz));
+		joinParams.put("selectField", selectField);
 		/*
 		 * When dealing with foreign keys the selection field has
 		 * to be renamed to the field name in the representing class.
@@ -363,14 +340,16 @@ public class QueryBuilder {
 		 * during the join. 
 		 */
 		joinParams.put("onLeft", DatabaseBuilder.getTableName(m.getTarget()));
+		
+		return joinParams;
 	}
 	
-	private static final <T extends Model> void unwrapOneToManyField(Map<String, String> joinParams, 
-			String fieldName,
+	private static final <T extends Model> Map<String, String> unwrapOneToManyField(String fieldName,
 			Class<T> clazz,
 			Relation<?> r) {
 		
 		Class<? extends Model> target = r.getTarget();
+		Map<String, String> joinParams = new HashMap<String, String>();
 		
 		/*
 		 * One to Many fields have no field representation in their origin 
@@ -394,19 +373,22 @@ public class QueryBuilder {
 		 * as this is our indirect reference
 		 */
 		joinParams.put("onLeft", Model.PK);
+		
+		return joinParams;
 	}
 	
-	private static final <T extends Model> void unwrapRelation(Relation<?> r, 
+	private static final <T extends Model> Map<String, String> unwrapRelation(Relation<?> r, 
 			String fieldName,
-			Class<T> clazz, 
-			Map<String, String> joinParams) {
+			Class<T> clazz) {
 		
 		if(r instanceof ManyToManyField) {
-			unwrapManyToManyRelation(joinParams, clazz, r);
+			return unwrapManyToManyRelation(clazz, r);
 		} else if(r instanceof ForeignKeyField) {
-			unwrapForeignKeyRelation(joinParams, fieldName, clazz, r);
+			return unwrapForeignKeyRelation(fieldName, clazz, r);
 		} else if(r instanceof OneToManyField) {
-			unwrapOneToManyField(joinParams, fieldName, clazz, r);
+			return unwrapOneToManyField(fieldName, clazz, r);
 		}
+		
+		return null;
 	}
 }

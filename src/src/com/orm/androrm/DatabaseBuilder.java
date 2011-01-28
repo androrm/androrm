@@ -122,7 +122,7 @@ public class DatabaseBuilder {
 					field.setAccessible(true);
 					Object f = field.get(instance);
 					
-					if(QueryBuilder.isDatabaseField(f)) {
+					if(isDatabaseField(f)) {
 						fields.add(field);
 					}
 				}
@@ -133,6 +133,31 @@ public class DatabaseBuilder {
 		}
 		
 		return fields;
+	}
+	
+	private static final boolean isDatabaseField(Object field) {
+		if(field != null) {
+			if(field instanceof DataField
+					|| isRelationalField(field)) {
+				
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	protected static final boolean isRelationalField(Object field) {
+		if(field != null) {
+			if(field instanceof ForeignKeyField
+					|| field instanceof OneToManyField
+					|| field instanceof ManyToManyField) {
+				
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	private static final<T extends Model> List<TableDefinition> getRelationDefinitions(Class<T> clazz) {
