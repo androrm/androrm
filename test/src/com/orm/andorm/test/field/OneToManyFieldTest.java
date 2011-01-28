@@ -9,6 +9,7 @@ import android.test.AndroidTestCase;
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.Model;
 import com.orm.androrm.OneToManyField;
+import com.orm.androrm.QuerySet;
 import com.orm.androrm.impl.Branch;
 import com.orm.androrm.impl.Product;
 
@@ -45,7 +46,7 @@ public class OneToManyFieldTest extends AndroidTestCase {
 		p.addBranch(b1);
 		p.addBranch(b2);
 		
-		List<Branch> branches = p.getBranches(getContext());
+		QuerySet<Branch> branches = p.getBranches(getContext());
 		
 		p.save(getContext());
 		
@@ -53,7 +54,7 @@ public class OneToManyFieldTest extends AndroidTestCase {
 		
 		branches = p.getBranches(getContext());
 		
-		assertEquals(2, branches.size());
+		assertEquals(2, branches.count());
 		assertTrue(branches.contains(b1));
 		assertTrue(branches.contains(b2));
 		
@@ -76,9 +77,9 @@ public class OneToManyFieldTest extends AndroidTestCase {
 		
 		p = Product.objects(getContext()).get(p.getId());
 		
-		List<Branch> branches = p.getBranches(getContext());
+		QuerySet<Branch> branches = p.getBranches(getContext());
 		
-		assertEquals(2, branches.size());
+		assertEquals(2, branches.count());
 		assertTrue(branches.contains(b1));
 		assertTrue(branches.contains(b2));
 		

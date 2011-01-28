@@ -10,6 +10,7 @@ import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.ForeignKeyField;
 import com.orm.androrm.ManyToManyField;
 import com.orm.androrm.Model;
+import com.orm.androrm.QuerySet;
 import com.orm.androrm.impl.Branch;
 import com.orm.androrm.impl.Product;
 import com.orm.androrm.impl.Supplier;
@@ -73,9 +74,9 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		
 		s = Supplier.objects(getContext()).get(s.getId());
 		
-		List<Product> products = s.getProducts(getContext());
+		QuerySet<Product> products = s.getProducts(getContext());
 		
-		assertEquals(2, products.size());
+		assertEquals(2, products.count());
 		assertTrue(products.contains(p1));
 		assertTrue(products.contains(p2));
 	}
@@ -96,9 +97,9 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		
 		s = Supplier.objects(getContext()).get(s.getId());
 		
-		List<Product> products = s.getProducts(getContext());
+		QuerySet<Product> products = s.getProducts(getContext());
 		
-		assertEquals(2, products.size());
+		assertEquals(2, products.count());
 		assertTrue(products.contains(p1));
 		assertTrue(products.contains(p2));
 	}
@@ -116,7 +117,7 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		s.setName("ACME");
 		s.addProducts(Arrays.asList(new Product[] { p1, p2 }));
 		
-		assertEquals(2, s.productCount(getContext()));
+		assertEquals(0, s.productCount(getContext()));
 		
 		s.save(getContext());
 		s = Supplier.objects(getContext()).get(s.getId());
@@ -139,7 +140,7 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		
 		Branch b2 = Branch.objects(getContext(), Branch.class).get(b1.getId());
 		
-		assertEquals(1, b2.getProducts(getContext()).size());
+		assertEquals(1, b2.getProducts(getContext()).count());
 		assertTrue(b2.getProducts(getContext()).contains(p));
 	}
 	
