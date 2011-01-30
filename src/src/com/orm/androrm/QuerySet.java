@@ -54,7 +54,6 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	
 	private Cursor getCursor(SelectStatement query) {
 		mAdapter.open();
-		
 		return mAdapter.query(query);
 	}
 	
@@ -69,11 +68,10 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		
 		if(mQuery == null) {
 			mQuery = new SelectStatement();
-			mQuery.from(DatabaseBuilder.getTableName(mClass))
-				  .where(where);
-		} else {
-			mQuery.where(where);
+			mQuery.from(DatabaseBuilder.getTableName(mClass));
 		}
+		
+		mQuery.where(where);
 		
 		Cursor c = getCursor(mQuery);
 		T object = createObject(c);
@@ -151,21 +149,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	
 	public int count() {
 		if(mQuery != null) {
-			SelectStatement query = new SelectStatement();
-			query.from(mQuery)
-				 .count();
-			
-			Cursor c = getCursor(query);
-			
-			int count = 0;
-			
-			if(c.moveToNext()) {
-				count = c.getInt(c.getColumnIndexOrThrow(Model.COUNT));
-			}
-			
-			closeConnection(c);
-			
-			return count;
+			return getCount(mQuery);
 		}
 		
 		return all().count();
@@ -213,26 +197,72 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	public Iterator<T> iterator() {
 		return getItems().iterator();
 	}
+	
+	private int getCount(SelectStatement query) {
+		SelectStatement countQuery = new SelectStatement();
+		countQuery.from(query)
+			 	  .count();
+		
+		Cursor c = getCursor(countQuery);
+		
+		int count = 0;
+		
+		if(c.moveToNext()) {
+			count = c.getInt(c.getColumnIndexOrThrow(Model.COUNT));
+		}
+		
+		closeConnection(c);
+		
+		return count;
+	}
 
 	/**
 	 * Checks if the result of this query contains the given 
 	 * object. Note, that this operation will execute the query
 	 * on the database. Use only, if you have to. 
 	 * 
-	 * @param object
+	 * @param value
 	 * @return
 	 */
-	public boolean contains(T object) {
-		return getItems().contains(object);
+	public boolean contains(T value) {
+		if(mQuery != null) {
+			Where where = new Where();
+			where.setStatement(new Statement(Model.PK, value.getId()));
+			
+			SelectStatement query = new SelectStatement();
+			query.from(mQuery)
+			     .where(where);
+			
+			return getCount(query) != 0;
+		}
+		
+		return false;
 	}
 
 	/**
 	 * See {@link QuerySet#contains}
-	 * @param arg0
+	 * @param values
 	 * @return
 	 */
-	public boolean containsAll(Collection<T> arg0) {
-		return getItems().containsAll(arg0);
+	public boolean containsAll(Collection<T> values) {
+		if(mQuery != null) {
+			List<Integer> ids = new ArrayList<Integer>();
+			
+			for(T item : values) {
+				ids.add(item.getId());
+			}
+			
+			Where where = new Where();
+			where.setStatement(new InStatement(Model.PK, ids));
+			
+			SelectStatement query = new SelectStatement();
+			query.from(mQuery)
+				 .where(where);
+			
+			return getCount(query) == values.size();
+		}
+		
+		return false;
 	}
 
 	public boolean isEmpty() {
