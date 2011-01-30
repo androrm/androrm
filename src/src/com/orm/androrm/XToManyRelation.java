@@ -62,5 +62,5 @@ public interface XToManyRelation<O extends Model, T extends Model> extends Relat
 	 */
 	public QuerySet<T> get(Context context, O origin);
 	
-	public Collection<T> getCachedValues();
+	public List<T> getCachedValues();
 }

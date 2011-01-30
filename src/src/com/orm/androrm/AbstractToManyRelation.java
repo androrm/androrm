@@ -23,6 +23,7 @@
 package com.orm.androrm;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Philipp Giese
@@ -31,7 +32,7 @@ public abstract class AbstractToManyRelation<O extends Model,
 											 T extends Model> 
 implements XToManyRelation<O, T> {
 	
-	protected Collection<T> mValues;
+	protected List<T> mValues;
 	protected Class<O> mOriginClass;
 	protected Class<T> mTargetClass;
 	
@@ -60,7 +61,7 @@ implements XToManyRelation<O, T> {
 	}
 	
 	@Override
-	public Collection<T> getCachedValues() {
+	public List<T> getCachedValues() {
 		return mValues;
 	}
 }

@@ -22,7 +22,6 @@
  */
 package com.orm.androrm;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -212,9 +211,5 @@ public class DatabaseAdapter {
 		mDbHelper.setModels(mDb, models);
 		
 		close();
-	}
-	
-	public List<Class<? extends Model>> getModels() {
-		return new ArrayList<Class<? extends Model>>(DatabaseHelper.getModels());
 	}
 }
