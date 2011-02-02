@@ -269,4 +269,13 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		return count() == 0;
 	}
 
+	public List<T> toList() {
+		List<T> list = new ArrayList<T>();
+		
+		for(T item : getItems()) {
+			list.add(item);
+		}
+		
+		return list;
+	}
 }
