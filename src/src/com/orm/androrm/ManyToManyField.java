@@ -24,7 +24,6 @@ package com.orm.androrm;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import android.content.Context;
@@ -44,25 +43,9 @@ extends AbstractToManyRelation<L, R> {
 	public ManyToManyField(Class<L> origin, 
 			Class<R> target) {
 		
-		setUp(origin, target, false);
-	}
-	
-	public ManyToManyField(Class<L> origin,
-			Class<R> target,
-			boolean isSet) {
-		
-		setUp(origin, target, isSet);
-	}
-	
-	private void setUp(Class<L> origin, Class<R> target, boolean isSet) {
 		mOriginClass = origin;
 		mTargetClass = target;
-		
-		if(isSet) {
-			mValues = new HashSet<R>();
-		} else {
-			mValues = new ArrayList<R>();
-		}
+		mValues = new ArrayList<R>();
 		
 		mTableName = createTableName();
 	}
@@ -99,6 +82,10 @@ extends AbstractToManyRelation<L, R> {
 		return new ForeignKeyField<L>(mOriginClass);
 	}
 	
+	public ForeignKeyField<R> getRightHandDescriptor() {
+		return new ForeignKeyField<R>(mTargetClass);
+	}
+	
 	private SelectStatement getQuery(int id) {
 		SelectStatement select = new SelectStatement();
 		
@@ -110,10 +97,6 @@ extends AbstractToManyRelation<L, R> {
 	
 	public String getRelationTableName() {
 		return mTableName;
-	}
-	
-	public ForeignKeyField<R> getRightHandDescriptor() {
-		return new ForeignKeyField<R>(mTargetClass);
 	}
 	
 	private SelectStatement getRightJoinSide(int id) {

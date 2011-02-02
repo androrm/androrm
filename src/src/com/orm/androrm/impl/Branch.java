@@ -24,7 +24,7 @@ public class Branch extends Model {
 
 		mName = new CharField(50);
 		mProduct = new ForeignKeyField<Product>(Product.class);
-		mProducts = new ManyToManyField<Branch, Product>(Branch.class, Product.class, true);
+		mProducts = new ManyToManyField<Branch, Product>(Branch.class, Product.class);
 		mSuppliers = new ManyToManyField<Branch, Supplier>(Branch.class, Supplier.class);
 	}
 
