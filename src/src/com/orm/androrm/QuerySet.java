@@ -33,7 +33,6 @@ import android.util.Log;
 
 /**
  * @author Philipp Giese
- *
  */
 public class QuerySet<T extends Model> implements Iterable<T> {
 
@@ -41,16 +40,26 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	
 	private SelectStatement mQuery;
 	private Class<T> mClass;
-	private Context mContext;
 	private List<T> mItems;
+	private DatabaseAdapter mAdapter;
 	
 	public QuerySet(Context context, Class<T> model) {
-		mContext = context;
 		mClass = model;
+		mAdapter = new DatabaseAdapter(context);
 	}
 	
 	protected void injectQuery(SelectStatement query) {
 		mQuery = query;
+	}
+	
+	private Cursor getCursor(SelectStatement query) {
+		mAdapter.open();
+		return mAdapter.query(query);
+	}
+	
+	private void closeConnection(Cursor c) {
+		c.close();
+		mAdapter.close();
 	}
 	
 	public T get(int id) {
@@ -59,21 +68,14 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		
 		if(mQuery == null) {
 			mQuery = new SelectStatement();
-			mQuery.from(DatabaseBuilder.getTableName(mClass))
-				  .where(where);
-		} else {
-			mQuery.where(where);
+			mQuery.from(DatabaseBuilder.getTableName(mClass));
 		}
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(mContext);
-		adapter.open();
+		mQuery.where(where);
 		
-		Cursor c = adapter.query(mQuery);
-		
+		Cursor c = getCursor(mQuery);
 		T object = createObject(c);
-		
-		c.close();
-		adapter.close();
+		closeConnection(c);
 		
 		return object;
 	}
@@ -130,19 +132,11 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	}
 	
 	public QuerySet<T> limit(int limit) {
-		if(mQuery != null) {
-			mQuery.limit(new Limit(limit));
-		}
-		
-		return this;
+		return limit(new Limit(limit));
 	}
 	
 	public QuerySet<T> limit(int offset, int limit) {
-		if(mQuery != null) {
-			mQuery.limit(new Limit(offset, limit));
-		}
-		
-		return this;
+		return limit(new Limit(offset, limit));
 	}
 	
 	public QuerySet<T> limit(Limit limit) {
@@ -155,28 +149,10 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	
 	public int count() {
 		if(mQuery != null) {
-			SelectStatement query = new SelectStatement();
-			query.from(mQuery)
-				 .count();
-			
-			DatabaseAdapter adapter = new DatabaseAdapter(mContext);
-			adapter.open();
-			
-			Cursor c = adapter.query(query);
-			
-			int count = 0;
-			
-			if(c.moveToNext()) {
-				count = c.getInt(c.getColumnIndexOrThrow(Model.COUNT));
-			}
-			
-			c.close();
-			adapter.close();
-			
-			return count;
+			return getCount(mQuery);
 		}
 		
-		return 0;
+		return all().count();
 	}
 	
 	private T createObject(Cursor c) {
@@ -208,14 +184,9 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 			mItems = new ArrayList<T>();
 			
 			if(mQuery != null) {
-				DatabaseAdapter adapter = new DatabaseAdapter(mContext);
-				adapter.open();
-				
-				Cursor c = adapter.query(mQuery);
+				Cursor c = getCursor(mQuery);
 				mItems.addAll(createObjects(c));
-				
-				c.close();
-				adapter.close();
+				closeConnection(c);
 			}
 		}
 		
@@ -226,17 +197,85 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	public Iterator<T> iterator() {
 		return getItems().iterator();
 	}
-
-	public boolean contains(Object object) {
-		return getItems().contains(object);
+	
+	private int getCount(SelectStatement query) {
+		SelectStatement countQuery = new SelectStatement();
+		countQuery.from(query)
+			 	  .count();
+		
+		Cursor c = getCursor(countQuery);
+		
+		int count = 0;
+		
+		if(c.moveToNext()) {
+			count = c.getInt(c.getColumnIndexOrThrow(Model.COUNT));
+		}
+		
+		closeConnection(c);
+		
+		return count;
 	}
 
-	public boolean containsAll(Collection<?> arg0) {
-		return getItems().containsAll(arg0);
+	/**
+	 * Checks if the result of this query contains the given 
+	 * object. Note, that this operation will execute the query
+	 * on the database. Use only, if you have to. 
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public boolean contains(T value) {
+		if(mQuery != null) {
+			Where where = new Where();
+			where.setStatement(new Statement(Model.PK, value.getId()));
+			
+			SelectStatement query = new SelectStatement();
+			query.from(mQuery)
+			     .where(where);
+			
+			return getCount(query) != 0;
+		}
+		
+		return false;
+	}
+
+	/**
+	 * See {@link QuerySet#contains}
+	 * @param values
+	 * @return
+	 */
+	public boolean containsAll(Collection<T> values) {
+		if(mQuery != null) {
+			List<Integer> ids = new ArrayList<Integer>();
+			
+			for(T item : values) {
+				ids.add(item.getId());
+			}
+			
+			Where where = new Where();
+			where.setStatement(new InStatement(Model.PK, ids));
+			
+			SelectStatement query = new SelectStatement();
+			query.from(mQuery)
+				 .where(where);
+			
+			return getCount(query) == values.size();
+		}
+		
+		return false;
 	}
 
 	public boolean isEmpty() {
-		return getItems().isEmpty();
+		return count() == 0;
 	}
 
+	public List<T> toList() {
+		List<T> list = new ArrayList<T>();
+		
+		for(T item : getItems()) {
+			list.add(item);
+		}
+		
+		return list;
+	}
 }

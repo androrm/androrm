@@ -148,7 +148,7 @@ public class Where {
 	@Override
 	public String toString() {
 		if(mStatement != null) {
-			return " WHERE " + mStatement.toString();
+			return " WHERE " + mStatement;
 		}
 		
 		return null;
