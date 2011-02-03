@@ -207,7 +207,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		
 		int count = 0;
 		
-		if(c.moveToNext()) {
+		if(c.moveToFirst()) {
 			count = c.getInt(c.getColumnIndexOrThrow(Model.COUNT));
 		}
 		
@@ -229,14 +229,9 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 			Where where = new Where();
 			where.setStatement(new Statement(Model.PK, value.getId()));
 			
-			SelectStatement query = mQuery.clone();
-			Where oldWhere = query.getWhere();
-			
-			if(oldWhere != null) {
-				where.and(oldWhere.getStatement());
-			} 
-			
-			query.where(where);
+			SelectStatement query = new SelectStatement();
+			query.from(mQuery)
+				 .where(where);
 			
 			return getCount(query) != 0;
 		}
@@ -260,14 +255,9 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 			Where where = new Where();
 			where.setStatement(new InStatement(Model.PK, ids));
 			
-			SelectStatement query = mQuery.clone();
-			Where oldWhere = query.getWhere();
-			
-			if(oldWhere != null) {
-				where.and(oldWhere.getStatement());
-			}
-			
-			query.where(where);
+			SelectStatement query = new SelectStatement();
+			query.from(mQuery)
+				 .where(where);
 			
 			return getCount(query) == values.size();
 		}

@@ -82,7 +82,7 @@ public abstract class Model {
 	 */
 	public static final String PK = "mId";
 	
-	public static final String COUNT = "count";
+	public static final String COUNT = "item_count";
 	
 	/**
 	 * Assigns a value gathered from the database to the
