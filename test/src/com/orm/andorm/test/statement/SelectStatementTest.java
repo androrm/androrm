@@ -4,6 +4,7 @@ import android.test.AndroidTestCase;
 
 import com.orm.androrm.JoinStatement;
 import com.orm.androrm.Limit;
+import com.orm.androrm.Model;
 import com.orm.androrm.SelectStatement;
 import com.orm.androrm.Statement;
 import com.orm.androrm.Where;
@@ -69,6 +70,6 @@ public class SelectStatementTest extends AndroidTestCase {
 	public void testCount() {
 		mSelect.count();
 		
-		assertEquals("SELECT COUNT(*) AS count FROM table", mSelect.toString());
+		assertEquals("SELECT COUNT(*) AS " + Model.COUNT + " FROM table", mSelect.toString());
 	}
 }
