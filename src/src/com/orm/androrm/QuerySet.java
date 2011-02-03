@@ -229,9 +229,14 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 			Where where = new Where();
 			where.setStatement(new Statement(Model.PK, value.getId()));
 			
-			SelectStatement query = new SelectStatement();
-			query.from(mQuery)
-			     .where(where);
+			SelectStatement query = mQuery.clone();
+			Where oldWhere = query.getWhere();
+			
+			if(oldWhere != null) {
+				where.and(oldWhere.getStatement());
+			} 
+			
+			query.where(where);
 			
 			return getCount(query) != 0;
 		}
@@ -255,9 +260,14 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 			Where where = new Where();
 			where.setStatement(new InStatement(Model.PK, ids));
 			
-			SelectStatement query = new SelectStatement();
-			query.from(mQuery)
-				 .where(where);
+			SelectStatement query = mQuery.clone();
+			Where oldWhere = query.getWhere();
+			
+			if(oldWhere != null) {
+				where.and(oldWhere.getStatement());
+			}
+			
+			query.where(where);
 			
 			return getCount(query) == values.size();
 		}

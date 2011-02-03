@@ -239,6 +239,10 @@ public class SelectStatement implements Cloneable {
 		return this;
 	}
 	
+	public Where getWhere() {
+		return mWhere;
+	}
+	
 	@Override
 	public SelectStatement clone() {
 		try {

@@ -145,6 +145,10 @@ public class Where {
 		mStatement = stmt;
 	}
 	
+	public Statement getStatement() {
+		return mStatement;
+	}
+	
 	@Override
 	public String toString() {
 		if(mStatement != null) {
