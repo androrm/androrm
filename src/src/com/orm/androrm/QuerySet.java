@@ -64,7 +64,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	
 	public T get(int id) {
 		Where where = new Where();
-		where.setStatement(new Statement("mId", id));
+		where.setStatement(new Statement(Model.PK, id));
 		
 		if(mQuery == null) {
 			mQuery = new SelectStatement();
@@ -120,7 +120,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 			JoinStatement join = new JoinStatement();
 			join.left(mQuery, "left")
 				.right(query, "right")
-				.on("mId", "mId");
+				.on(Model.PK, Model.PK);
 			
 			SelectStatement select = new SelectStatement();
 			select.from(join);
@@ -270,12 +270,6 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	}
 
 	public List<T> toList() {
-		List<T> list = new ArrayList<T>();
-		
-		for(T item : getItems()) {
-			list.add(item);
-		}
-		
-		return list;
+		return getItems();
 	}
 }
