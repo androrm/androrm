@@ -25,6 +25,6 @@ package com.orm.androrm;
 /**
  * @author Philipp Giese
  */
-public interface Field {
+public interface AndrormField {
 	public void reset();
 }

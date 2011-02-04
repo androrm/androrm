@@ -327,7 +327,7 @@ public abstract class Model {
 		}
 	}
 	
-	public boolean delete(Context context) {
+	public <T extends Model> boolean delete(Context context) {
 		if(getId() != 0) {
 			Where where = new Where();
 			where.and(PK, getId());
@@ -338,11 +338,31 @@ public abstract class Model {
 			if(affectedRows != 0) {
 				mId.set(0);
 				
-				return true;
+				return resetFields();
 			}
 		}
 		
 		return false;
+	}
+	
+	private <T extends Model> boolean resetFields() {
+		@SuppressWarnings("unchecked")
+		List<Field> fields = DatabaseBuilder.getFields((Class<T>) getClass(), (T) this);
+		
+		try {
+			for(Field field : fields) {
+				Object o = field.get(this);
+				
+				if(o instanceof AndrormField) {
+					AndrormField f = (AndrormField) o;
+					f.reset();
+				}
+			}
+			
+			return true;
+		} catch(IllegalAccessException e) {
+			return false;
+		}
 	}
 	
 	@Override
