@@ -58,7 +58,7 @@ public class SelectStatementTest extends AndroidTestCase {
 	public void testOrderBy() {
 		mSelect.orderBy("column");
 		
-		assertEquals("SELECT * FROM table ORDER BY column ASC", mSelect.toString());
+		assertEquals("SELECT * FROM table ORDER BY UPPER(column) ASC", mSelect.toString());
 	}
 	
 	public void testLimit() {
