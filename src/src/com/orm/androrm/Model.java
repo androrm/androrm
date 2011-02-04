@@ -98,10 +98,13 @@ public abstract class Model {
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	private static final <T extends Model> void assignFieldValue(Field field, 
-			T object,
-			Cursor c) 
-	throws IllegalArgumentException, IllegalAccessException {
+	private static final <T extends Model> void assignFieldValue(
+			
+			Field 	field, 
+			T 		object,
+			Cursor 	c
+			
+	) throws IllegalArgumentException, IllegalAccessException {
 		
 		Object o = field.get(object);
 		
@@ -112,8 +115,12 @@ public abstract class Model {
 		}
 	}
 	
-	protected static final <T extends Model> T createObject(Class<T> clazz,
-			Cursor c) {
+	protected static final <T extends Model> T createObject(
+			
+			Class<T> clazz,
+			Cursor	 c
+			
+	) {
 		
 		T object = getInstace(clazz);
 		
@@ -128,10 +135,13 @@ public abstract class Model {
 		return object;
 	}
 	
-	private static final <T extends Model> void fillUpData(T instance, 
-			Class<T> clazz, 
-			Cursor c) 
-	throws IllegalArgumentException, IllegalAccessException {
+	private static final <T extends Model> void fillUpData(
+			
+			T 			instance, 
+			Class<T> 	clazz, 
+			Cursor 		c
+			
+	) throws IllegalArgumentException, IllegalAccessException {
 		
 		if(clazz != null && clazz.isInstance(instance)) {
 			
@@ -143,8 +153,12 @@ public abstract class Model {
 		}
 	}
 	
-	protected static final <O extends Model, T extends Model> String getBackLinkFieldName(Class<O> originClass,
-			Class<T> targetClass) {
+	protected static final <O extends Model, T extends Model> String getBackLinkFieldName(
+			
+			Class<O> originClass,
+			Class<T> targetClass
+			
+	) {
 		
 		Field fk = null;
 		
@@ -164,7 +178,13 @@ public abstract class Model {
 		return null;
 	}
 	
-	private static final <T extends Model> List<String> getEligableFields(Class<T> clazz, T instance) {
+	private static final <T extends Model> List<String> getEligableFields(
+			
+			Class<T> 	clazz, 
+			T 			instance
+			
+	) {
+		
 		List<String> eligableFields = new ArrayList<String>();
 		
 		if(clazz != null) {
@@ -178,7 +198,14 @@ public abstract class Model {
 		return eligableFields;
 	}
 	
-	protected static final <T extends Model> Field getField(Class<T> clazz, T instance, String fieldName) {
+	protected static final <T extends Model> Field getField(
+			
+			Class<T> 	clazz, 
+			T 			instance, 
+			String 		fieldName
+			
+	) {
+		
 		Field field = null;
 		
 		if(clazz != null) {
@@ -198,10 +225,13 @@ public abstract class Model {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static final <T extends Model, O extends Model> ForeignKeyField<T> getForeignKey(O origin, 
-			Class<O> originClass, 
-			Class<T> target) 
-	throws IllegalArgumentException, IllegalAccessException {
+	private static final <T extends Model, O extends Model> ForeignKeyField<T> getForeignKey(
+			
+			O 			origin, 
+			Class<O> 	originClass, 
+			Class<T> 	target
+			
+	) throws IllegalArgumentException, IllegalAccessException {
 		
 		if(originClass != null && originClass.isInstance(origin)) {
 			Field fkField = getForeignKeyField(target, originClass, origin);
@@ -214,10 +244,13 @@ public abstract class Model {
 		return null;
 	}
 	
-	private static final <T extends Model, O extends Model> Field getForeignKeyField(Class<T> target, 
-			Class<O> originClass, 
-			O origin) 
-	throws IllegalArgumentException, IllegalAccessException {
+	private static final <T extends Model, O extends Model> Field getForeignKeyField(
+			
+			Class<T> 	target, 
+			Class<O> 	originClass, 
+			O 			origin
+			
+	) throws IllegalArgumentException, IllegalAccessException {
 		
 		Field fk = null;
 		
@@ -270,11 +303,14 @@ public abstract class Model {
 		return superclass;
 	}
 	
-	private static final <T extends Model, O extends Model> void setBackLink(T target, 
-			Class<T> targetClass,
-			O origin, 
-			Class<O> originClass) 
-	throws NoSuchFieldException {
+	private static final <T extends Model, O extends Model> void setBackLink(
+			
+			T 			target, 
+			Class<T> 	targetClass,
+			O 			origin, 
+			Class<O> 	originClass
+			
+	) throws NoSuchFieldException {
 		
 		ForeignKeyField<T> fk = null;
 		
@@ -309,10 +345,13 @@ public abstract class Model {
 		mId = new PrimaryKeyField(!suppressAutoincrement);
 	}
 	
-	private <T extends Model> void collectData(Context context, 
-			ContentValues values, 
-			Class<T> clazz) 
-	throws IllegalArgumentException, IllegalAccessException {
+	private <T extends Model> void collectData(
+			
+			Context 		context, 
+			ContentValues 	values, 
+			Class<T> 		clazz
+			
+	) throws IllegalArgumentException, IllegalAccessException {
 		
 		if(clazz != null && clazz.isInstance(this)) {
 			for(Field field: DatabaseBuilder.getFields(clazz, this)) {
@@ -396,9 +435,12 @@ public abstract class Model {
 		return getId() + getClass().getSimpleName().hashCode();
 	}
 
-	private <T extends Model, O extends Model> void persistRelations(Context context, 
-			Class<T> clazz) 
-	throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
+	private <T extends Model, O extends Model> void persistRelations(
+			
+			Context	 context, 
+			Class<T> clazz
+			
+	) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
 		
 		if(clazz != null && clazz.isInstance(this)) {
 			
@@ -418,7 +460,14 @@ public abstract class Model {
 		}
 	}
 	
-	private void putValue(Object field, String fieldName, ContentValues values) {
+	private void putValue(
+			
+			Object 			field, 
+			String 			fieldName, 
+			ContentValues 	values
+			
+	) {
+		
 		if(field instanceof DataField
 			&& !handledByPrimaryKey(field)) {
 			
@@ -448,9 +497,13 @@ public abstract class Model {
 		return false;
 	}
 	
-	private <T extends Model> boolean save(Context context, 
-			int id, 
-			ContentValues values) {
+	private <T extends Model> boolean save(
+			
+			Context 		context, 
+			int 			id, 
+			ContentValues 	values
+			
+	) {
 		
 		try {
 			collectData(context, values, getClass());
@@ -487,9 +540,13 @@ public abstract class Model {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T extends Model> void saveM2MToDatabase(Context context, 
-			Class<T> clazz, 
-			Object field) {
+	private <T extends Model> void saveM2MToDatabase(
+			
+			Context 	context, 
+			Class<T> 	clazz, 
+			Object 		field
+			
+	) {
 		
 		ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) field;
 		List<? extends Model> targets = m.getCachedValues();
@@ -516,9 +573,12 @@ public abstract class Model {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <O extends Model, T extends Model> void saveO2MToDatabase(Context context, 
-			Object field) 
-	throws NoSuchFieldException {
+	private <O extends Model, T extends Model> void saveO2MToDatabase(
+			
+			Context context, 
+			Object 	field
+			
+	) throws NoSuchFieldException {
 		
 		OneToManyField<T, ?> om = (OneToManyField<T, ?>) field;
 		List<? extends Model> targets = om.getCachedValues();
@@ -535,7 +595,12 @@ public abstract class Model {
 		}
 	}
 	
-	public static <T extends Model> QuerySet<T> objects(Context context, Class<T> clazz) {
+	public static <T extends Model> QuerySet<T> objects(
+			
+			Context 	context, 
+			Class<T> 	clazz
+			
+	) {
 		return new QuerySet<T>(context, clazz);
 	}
 }

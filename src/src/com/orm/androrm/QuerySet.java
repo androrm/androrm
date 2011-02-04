@@ -113,7 +113,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		SelectStatement query = null;
 		
 		try {
-			query = QueryBuilder.buildQuery(mClass, filter.getRules(), 0);
+			query = QueryBuilder.buildQuery(mClass, filter.getRules());
 		} catch (NoSuchFieldException e) {
 			Log.e(TAG, "could not build query for filter", e);
 		}

@@ -66,10 +66,13 @@ public class DatabaseBuilder {
 		return null;
 	}
 	
-	private static final<T extends Model> void getFieldDefinitions(T instance, 
-			Class<T> clazz, 
-			TableDefinition modelTable) 
-	throws IllegalArgumentException, IllegalAccessException {
+	private static final<T extends Model> void getFieldDefinitions(
+			
+			T 				instance, 
+			Class<T> 		clazz, 
+			TableDefinition modelTable
+			
+	) throws IllegalArgumentException, IllegalAccessException {
 		
 		if(clazz != null && clazz.isInstance(instance)) {
 			// TODO: only create fields from superclass, if superclass is
@@ -109,7 +112,13 @@ public class DatabaseBuilder {
 	 * @return {@link List} of all fields, that are database fields, 
 	 * 		   and that are <b>NOT</b> private. 
 	 */
-	protected static final List<Field> getFields(Class<? extends Model> clazz, Model instance) {
+	protected static final List<Field> getFields(
+			
+			Class<? extends Model> 	clazz, 
+			Model 					instance
+			
+	) {
+		
 		Field[] declaredFields = clazz.getDeclaredFields();
 		List<Field> fields = new ArrayList<Field>();
 		
@@ -169,9 +178,13 @@ public class DatabaseBuilder {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static final <T extends Model> void getRelationDefinitions(T instance, 
-			Class<T> clazz, 
-			List<TableDefinition> definitions) {
+	private static final <T extends Model> void getRelationDefinitions(
+			
+			T 						instance, 
+			Class<T> 				clazz, 
+			List<TableDefinition> 	definitions
+			
+	) {
 		
 		if(clazz != null && clazz.isInstance(instance) ) {
 			for(Field field: getFields(clazz, instance)) {

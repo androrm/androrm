@@ -38,10 +38,14 @@ public class QueryBuilder {
 	
 	private static final String TAG = "ANDRORM:QUERY:BUILDER";
 	
-	private static final <T extends Model> SelectStatement buildJoin(Class<T> clazz,
-			List<String> fields, 
-			Rule filter, 
-			int depth) throws NoSuchFieldException {
+	private static final <T extends Model> SelectStatement buildJoin(
+			
+			Class<T> 		clazz,
+			List<String> 	fields, 
+			Rule 			filter, 
+			int 			depth
+			
+	) throws NoSuchFieldException {
 		
 		T instance = Model.getInstace(clazz);
 		
@@ -60,10 +64,23 @@ public class QueryBuilder {
 		return null;
 	}
 	
-	public static final <T extends Model> SelectStatement buildQuery(Class<T> clazz, 
-			List<Rule> rules,
-			int depth) 
-	throws NoSuchFieldException {
+	public static final <T extends Model> SelectStatement buildQuery(
+			
+			Class<T> 	clazz, 
+			List<Rule> 	rules
+			
+	) throws NoSuchFieldException {
+		
+		return buildQuery(clazz, rules, 0);
+	}
+	
+	private static final <T extends Model> SelectStatement buildQuery(
+			
+			Class<T> 	clazz, 
+			List<Rule> 	rules,
+			int 		depth
+			
+	) throws NoSuchFieldException {
 		
 		String tableName = DatabaseBuilder.getTableName(clazz);
 		
@@ -142,7 +159,13 @@ public class QueryBuilder {
 		
 	}
 	
-	private static final <T extends Model> Object getFieldInstance(Class<T> clazz, T instance, String fieldName) {
+	private static final <T extends Model> Object getFieldInstance(
+			
+			Class<T> 	clazz, 
+			T 			instance, 
+			String 		fieldName
+	
+	) {
 		Field field = Model.getField(clazz, instance, fieldName);
 		Object fieldInstance = null;
 		
@@ -161,7 +184,13 @@ public class QueryBuilder {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static final <T extends Model> SelectStatement getRelationSelection(Relation<?> r, Class<T> clazz, Rule rule) {
+	private static final <T extends Model> SelectStatement getRelationSelection(
+			
+			Relation<?> r, 
+			Class<T> 	clazz, 
+			Rule 		rule
+			
+	) {
 		Class<? extends Model> target = r.getTarget();
 		Statement stmt = rule.getStatement();
 		Where where = new Where();
@@ -195,9 +224,13 @@ public class QueryBuilder {
 		return select;
 	}
 	
-	private static final <T extends Model> SelectStatement resolveLastField(Object field, 
-			Class<T> clazz, 
-			Rule rule) {
+	private static final <T extends Model> SelectStatement resolveLastField(
+			
+			Object 		field, 
+			Class<T> 	clazz, 
+			Rule 		rule
+			
+	) {
 		
 		SelectStatement select = new SelectStatement();
 		
@@ -222,12 +255,15 @@ public class QueryBuilder {
 		return select;
 	}
 	
-	private static final <T extends Model> SelectStatement resolveRelationField(Object field, 
-			Class<T> clazz, 
-			List<String> fields, 
-			Rule rule,
-			int depth) 
-	throws NoSuchFieldException {
+	private static final <T extends Model> SelectStatement resolveRelationField(
+			
+			Object 			field, 
+			Class<T> 		clazz, 
+			List<String> 	fields, 
+			Rule 			rule,
+			int 			depth
+			
+	) throws NoSuchFieldException {
 		
 		Relation<?> r = (Relation<?>) field;
 		SelectStatement select = new SelectStatement();
@@ -273,9 +309,13 @@ public class QueryBuilder {
 		return select;
 	}
 	
-	private static final <T extends Model> Map<String, String> unwrapForeignKeyRelation(String fieldName,
-			Class<T> clazz,
-			Relation<?> r) {
+	private static final <T extends Model> Map<String, String> unwrapForeignKeyRelation(
+			
+			String 		fieldName,
+			Class<T> 	clazz,
+			Relation<?> r
+			
+	) {
 		
 		Map<String, String> joinParams = new HashMap<String, String>();
 		
@@ -310,8 +350,12 @@ public class QueryBuilder {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static final <T extends Model> Map<String, String> unwrapManyToManyRelation(Class<T> clazz, 
-			Relation<?> r) {
+	private static final <T extends Model> Map<String, String> unwrapManyToManyRelation(
+			
+			Class<T> 	clazz, 
+			Relation<?> r
+			
+	) {
 		
 		Map<String, String> joinParams = new HashMap<String, String>();
 		ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) r;
@@ -344,9 +388,13 @@ public class QueryBuilder {
 		return joinParams;
 	}
 	
-	private static final <T extends Model> Map<String, String> unwrapOneToManyField(String fieldName,
-			Class<T> clazz,
-			Relation<?> r) {
+	private static final <T extends Model> Map<String, String> unwrapOneToManyField(
+			
+			String 		fieldName,
+			Class<T> 	clazz,
+			Relation<?> r
+			
+	) {
 		
 		Class<? extends Model> target = r.getTarget();
 		Map<String, String> joinParams = new HashMap<String, String>();
@@ -377,9 +425,13 @@ public class QueryBuilder {
 		return joinParams;
 	}
 	
-	private static final <T extends Model> Map<String, String> unwrapRelation(Relation<?> r, 
-			String fieldName,
-			Class<T> clazz) {
+	private static final <T extends Model> Map<String, String> unwrapRelation(
+			
+			Relation<?> r, 
+			String 		fieldName,
+			Class<T> 	clazz
+			
+	) {
 		
 		if(r instanceof ManyToManyField) {
 			return unwrapManyToManyRelation(clazz, r);
