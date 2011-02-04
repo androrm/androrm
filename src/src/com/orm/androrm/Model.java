@@ -309,14 +309,13 @@ public abstract class Model {
 		mId = new PrimaryKeyField(!suppressAutoincrement);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private <T extends Model> void collectData(Context context, 
 			ContentValues values, 
 			Class<T> clazz) 
 	throws IllegalArgumentException, IllegalAccessException {
 		
 		if(clazz != null && clazz.isInstance(this)) {
-			for(Field field: DatabaseBuilder.getFields(clazz, (T) this)) {
+			for(Field field: DatabaseBuilder.getFields(clazz, this)) {
 				Object o = field.get(this);
 				String fieldName = field.getName();
 				
@@ -346,8 +345,7 @@ public abstract class Model {
 	}
 	
 	private <T extends Model> boolean resetFields() {
-		@SuppressWarnings("unchecked")
-		List<Field> fields = DatabaseBuilder.getFields((Class<T>) getClass(), (T) this);
+		List<Field> fields = DatabaseBuilder.getFields(getClass(), this);
 		
 		try {
 			for(Field field : fields) {
@@ -398,14 +396,13 @@ public abstract class Model {
 		return getId() + getClass().getSimpleName().hashCode();
 	}
 
-	@SuppressWarnings("unchecked")
 	private <T extends Model, O extends Model> void persistRelations(Context context, 
 			Class<T> clazz) 
 	throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
 		
 		if(clazz != null && clazz.isInstance(this)) {
 			
-			for(Field field: DatabaseBuilder.getFields(clazz, (T) this)) {
+			for(Field field: DatabaseBuilder.getFields(clazz, this)) {
 				Object o = field.get(this);
 				
 				if(o instanceof ManyToManyField) {

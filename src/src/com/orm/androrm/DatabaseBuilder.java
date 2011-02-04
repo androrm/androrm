@@ -103,14 +103,13 @@ public class DatabaseBuilder {
 	 * In addition these fields are set to be accessible, so
 	 * that they can then be further processed. 
 	 * 
-	 * @param <T>
 	 * @param clazz		Class to extract the fields from. 
 	 * @param instance	Instance of that class. 
 	 * 
 	 * @return {@link List} of all fields, that are database fields, 
 	 * 		   and that are <b>NOT</b> private. 
 	 */
-	protected static final <T extends Model> List<Field> getFields(Class<T> clazz, T instance) {
+	protected static final List<Field> getFields(Class<? extends Model> clazz, Model instance) {
 		Field[] declaredFields = clazz.getDeclaredFields();
 		List<Field> fields = new ArrayList<Field>();
 		
