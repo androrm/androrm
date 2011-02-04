@@ -54,11 +54,11 @@ public class OrderBy {
 			}
 			
 			if(col.startsWith("-")) {
-				mOrderBy += col.substring(1) + " DESC";
+				mOrderBy += "UPPER(" + col.substring(1) + ") DESC";
 			} else if(col.startsWith("+")) {
-				mOrderBy += col.substring(1) + " ASC";
+				mOrderBy += "UPPER(" + col.substring(1) + ") ASC";
 			} else {
-				mOrderBy += col + " ASC";
+				mOrderBy += "UPPER(" + col + ") ASC";
 			}
 			
 			if(first) {

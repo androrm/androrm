@@ -82,7 +82,11 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	
 	public QuerySet<T> orderBy(String... columns) {
 		if(mQuery != null) {
-			mQuery.orderBy(columns);
+			SelectStatement query = new SelectStatement();
+			query.from(mQuery)
+				 .orderBy(columns);
+
+			mQuery = query;
 		}
 		
 		return this;
