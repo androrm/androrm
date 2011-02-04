@@ -53,7 +53,7 @@ public class ModelTest extends AndroidTestCase {
 	}
 	
 	public void testDelete() {
-		Model m = new BlankModel();
+		BlankModel m = new BlankModel();
 		
 		assertFalse(m.delete(getContext()));
 		
@@ -62,6 +62,9 @@ public class ModelTest extends AndroidTestCase {
 		int id = m.getId();
 		
 		assertTrue(m.delete(getContext()));
+		assertNull(m.getName());
+		assertNull(m.getLocation());
+		assertNull(m.getDate());
 		assertNull(Model.objects(getContext(), BlankModel.class).get(id));
 		assertEquals(0, m.getId());
 	}
