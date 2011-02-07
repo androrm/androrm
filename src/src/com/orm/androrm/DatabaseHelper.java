@@ -22,6 +22,7 @@
  */
 package com.orm.androrm;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -141,7 +142,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * @param db		{@link SQLiteDatabase Database} instance. 
 	 * @param models	{@link List} of classes inheriting from {@link Model}. 
 	 */
-	protected void setModels(SQLiteDatabase db, List<Class<? extends Model>> models) {
+	protected void setModels(SQLiteDatabase db, Collection<Class<? extends Model>> models) {
 		mModels = new HashSet<Class<? extends Model>>();
 		mModels.addAll(models);
 		
