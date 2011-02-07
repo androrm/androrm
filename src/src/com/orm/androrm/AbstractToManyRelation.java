@@ -22,56 +22,46 @@
  */
 package com.orm.androrm;
 
-import android.content.ContentValues;
-import android.database.Cursor;
+import java.util.Collection;
+import java.util.List;
 
 /**
- * Use this class if you want to represent an 
- * integer field in the database. 
- * 
  * @author Philipp Giese
  */
-public class IntegerField extends DataField<Integer> {
-
-	/**
-	 * Initializes a new {@link IntegerField} with default 
-	 * value 0.
-	 */
-	public IntegerField() {
-		mType = "integer";
-		mValue = 0;
-	}
+public abstract class AbstractToManyRelation<O extends Model, 
+											 T extends Model> 
+implements XToManyRelation<O, T> {
 	
-	/**
-	 * Initializes a new {@link IntegerField} with default 
-	 * value 0 and sets the maximum length to maxLength if
-	 * it is greater than 0 and less than or equal to 16.
-	 * 
-	 * @param maxLength	Maximum length of this field. 
-	 */
-	public IntegerField(int maxLength) {
-		mType = "integer";
-		
-		if(maxLength > 0
-				&& maxLength <= 16) {
-			
-			mMaxLength = maxLength;
+	protected List<T> mValues;
+	protected Class<O> mOriginClass;
+	protected Class<T> mTargetClass;
+	
+	@Override
+	public void add(T value) {
+		if(value != null) {
+			mValues.add(value);
 		}
 	}
-
+	
 	@Override
-	public void putData(String key, ContentValues values) {
-		values.put(key, get());
+	public void addAll(Collection<T> values) {
+		if(values != null) {
+			mValues.addAll(values);
+		}
 	}
-
+	
 	@Override
-	public void set(Cursor c, String fieldName) {
-		set(c.getInt(c.getColumnIndexOrThrow(fieldName)));
+	public Class<T> getTarget() {
+		return mTargetClass;
 	}
 
 	@Override
 	public void reset() {
-		mValue = 0;
+		mValues.clear();
 	}
 	
+	@Override
+	public List<T> getCachedValues() {
+		return mValues;
+	}
 }

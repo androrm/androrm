@@ -9,6 +9,7 @@ import android.test.AndroidTestCase;
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.Model;
 import com.orm.androrm.OneToManyField;
+import com.orm.androrm.QuerySet;
 import com.orm.androrm.impl.Branch;
 import com.orm.androrm.impl.Product;
 
@@ -45,15 +46,15 @@ public class OneToManyFieldTest extends AndroidTestCase {
 		p.addBranch(b1);
 		p.addBranch(b2);
 		
-		List<Branch> branches = p.getBranches(getContext());
+		QuerySet<Branch> branches = p.getBranches(getContext());
 		
 		p.save(getContext());
 		
-		p = Product.get(getContext(), p.getId());
+		p = Product.objects(getContext()).get(p.getId());
 		
 		branches = p.getBranches(getContext());
 		
-		assertEquals(2, branches.size());
+		assertEquals(2, branches.count());
 		assertTrue(branches.contains(b1));
 		assertTrue(branches.contains(b2));
 		
@@ -74,11 +75,11 @@ public class OneToManyFieldTest extends AndroidTestCase {
 		p.addBranches(Arrays.asList(new Branch[] { b1, b2 }));
 		p.save(getContext());
 		
-		p = Product.get(getContext(), p.getId());
+		p = Product.objects(getContext()).get(p.getId());
 		
-		List<Branch> branches = p.getBranches(getContext());
+		QuerySet<Branch> branches = p.getBranches(getContext());
 		
-		assertEquals(2, branches.size());
+		assertEquals(2, branches.count());
 		assertTrue(branches.contains(b1));
 		assertTrue(branches.contains(b2));
 		
@@ -101,31 +102,9 @@ public class OneToManyFieldTest extends AndroidTestCase {
 		assertEquals(2, p.branchCount(getContext()));
 		
 		p.save(getContext());
-		p = Product.get(getContext(), p.getId());
+		p = Product.objects(getContext()).get(p.getId());
 		
 		assertEquals(2, p.branchCount(getContext()));
-	}
-	
-	public void testOrdering() {
-		Branch b1 = new Branch();
-		b1.setName("zzz");
-		b1.save(getContext());
-		
-		Branch b2 = new Branch();
-		b2.setName("aaa");
-		b2.save(getContext());
-		
-		Product p = new Product();
-		p.addBranch(b1);
-		p.addBranch(b2);
-		p.save(getContext());
-		
-		p = Product.get(getContext(), p.getId());
-		
-		List<Branch> branches = p.getBranches(getContext());
-		
-		assertEquals(b2, branches.get(0));
-		assertEquals(b1, branches.get(1));
 	}
 	
 	@Override

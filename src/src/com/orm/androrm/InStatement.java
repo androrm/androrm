@@ -37,9 +37,9 @@ import java.util.List;
  */
 public class InStatement extends Statement {
 
-	private List<Object> mValues;
+	private List<Integer> mValues;
 	
-	public InStatement(String key, List<Object> values) {
+	public InStatement(String key, List<Integer> values) {
 		mKey = key;
 		mValues = values;
 	}
@@ -48,7 +48,7 @@ public class InStatement extends Statement {
 		boolean first = true;
 		
 		String stmt = null;
-		for(Object value: mValues) {
+		for(Integer value: mValues) {
 			if(first) {
 				stmt = String.valueOf(value);
 				first = false;

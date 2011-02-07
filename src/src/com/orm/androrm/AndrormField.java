@@ -22,45 +22,9 @@
  */
 package com.orm.androrm;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-
 /**
- * This class can be used if a boolean field is needed in a
- * model class. Boolean fields can only have the value 
- * <code>true</code> or <code>false</code>. 
- * <br /><br />
- * In the database this field is represented through an 
- * integer fields with the length 1. 
- * 
  * @author Philipp Giese
  */
-public class BooleanField extends DataField<Boolean>{
-
-	public BooleanField() {
-		setUp();
-		
-		mValue = false;
-	}
-	
-	@Override
-	public void putData(String key, ContentValues values) {
-		values.put(key, get());
-	}
-
-	@Override
-	public void set(Cursor c, String fieldName) {
-		set(c.getInt(c.getColumnIndexOrThrow(fieldName)) == 1);
-	}
-
-	private void setUp() {
-		mType = "integer";
-		mMaxLength = 1;
-	}
-
-	@Override
-	public void reset() {
-		mValue = false;
-	}
-
+public interface AndrormField {
+	public void reset();
 }

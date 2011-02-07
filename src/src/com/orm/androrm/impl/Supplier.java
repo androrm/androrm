@@ -5,9 +5,9 @@ import java.util.List;
 import android.content.Context;
 
 import com.orm.androrm.CharField;
-import com.orm.androrm.FilterSet;
 import com.orm.androrm.ManyToManyField;
 import com.orm.androrm.Model;
+import com.orm.androrm.QuerySet;
 
 public class Supplier extends Model {
 
@@ -15,12 +15,8 @@ public class Supplier extends Model {
 	protected ManyToManyField<Supplier, Product> mProducts;
 	protected ManyToManyField<Supplier, Branch> mBranches;
 	
-	public static final Supplier get(Context context, int id) {
-		return get(context, Supplier.class, id);
-	}
-	
-	public static final List<Supplier> filter(Context context, FilterSet filter) {
-		return filter(context, Supplier.class, filter);
+	public static final QuerySet<Supplier> objects(Context context) {
+		return objects(context, Supplier.class);
 	}
 	
 	public Supplier() {
@@ -29,14 +25,13 @@ public class Supplier extends Model {
 		mName = new CharField(50);
 		mProducts = new ManyToManyField<Supplier, Product>(Supplier.class, Product.class);
 		mBranches = new ManyToManyField<Supplier, Branch>(Supplier.class, Branch.class);
-		mBranches.orderBy("mName");
 	}
 	
 	public void setName(String name) {
 		mName.set(name);
 	}
 	
-	public List<Product> getProducts(Context context) {
+	public QuerySet<Product> getProducts(Context context) {
 		return mProducts.get(context, this);
 	}
 	
@@ -49,14 +44,10 @@ public class Supplier extends Model {
 	}
 	
 	public int productCount(Context context) {
-		return mProducts.count(context, this);
+		return mProducts.get(context, this).count();
 	}
 	
 	public void addBranch(Branch b) {
 		mBranches.add(b);
-	}
-	
-	public List<Branch> getBranches(Context context) {
-		return mBranches.get(context, this);
 	}
 }

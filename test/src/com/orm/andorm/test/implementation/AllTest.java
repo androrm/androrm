@@ -8,6 +8,7 @@ public class AllTest extends TestSuite {
 		TestSuite suite = new TestSuite();
 		
 		suite.addTestSuite(FieldResulutionTest.class);
+		suite.addTestSuite(QuerySetTest.class);
 		
 		return suite;
 	}

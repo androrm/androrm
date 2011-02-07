@@ -23,14 +23,10 @@
 package com.orm.androrm;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
 
 /**
  * @author Philipp Giese
@@ -40,85 +36,24 @@ import android.util.Log;
  */
 public class ManyToManyField<L extends Model, 
 							 R extends Model> 
-implements XToManyRelation<L, R> {
+extends AbstractToManyRelation<L, R> {
 
-	private static final String TAG = "ANDRORM:M2M";
-	
-	private Collection<R> mValues;
-	private Class<L> mOriginClass;
-	private Class<R> mTargetClass;
 	private String mTableName;
-	private OrderBy mOrderBy;
 	
 	public ManyToManyField(Class<L> origin, 
 			Class<R> target) {
 		
-		setUp(origin, target, false);
-	}
-	
-	public ManyToManyField(Class<L> origin,
-			Class<R> target,
-			boolean isSet) {
-		
-		setUp(origin, target, isSet);
-	}
-	
-	private void setUp(Class<L> origin, Class<R> target, boolean isSet) {
 		mOriginClass = origin;
 		mTargetClass = target;
-		
-		if(isSet) {
-			mValues = new HashSet<R>();
-		} else {
-			mValues = new ArrayList<R>();
-		}
+		mValues = new ArrayList<R>();
 		
 		mTableName = createTableName();
 	}
 	
-	@Override
-	public void add(R value) {
-		if(value != null) {
-			mValues.add(value);
-		}
-	}
-	
-	@Override
-	public void addAll(Collection<R> values) {
-		if(values != null) {
-			mValues.addAll(values);
-		}
-	}
-	
-	@Override
-	public int count(Context context, L origin) {
-		if(origin.getId() != 0) {
-			SelectStatement select = new SelectStatement();
-			select.from(getJoin("a", "b", origin.getId()))
-				  .distinct()
-				  .count();
-			
-			DatabaseAdapter adapter = new DatabaseAdapter(context);
-			adapter.open();
-			
-			Cursor c = adapter.query(select);
-			int count = 0;
-			if(c.moveToNext()) {
-				count = c.getInt(c.getColumnIndexOrThrow("count"));
-			}
-			
-			c.close();
-			adapter.close();
-			return count;
-		}
-		
-		return mValues.size();
-	}
-	
 	private String createTableName() {
 		List<String> tableNames = new ArrayList<String>();
-		tableNames.add(Model.getTableName(mOriginClass));
-		tableNames.add(Model.getTableName(mTargetClass));
+		tableNames.add(DatabaseBuilder.getTableName(mOriginClass));
+		tableNames.add(DatabaseBuilder.getTableName(mTargetClass));
 		
 		Collections.sort(tableNames);
 		
@@ -126,43 +61,19 @@ implements XToManyRelation<L, R> {
 	}
 	
 	@Override
-	public List<R> get(Context context, L l) {
-		return get(context, l, null);
-	}
-	
-	@Override
-	public List<R> get(Context context, L l, Limit limit) {
-		if(mValues.isEmpty()) {
-			SelectStatement select = getQuery(l.getId(), limit).orderBy(mOrderBy);
-			
-			DatabaseAdapter adapter = new DatabaseAdapter(context);
-			adapter.open();
-			
-			List<R> values = new ArrayList<R>();
-			Cursor c = adapter.query(select);
-			
-			try {
-				values = getObjects(c);
-			} catch(Exception e) {
-				Log.e(TAG, "an error occurred creating objects for " 
-						+ mTargetClass.getSimpleName(), e);
-			} finally {
-				c.close();
-				adapter.close();
-			}
-			
-			mValues = values;
-		}
+	public QuerySet<R> get(Context context, L origin) {
+		QuerySet<R> querySet = new QuerySet<R>(context, mTargetClass);
+		querySet.injectQuery(getQuery(origin.getId()));
 		
-		return new ArrayList<R>(mValues);
+		return querySet;
 	}
 	
 	private JoinStatement getJoin(String leftAlias, String rightAlias, int id) {
 		JoinStatement join = new JoinStatement();
 		
-		join.left(Model.getTableName(mTargetClass), leftAlias)
+		join.left(DatabaseBuilder.getTableName(mTargetClass), leftAlias)
 			.right(getRightJoinSide(id), rightAlias)
-			.on(Model.PK, Model.getTableName(mTargetClass));
+			.on(Model.PK, DatabaseBuilder.getTableName(mTargetClass));
 		
 		return join;
 	}
@@ -171,24 +82,15 @@ implements XToManyRelation<L, R> {
 		return new ForeignKeyField<L>(mOriginClass);
 	}
 	
-	private List<R> getObjects(Cursor c) {
-		List<R> values = new ArrayList<R>();
-		
-		while(c.moveToNext()) {
-			R object = Model.createObject(mTargetClass, c);
-			
-			values.add(object);
-		}
-		
-		return values;
+	public ForeignKeyField<R> getRightHandDescriptor() {
+		return new ForeignKeyField<R>(mTargetClass);
 	}
 	
-	private SelectStatement getQuery(int id, Limit limit) {
+	private SelectStatement getQuery(int id) {
 		SelectStatement select = new SelectStatement();
 		
 		select.select("a.*")
-		  	  .from(getJoin("a", "b", id))
-		  	  .limit(limit);
+		  	  .from(getJoin("a", "b", id));
 		
 		return select;
 	}
@@ -197,13 +99,9 @@ implements XToManyRelation<L, R> {
 		return mTableName;
 	}
 	
-	public ForeignKeyField<R> getRightHandDescriptor() {
-		return new ForeignKeyField<R>(mTargetClass);
-	}
-	
 	private SelectStatement getRightJoinSide(int id) {
-		String leftTable = Model.getTableName(mOriginClass);
-		String rightTable = Model.getTableName(mTargetClass);
+		String leftTable = DatabaseBuilder.getTableName(mOriginClass);
+		String rightTable = DatabaseBuilder.getTableName(mTargetClass);
 		
 		Where where = new Where();
 		where.setStatement(new Statement(leftTable, id));
@@ -224,17 +122,4 @@ implements XToManyRelation<L, R> {
 		
 		return select;
 	}
-
-	@Override
-	public Class<R> getTarget() {
-		return mTargetClass;
-	}
-
-	@Override
-	public XToManyRelation<L, R> orderBy(String... columns) {
-		mOrderBy = new OrderBy(columns);
-		
-		return this;
-	}
-
 }

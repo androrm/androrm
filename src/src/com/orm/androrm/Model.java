@@ -24,7 +24,6 @@ package com.orm.androrm;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,15 +82,7 @@ public abstract class Model {
 	 */
 	public static final String PK = "mId";
 	
-	protected static final String COUNT = "count";
-	
-	public static final <T extends Model> List<T> all(Context context, Class<T> clazz, Limit limit) {
-		SelectStatement select = new SelectStatement();
-		select.from(getTableName(clazz))
-			  .limit(limit);
-		
-		return createObjects(context, clazz, select);
-	}
+	public static final String COUNT = "item_count";
 	
 	/**
 	 * Assigns a value gathered from the database to the
@@ -107,10 +98,13 @@ public abstract class Model {
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	private static final <T extends Model> void assignFieldValue(Field field, 
-			T object,
-			Cursor c) 
-	throws IllegalArgumentException, IllegalAccessException {
+	private static final <T extends Model> void assignFieldValue(
+			
+			Field 	field, 
+			T 		object,
+			Cursor 	c
+			
+	) throws IllegalArgumentException, IllegalAccessException {
 		
 		Object o = field.get(object);
 		
@@ -121,66 +115,12 @@ public abstract class Model {
 		}
 	}
 	
-	public static final <T extends Model> int count(Context context, 
-			Class<T> clazz) {
-		
-		SelectStatement select = new SelectStatement();
-		select.count()
-			  .from(getTableName(clazz));
-		
-		DatabaseAdapter adapter = new DatabaseAdapter(context);
-		adapter.open();
-		
-		Cursor c = adapter.query(select);
-		
-		int count = 0;
-		if(c.moveToNext()) {
-			count = c.getInt(c.getColumnIndexOrThrow(COUNT));
-		}
-		
-		c.close();
-		adapter.close();
-		return count;
-	}
-	
-	public static final <T extends Model> int count(Context context, 
-			Class<T> clazz, 
-			FilterSet filter) {
-		
-		DatabaseAdapter adapter = new DatabaseAdapter(context);
-		adapter.open();
-		
-		Cursor c = null;
-		
-		try {
-			SelectStatement select = QueryBuilder.buildQuery(clazz, filter.getFilters(), 0);
-			select.count();
+	protected static final <T extends Model> T createObject(
 			
-			c = adapter.query(select);
+			Class<T> clazz,
+			Cursor	 c
 			
-			int count = 0;
-			if(c.moveToNext()) {
-				count = c.getInt(c.getColumnIndexOrThrow(COUNT));
-			}
-			
-			return count;
-		} catch (NoSuchFieldException e) {
-			Log.e(TAG, "exception thrown trying to count objects of class " 
-					+ clazz.getSimpleName() 
-					+ ". Check your filters!", e);
-		} finally {
-			if(c != null) {
-				c.close();
-			}
-			
-			adapter.close();
-		}
-		
-		return 0;
-	}
-	
-	protected static final <T extends Model> T createObject(Class<T> clazz,
-			Cursor c) {
+	) {
 		
 		T object = getInstace(clazz);
 		
@@ -195,35 +135,17 @@ public abstract class Model {
 		return object;
 	}
 	
-	private static final <T extends Model> List<T> createObjects(Context context, Class<T> clazz, SelectStatement select) {
-		List<T> objects = new ArrayList<T>();
-		
-		DatabaseAdapter adapter = new DatabaseAdapter(context);
-		adapter.open();
-		
-		Cursor c = adapter.query(select);
-		
-		while(c.moveToNext()) {
-			T object = createObject(clazz, c);
+	private static final <T extends Model> void fillUpData(
 			
-			if(object != null) {
-				objects.add(object);
-			}
-		}
-		
-		c.close();
-		adapter.close();
-		return objects;
-	}
-	
-	private static final <T extends Model> void fillUpData(T instance, 
-			Class<T> clazz, 
-			Cursor c) 
-	throws IllegalArgumentException, IllegalAccessException {
+			T 			instance, 
+			Class<T> 	clazz, 
+			Cursor 		c
+			
+	) throws IllegalArgumentException, IllegalAccessException {
 		
 		if(clazz != null && clazz.isInstance(instance)) {
 			
-			for(Field field: getFields(clazz, instance)) {
+			for(Field field: DatabaseBuilder.getFields(clazz, instance)) {
 				assignFieldValue(field, instance, c);
 			}
 			
@@ -231,57 +153,12 @@ public abstract class Model {
 		}
 	}
 	
-	protected static final <T extends Model> List<T> filter(Context context,
-			Class<T> clazz,
-			FilterSet filter) {
-		
-		return filter(context, clazz, filter, null);
-	}
-	
-	protected static final <T extends Model> List<T> filter(Context context, 
-			Class<T> clazz, 
-			FilterSet filter,
-			Limit limit) {
-		
-		SelectStatement select = new SelectStatement();
-		
-		try {
-			select = QueryBuilder.buildQuery(clazz, filter.getFilters(), 0);
-			select.limit(limit)
-				  .orderBy(filter.getOrdering());
-		} catch (NoSuchFieldException e) {
-			Log.e(TAG, "could not resolve fields into class.", e);
-		}
-		
-		return createObjects(context, clazz, select);
-	}
-	
-	public static final <T extends Model> T get(Context context, Class<T> clazz, int id) {
-		Where where = new Where();
-		where.and(PK, id);
-		
-		DatabaseAdapter adapter = new DatabaseAdapter(context);
-		adapter.open();
-		
-		SelectStatement select = new SelectStatement();
-		select.from(getTableName(clazz))
-			  .where(where);
-		
-		Cursor c = adapter.query(select);
-		
-		T object = null;
-		
-		if(c.moveToNext()) {
-			object = createObject(clazz, c);
-		}
-		
-		c.close();
-		adapter.close();
-		return object;
-	}
-	
-	protected static final <O extends Model, T extends Model> String getBackLinkFieldName(Class<O> originClass,
-			Class<T> targetClass) {
+	protected static final <O extends Model, T extends Model> String getBackLinkFieldName(
+			
+			Class<O> originClass,
+			Class<T> targetClass
+			
+	) {
 		
 		Field fk = null;
 		
@@ -301,11 +178,17 @@ public abstract class Model {
 		return null;
 	}
 	
-	protected static final <T extends Model> List<String> getEligableFields(Class<T> clazz, T instance) {
+	private static final <T extends Model> List<String> getEligableFields(
+			
+			Class<T> 	clazz, 
+			T 			instance
+			
+	) {
+		
 		List<String> eligableFields = new ArrayList<String>();
 		
 		if(clazz != null) {
-			for(Field field: getFields(clazz, instance)) {
+			for(Field field: DatabaseBuilder.getFields(clazz, instance)) {
 				eligableFields.add(field.getName());
 			}
 			
@@ -315,11 +198,18 @@ public abstract class Model {
 		return eligableFields;
 	}
 	
-	protected static final <T extends Model> Field getField(Class<T> clazz, T instance, String fieldName) {
+	protected static final <T extends Model> Field getField(
+			
+			Class<T> 	clazz, 
+			T 			instance, 
+			String 		fieldName
+			
+	) {
+		
 		Field field = null;
 		
 		if(clazz != null) {
-			for(Field f: getFields(clazz, instance)) {
+			for(Field f: DatabaseBuilder.getFields(clazz, instance)) {
 				if(f.getName().equals(fieldName)) {
 					field = f;
 					break;
@@ -334,80 +224,14 @@ public abstract class Model {
 		return field;
 	}
 	
-	private static final<T extends Model> void getFieldDefinitions(T instance, 
-			Class<T> clazz, 
-			TableDefinition modelTable) 
-	throws IllegalArgumentException, IllegalAccessException {
-		
-		if(clazz != null && clazz.isInstance(instance)) {
-			// TODO: only create fields from superclass, if superclass is
-			// abstract. Otherwise create a pointer to superclass.
-			
-			for(Field field: getFields(clazz, instance)) {
-				String name = field.getName();
-
-				Object o = field.get(instance);
-				
-				if(o instanceof DataField) {
-					DataField<?> fieldObject = (DataField<?>) o;
-					modelTable.addField(name, fieldObject);
-				}
-				
-				if(o instanceof ManyToManyField) {
-					modelTable.addRelationalClass(clazz);
-				}
-			}
-			
-			getFieldDefinitions(instance, getSuperclass(clazz), modelTable);
-		}
-	}
-	
-	/**
-	 * Retrieves all fields of a given class, that are
-	 * <ol>
-	 * 	<li><b>NOT</b> private</li>
-	 * 	<li>Database fields</li>
-	 * </ol>
-	 * In addition these fields are set to be accessible, so
-	 * that they can then be further processed. 
-	 * 
-	 * @param <T>
-	 * @param clazz		Class to extract the fields from. 
-	 * @param instance	Instance of that class. 
-	 * 
-	 * @return {@link List} of all fields, that are database fields, 
-	 * 		   and that are <b>NOT</b> private. 
-	 */
-	protected static final <T extends Model> List<Field> getFields(Class<T> clazz, T instance) {
-		Field[] declaredFields = clazz.getDeclaredFields();
-		List<Field> fields = new ArrayList<Field>();
-		
-		try {
-			for(int i = 0, length = declaredFields.length; i < length; i++) {
-				Field field = declaredFields[i];
-				
-				if(!Modifier.isPrivate(field.getModifiers())) {
-					field.setAccessible(true);
-					Object f = field.get(instance);
-					
-					if(QueryBuilder.isDatabaseField(f)) {
-						fields.add(field);
-					}
-				}
-			}
-		} catch (IllegalAccessException e) {
-			Log.e(TAG, "exception thrown while trying to gain access to fields of class " 
-					+ clazz.getSimpleName(), e);
-		}
-		
-		return fields;
-	}
-	
 	@SuppressWarnings("unchecked")
-	private static final <T extends Model, O extends Model> ForeignKeyField<T> getForeignKey(O origin, 
-			Class<O> originClass, 
-			Class<T> target) 
-	throws IllegalArgumentException, IllegalAccessException {
+	private static final <T extends Model, O extends Model> ForeignKeyField<T> getForeignKey(
+			
+			O 			origin, 
+			Class<O> 	originClass, 
+			Class<T> 	target
+			
+	) throws IllegalArgumentException, IllegalAccessException {
 		
 		if(originClass != null && originClass.isInstance(origin)) {
 			Field fkField = getForeignKeyField(target, originClass, origin);
@@ -420,15 +244,18 @@ public abstract class Model {
 		return null;
 	}
 	
-	private static final <T extends Model, O extends Model> Field getForeignKeyField(Class<T> target, 
-			Class<O> originClass, 
-			O origin) 
-	throws IllegalArgumentException, IllegalAccessException {
+	private static final <T extends Model, O extends Model> Field getForeignKeyField(
+			
+			Class<T> 	target, 
+			Class<O> 	originClass, 
+			O 			origin
+			
+	) throws IllegalArgumentException, IllegalAccessException {
 		
 		Field fk = null;
 		
 		if(originClass != null && originClass.isInstance(origin)) {
-			for(Field field: getFields(originClass, origin)) {
+			for(Field field: DatabaseBuilder.getFields(originClass, origin)) {
 				Object f = field.get(origin);
 				
 				if(f instanceof ForeignKeyField) {
@@ -464,51 +291,6 @@ public abstract class Model {
 		return instance;
 	}
 	
-	private static final<T extends Model> List<TableDefinition> getRelationDefinitions(Class<T> clazz) {
-		List<TableDefinition> definitions = new ArrayList<TableDefinition>();
-		
-		T object = getInstace(clazz);
-		getRelationDefinitions(object, clazz, definitions);
-		
-		return definitions;
-	}
-	
-	@SuppressWarnings("unchecked")
-	private static final <T extends Model> void getRelationDefinitions(T instance, 
-			Class<T> clazz, 
-			List<TableDefinition> definitions) {
-		
-		if(clazz != null && clazz.isInstance(instance) ) {
-			for(Field field: getFields(clazz, instance)) {
-				try {
-					Object o = field.get(instance);
-					
-					if(o instanceof ManyToManyField) {
-						ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) o;
-
-						String leftHand = getTableName(clazz);
-						String rightHand = getTableName(m.getTarget());
-						
-						TableDefinition definition = new TableDefinition(m.getRelationTableName());
-						
-						ForeignKeyField<T> leftLink = m.getLeftLinkDescriptor();
-						ForeignKeyField<?> rightLink = m.getRightHandDescriptor();
-						
-						definition.addField(leftHand, leftLink);
-						definition.addField(rightHand, rightLink);
-						
-						definitions.add(definition);
-					}
-				} catch(IllegalAccessException e) {
-					Log.e(TAG, "could not gather relation definitions for class " 
-							+ clazz.getSimpleName(), e);
-				}
-			}
-			
-			getRelationDefinitions(instance, getSuperclass(clazz), definitions);
-		}
-	}
-	
 	@SuppressWarnings("unchecked")
 	protected static final <T extends Model, U extends Model> Class<U> getSuperclass(Class<T> clazz) {
 		Class<?> parent = clazz.getSuperclass();
@@ -521,40 +303,14 @@ public abstract class Model {
 		return superclass;
 	}
 	
-	protected static final<T extends Model> List<TableDefinition> getTableDefinitions(Class<T> clazz) {
-		List<TableDefinition> definitions = new ArrayList<TableDefinition>();
-		
-		if(!Modifier.isAbstract(clazz.getModifiers())) {
-			try {
-				T object = getInstace(clazz);
-				TableDefinition definition = new TableDefinition(getTableName(clazz));
-				
-				getFieldDefinitions(object, clazz, definition);
-				
-				definitions.add(definition);
-				
-				for(Class<? extends Model> c: definition.getRelationalClasses()) {
-					definitions.addAll(getRelationDefinitions(c));
-				}
-				
-				return definitions;
-			} catch(IllegalAccessException e) {
-				Log.e(TAG, "an exception has been thrown while gathering the database structure information.", e);
-			}
-		}
-		
-		return null;
-	}
-	
-	public static final String getTableName(Class<?> clazz) {
-		return clazz.getSimpleName().toLowerCase();
-	}
-	
-	protected static final <T extends Model, O extends Model> void setBackLink(T target, 
-			Class<T> targetClass,
-			O origin, 
-			Class<O> originClass) 
-	throws NoSuchFieldException {
+	private static final <T extends Model, O extends Model> void setBackLink(
+			
+			T 			target, 
+			Class<T> 	targetClass,
+			O 			origin, 
+			Class<O> 	originClass
+			
+	) throws NoSuchFieldException {
 		
 		ForeignKeyField<T> fk = null;
 		
@@ -589,14 +345,16 @@ public abstract class Model {
 		mId = new PrimaryKeyField(!suppressAutoincrement);
 	}
 	
-	@SuppressWarnings("unchecked")
-	private <T extends Model> void collectData(Context context, 
-			ContentValues values, 
-			Class<T> clazz) 
-	throws IllegalArgumentException, IllegalAccessException {
+	private <T extends Model> void collectData(
+			
+			Context 		context, 
+			ContentValues 	values, 
+			Class<T> 		clazz
+			
+	) throws IllegalArgumentException, IllegalAccessException {
 		
 		if(clazz != null && clazz.isInstance(this)) {
-			for(Field field: getFields(clazz, (T) this)) {
+			for(Field field: DatabaseBuilder.getFields(clazz, this)) {
 				Object o = field.get(this);
 				String fieldName = field.getName();
 				
@@ -607,22 +365,41 @@ public abstract class Model {
 		}
 	}
 	
-	public boolean delete(Context context) {
+	public <T extends Model> boolean delete(Context context) {
 		if(getId() != 0) {
 			Where where = new Where();
 			where.and(PK, getId());
 			
 			DatabaseAdapter adapter = new DatabaseAdapter(context);
-			int affectedRows = adapter.delete(getTableName(getClass()), where);
+			int affectedRows = adapter.delete(DatabaseBuilder.getTableName(getClass()), where);
 			
 			if(affectedRows != 0) {
 				mId.set(0);
 				
-				return true;
+				return resetFields();
 			}
 		}
 		
 		return false;
+	}
+	
+	private <T extends Model> boolean resetFields() {
+		List<Field> fields = DatabaseBuilder.getFields(getClass(), this);
+		
+		try {
+			for(Field field : fields) {
+				Object o = field.get(this);
+				
+				if(o instanceof AndrormField) {
+					AndrormField f = (AndrormField) o;
+					f.reset();
+				}
+			}
+			
+			return true;
+		} catch(IllegalAccessException e) {
+			return false;
+		}
 	}
 	
 	@Override
@@ -658,14 +435,16 @@ public abstract class Model {
 		return getId() + getClass().getSimpleName().hashCode();
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T extends Model, O extends Model> void persistRelations(Context context, 
-			Class<T> clazz) 
-	throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
+	private <T extends Model, O extends Model> void persistRelations(
+			
+			Context	 context, 
+			Class<T> clazz
+			
+	) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
 		
 		if(clazz != null && clazz.isInstance(this)) {
 			
-			for(Field field: getFields(clazz, (T) this)) {
+			for(Field field: DatabaseBuilder.getFields(clazz, this)) {
 				Object o = field.get(this);
 				
 				if(o instanceof ManyToManyField) {
@@ -681,7 +460,14 @@ public abstract class Model {
 		}
 	}
 	
-	private void putValue(Object field, String fieldName, ContentValues values) {
+	private void putValue(
+			
+			Object 			field, 
+			String 			fieldName, 
+			ContentValues 	values
+			
+	) {
+		
 		if(field instanceof DataField
 			&& !handledByPrimaryKey(field)) {
 			
@@ -711,9 +497,13 @@ public abstract class Model {
 		return false;
 	}
 	
-	private <T extends Model> boolean save(Context context, 
-			int id, 
-			ContentValues values) {
+	private <T extends Model> boolean save(
+			
+			Context 		context, 
+			int 			id, 
+			ContentValues 	values
+			
+	) {
 		
 		try {
 			collectData(context, values, getClass());
@@ -725,7 +515,7 @@ public abstract class Model {
 		where.and(PK, id);
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(context);
-		int rowID = adapter.doInsertOrUpdate(getTableName(getClass()), values, where);
+		int rowID = adapter.doInsertOrUpdate(DatabaseBuilder.getTableName(getClass()), values, where);
 
 		if(rowID == -1) {
 			mId.set(0);
@@ -750,12 +540,16 @@ public abstract class Model {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T extends Model> void saveM2MToDatabase(Context context, 
-			Class<T> clazz, 
-			Object field) {
+	private <T extends Model> void saveM2MToDatabase(
+			
+			Context 	context, 
+			Class<T> 	clazz, 
+			Object 		field
+			
+	) {
 		
 		ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) field;
-		List<? extends Model> targets = m.get(context, (T) this);
+		List<? extends Model> targets = m.getCachedValues();
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(context);
 		
@@ -767,11 +561,11 @@ public abstract class Model {
 			if(target.getId() != 0) {
 				ContentValues values = new ContentValues();
 				Where where = new Where();
-				where.and(getTableName(clazz), getId())
-					 .and(getTableName(m.getTarget()), target.getId());
+				where.and(DatabaseBuilder.getTableName(clazz), getId())
+					 .and(DatabaseBuilder.getTableName(m.getTarget()), target.getId());
 				
-				values.put(getTableName(clazz), getId());
-				values.put(getTableName(m.getTarget()), target.getId());
+				values.put(DatabaseBuilder.getTableName(clazz), getId());
+				values.put(DatabaseBuilder.getTableName(m.getTarget()), target.getId());
 				
 				adapter.doInsertOrUpdate(m.getRelationTableName(), values, where);
 			}
@@ -779,12 +573,15 @@ public abstract class Model {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <O extends Model, T extends Model> void saveO2MToDatabase(Context context, 
-			Object field) 
-	throws NoSuchFieldException {
+	private <O extends Model, T extends Model> void saveO2MToDatabase(
+			
+			Context context, 
+			Object 	field
+			
+	) throws NoSuchFieldException {
 		
 		OneToManyField<T, ?> om = (OneToManyField<T, ?>) field;
-		List<? extends Model> targets = om.get(context, (T) this);
+		List<? extends Model> targets = om.getCachedValues();
 		
 		for(Model target: targets) {
 			/*
@@ -796,5 +593,14 @@ public abstract class Model {
 				target.save(context);
 			}
 		}
+	}
+	
+	public static <T extends Model> QuerySet<T> objects(
+			
+			Context 	context, 
+			Class<T> 	clazz
+			
+	) {
+		return new QuerySet<T>(context, clazz);
 	}
 }

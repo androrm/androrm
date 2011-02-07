@@ -22,45 +22,39 @@
  */
 package com.orm.androrm;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-
 /**
- * This class can be used if a boolean field is needed in a
- * model class. Boolean fields can only have the value 
- * <code>true</code> or <code>false</code>. 
- * <br /><br />
- * In the database this field is represented through an 
- * integer fields with the length 1. 
+ * A {@link Rule} is used by {@link Filter Filter Sets}
+ * to create complex queries on the database. Each filter consists
+ * of a certain key leading to the field is applied to and 
+ * the {@link Statement}, that will be used for the query. 
  * 
  * @author Philipp Giese
  */
-public class BooleanField extends DataField<Boolean>{
+public class Rule {
 
-	public BooleanField() {
-		setUp();
-		
-		mValue = false;
+	/**
+	 * The key leads to the field this filter
+	 * is applied on. This can be the plain name
+	 * of a field like "mName" or a series of 
+	 * field names like "mSupplier__mBranches__mName".
+	 */
+	private String mKey; 
+	/**
+	 * The statement of a field is only valid for the
+	 * last field name in {@link Rule#mKey}. 
+	 */
+	private Statement mStatement;
+	
+	public Rule(String key, Statement statement) {
+		mKey = key;
+		mStatement = statement;
 	}
 	
-	@Override
-	public void putData(String key, ContentValues values) {
-		values.put(key, get());
+	public String getKey() {
+		return mKey;
 	}
-
-	@Override
-	public void set(Cursor c, String fieldName) {
-		set(c.getInt(c.getColumnIndexOrThrow(fieldName)) == 1);
+	
+	public Statement getStatement() {
+		return mStatement;
 	}
-
-	private void setUp() {
-		mType = "integer";
-		mMaxLength = 1;
-	}
-
-	@Override
-	public void reset() {
-		mValue = false;
-	}
-
 }

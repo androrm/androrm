@@ -6,8 +6,9 @@ import java.util.List;
 import android.test.AndroidTestCase;
 
 import com.orm.androrm.DatabaseAdapter;
-import com.orm.androrm.FilterSet;
+import com.orm.androrm.Filter;
 import com.orm.androrm.Model;
+import com.orm.androrm.QuerySet;
 import com.orm.androrm.impl.Branch;
 import com.orm.androrm.impl.Product;
 import com.orm.androrm.impl.Supplier;
@@ -69,22 +70,22 @@ public class FieldResulutionTest extends AndroidTestCase {
 		branches.add(mB1);
 		branches.add(mB2);
 		
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.in("mBranches", branches);
 		
-		List<Product> products = Product.filter(getContext(), filter);
+		QuerySet<Product> products = Product.objects(getContext()).filter(filter);
 		
-		assertEquals(1, products.size());
+		assertEquals(1, products.count());
 		assertTrue(products.contains(mP1));
 		
 		branches.remove(0);
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.in("mBranches", branches);
 		
-		products = Product.filter(getContext(), filter);
+		products = Product.objects(getContext()).filter(filter);
 		
-		assertEquals(0, products.size());
+		assertEquals(0, products.count());
 	}
 	
 	public void testOneToManyResolutionLastField() {
@@ -92,77 +93,77 @@ public class FieldResulutionTest extends AndroidTestCase {
 		branches.add(mB1);
 		branches.add(mB2);
 		
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.in("mProducts__mBranches", branches);
 		
-		List<Supplier> suppliers = Supplier.filter(getContext(), filter);
+		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
 		
-		assertEquals(1, suppliers.size());
+		assertEquals(1, suppliers.count());
 		assertTrue(suppliers.contains(mS1));
 		
 		branches.remove(0);
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.in("mProducts__mBranches", branches);
 		
-		suppliers = Supplier.filter(getContext(), filter);
+		suppliers = Supplier.objects(getContext()).filter(filter);
 		
-		assertEquals(0, suppliers.size());
+		assertEquals(0, suppliers.count());
 	}
 	
 	public void testOneToManyResolutionInBetween() {
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.contains("mProducts__mBranches__mName", "cash");
 		
-		List<Supplier> suppliers = Supplier.filter(getContext(), filter);
+		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
 		
-		assertEquals(1, suppliers.size());
+		assertEquals(1, suppliers.count());
 		assertTrue(suppliers.contains(mS1));
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.contains("mProducts__mBranches__mName", "plumb");
 		
-		suppliers = Supplier.filter(getContext(), filter);
+		suppliers = Supplier.objects(getContext()).filter(filter);
 		
-		assertEquals(0, suppliers.size());
+		assertEquals(0, suppliers.count());
 	}
 	
 	public void testForeignKeyResolutionOnlyField() {
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.is("mProduct", mP1);
 		
-		List<Branch> branches = Branch.filter(getContext(), filter);
+		QuerySet<Branch> branches = Branch.objects(getContext()).filter(filter);
 		
-		assertEquals(2, branches.size());
+		assertEquals(2, branches.count());
 		assertTrue(branches.contains(mB1));
 		assertTrue(branches.contains(mB3));
 	}
 	
 	public void testForeignKeyResolutionLastField() {
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.is("mBranches__mProduct", mP1);
 		
-		List<Supplier> suppliers = Supplier.filter(getContext(), filter);
+		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
 		
-		assertEquals(1, suppliers.size());
+		assertEquals(1, suppliers.count());
 		assertTrue(suppliers.contains(mS1));
 	}
 	
 	public void testForeignKeyResolutionInBetween() {
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.contains("mBranches__mProduct__mName", "fen");
 		
-		List<Supplier> suppliers = Supplier.filter(getContext(), filter);
+		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
 		
-		assertEquals(1, suppliers.size());
+		assertEquals(1, suppliers.count());
 		assertTrue(suppliers.contains(mS1));
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.is("mBranches__mProduct__mName", "false");
 		
-		suppliers = Supplier.filter(getContext(), filter);
+		suppliers = Supplier.objects(getContext()).filter(filter);
 		
-		assertEquals(0, suppliers.size());
+		assertEquals(0, suppliers.count());
 	}
 	
 	public void testManyToManyFieldResolutionOnlyField() {
@@ -170,61 +171,61 @@ public class FieldResulutionTest extends AndroidTestCase {
 		branches.add(mB1);
 		branches.add(mB2);
 		
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.in("mBranches", branches);
 		
-		List<Supplier> suppliers = Supplier.filter(getContext(), filter);
+		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
 		
-		assertEquals(1, suppliers.size());
+		assertEquals(1, suppliers.count());
 		assertTrue(suppliers.contains(mS1));
 		
 		branches.remove(0);
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.in("mBranches", branches);
 		
-		suppliers = Supplier.filter(getContext(), filter);
+		suppliers = Supplier.objects(getContext()).filter(filter);
 		
-		assertEquals(0, suppliers.size());
+		assertEquals(0, suppliers.count());
 	}
 	
 	public void testManyToManyFieldResolutionLastField() {
 		List<Supplier> suppliers = new ArrayList<Supplier>();
 		suppliers.add(mS1);
 		
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.in("mBranches__mSuppliers", suppliers);
 		
-		List<Product> products = Product.filter(getContext(), filter);
+		QuerySet<Product> products = Product.objects(getContext()).filter(filter);
 		
-		assertEquals(1, products.size());
+		assertEquals(1, products.count());
 		assertTrue(products.contains(mP1));
 		
 		suppliers.clear();
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.in("mBranches__mSuppliers", suppliers);
 		
-		products = Product.filter(getContext(), filter);
+		products = Product.objects(getContext()).filter(filter);
 		
-		assertEquals(0, products.size());
+		assertEquals(0, products.count());
 	}
 	
 	public void testManyToManyFieldResolutionInBetween() {
-		FilterSet filter = new FilterSet();
+		Filter filter = new Filter();
 		filter.is("mBranches__mSuppliers__mName", "ACME");
 		
-		List<Product> products = Product.filter(getContext(), filter);
+		QuerySet<Product> products = Product.objects(getContext()).filter(filter);
 		
-		assertEquals(1, products.size());
+		assertEquals(1, products.count());
 		assertTrue(products.contains(mP1));
 		
-		filter = new FilterSet();
+		filter = new Filter();
 		filter.is("mBranches__mSuppliers__mName", "fail");
 		
-		products = Product.filter(getContext(), filter);
+		products = Product.objects(getContext()).filter(filter);
 		
-		assertEquals(0, products.size());
+		assertEquals(0, products.count());
 	}
 	
 	@Override

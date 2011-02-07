@@ -22,7 +22,7 @@
  */
 package com.orm.androrm;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -206,15 +206,11 @@ public class DatabaseAdapter {
 	 * 
 	 * @param models	{@link List} of classes inheriting from {@link Model}.
 	 */
-	public void setModels(List<Class<? extends Model>> models) {
+	public void setModels(Collection<Class<? extends Model>> models) {
 		open();
 		
 		mDbHelper.setModels(mDb, models);
 		
 		close();
-	}
-	
-	public List<Class<? extends Model>> getModels() {
-		return new ArrayList<Class<? extends Model>>(DatabaseHelper.getModels());
 	}
 }

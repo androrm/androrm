@@ -86,7 +86,7 @@ public class DateFieldTest extends AndroidTestCase {
 		
 		assertEquals(date, model.getDate());
 		
-		model = BlankModel.get(getContext(), BlankModel.class, model.getId());
+		model = BlankModel.objects(getContext(), BlankModel.class).get(model.getId());
 		Date newDate = model.getDate();
 		
 		assertNotNull(newDate);

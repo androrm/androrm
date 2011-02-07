@@ -23,8 +23,6 @@
 package com.orm.androrm;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import android.content.Context;
 
@@ -36,13 +34,10 @@ import android.content.Context;
  * 
  * @author Philipp Giese
  */
-public class OneToManyField<L extends Model, R extends Model> implements XToManyRelation<L, R> {
+public class OneToManyField<L extends Model, 
+							R extends Model> 
+extends AbstractToManyRelation<L, R> {
 
-	private Collection<R> mValues;
-	private Class<R> mTargetClass;
-	private Class<L> mOriginClass;
-	private OrderBy mOrderBy;
-	
 	public OneToManyField(Class<L> origin, Class<R> target) {
 		mOriginClass = origin;
 		mTargetClass = target;
@@ -50,79 +45,15 @@ public class OneToManyField<L extends Model, R extends Model> implements XToMany
 	}
 	
 	@Override
-	public void add(R value) {
-		mValues.add(value);
-	}
-	
-	@Override
-	public void addAll(Collection<R> values) {
-		for(R value: values) {
-			add(value);
-		}
-	}
-	
-	@Override
-	public int count(Context context, L l) {
-		if(l.getId() != 0) {
-			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
-			
-			FilterSet filter = new FilterSet();
-			filter.is(fieldName, l);
-			
-			return Model.count(context, mTargetClass, filter);
-		}
+	public QuerySet<R> get(Context context, L origin) {
+		String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
 		
-		/*
-		 * even though the relation is not persisted objects
-		 * could have been added via the add method. In this 
-		 * case the result of count is the size of the mValues
-		 * list.
-		 */
-		return mValues.size();
-	}
-	
-	@Override
-	public List<R> get(Context context, L l) {
-		return get(context, l, null);
-	}
-
-	@Override
-	public List<R> get(Context context, L l, Limit limit) {
-		if(mValues.isEmpty()
-				|| (limit != null 
-						&& mValues.size() < limit.getComputedLimit())) {
-			
-			String fieldName = Model.getBackLinkFieldName(mTargetClass, mOriginClass);
-			
-			FilterSet filter = new FilterSet();
-			filter.is(fieldName, l)
-				  .orderBy(mOrderBy);
-			
-			List<R> result = Model.filter(context, mTargetClass, filter, limit);
-			
-			for(R item : result) {
-				if(!mValues.contains(item)) {
-					mValues.add(item);
-				}
-			}
-		}
+		Filter filter = new Filter();
+		filter.is(fieldName, origin);
 		
-		if(limit != null && mValues.size() >= limit.getComputedLimit()) {
-			return (new ArrayList<R>(mValues)).subList(limit.getOffset(), limit.getComputedLimit());
-		}
+		QuerySet<R> querySet = new QuerySet<R>(context, mTargetClass);
+		querySet.filter(filter);
 		
-		return new ArrayList<R>(mValues);
-	}
-
-	@Override
-	public Class<R> getTarget() {
-		return mTargetClass;
-	}
-
-	@Override
-	public XToManyRelation<L, R> orderBy(String... columns) {
-		mOrderBy = new OrderBy(columns);
-		
-		return this;
+		return querySet;
 	}
 }

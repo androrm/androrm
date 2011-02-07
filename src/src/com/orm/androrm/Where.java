@@ -145,10 +145,14 @@ public class Where {
 		mStatement = stmt;
 	}
 	
+	public Statement getStatement() {
+		return mStatement;
+	}
+	
 	@Override
 	public String toString() {
 		if(mStatement != null) {
-			return " WHERE " + mStatement.toString();
+			return " WHERE " + mStatement;
 		}
 		
 		return null;

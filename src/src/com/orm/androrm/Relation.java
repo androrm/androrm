@@ -25,7 +25,7 @@ package com.orm.androrm;
 /**
  * @author Philipp Giese
  */
-public interface Relation<T extends Model> {
+public interface Relation<T extends Model> extends AndrormField {
 	/**
 	 * Retrieves the target class of this specific
 	 * relation. 

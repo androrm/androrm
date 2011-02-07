@@ -69,4 +69,9 @@ public class CharField extends DataField<String> {
 		set(c.getString(c.getColumnIndexOrThrow(fieldName)));
 	}
 
+	@Override
+	public void reset() {
+		mValue = null;
+	}
+
 }

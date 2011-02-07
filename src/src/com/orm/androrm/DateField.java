@@ -141,4 +141,9 @@ public class DateField extends DataField<Date> {
 	public void set(Cursor c, String fieldName) {
 		fromString(c.getString(c.getColumnIndexOrThrow(fieldName)));
 	}
+
+	@Override
+	public void reset() {
+		mValue = null;
+	}
 }

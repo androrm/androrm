@@ -35,7 +35,7 @@ import android.database.Cursor;
  *
  * @param <T>	Java data type of the field.
  */
-public interface DatabaseField<T> {
+public interface DatabaseField<T> extends AndrormField {
 	/**
 	 * Used to gather the current value of this field.
 	 * @return The value of the field.

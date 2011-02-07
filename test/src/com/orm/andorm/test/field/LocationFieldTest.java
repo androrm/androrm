@@ -47,7 +47,7 @@ public class LocationFieldTest extends AndroidTestCase {
 		
 		b.save(getContext());
 		
-		BlankModel b2 = BlankModel.get(getContext(), BlankModel.class, b.getId());
+		BlankModel b2 = BlankModel.objects(getContext(), BlankModel.class).get(b.getId());
 		Location l2 = b2.getLocation();
 		
 		assertEquals(1.0, l2.getLatitude());

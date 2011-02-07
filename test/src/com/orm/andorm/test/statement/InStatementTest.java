@@ -11,7 +11,7 @@ import com.orm.androrm.InStatement;
 public class InStatementTest extends AndroidTestCase {
 
 	public void testPlainStatement() {
-		List<Object> values = new ArrayList<Object>();
+		List<Integer> values = new ArrayList<Integer>();
 		values.add(1);
 		
 		InStatement in = new InStatement("foo", values);
@@ -25,7 +25,7 @@ public class InStatementTest extends AndroidTestCase {
 	}
 	
 	public void testGetKeys() {
-		List<Object> values = new ArrayList<Object>();
+		List<Integer> values = new ArrayList<Integer>();
 		values.add(1);
 		
 		InStatement in = new InStatement("foo", values);
