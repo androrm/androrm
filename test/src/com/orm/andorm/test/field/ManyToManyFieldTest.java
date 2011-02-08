@@ -144,6 +144,27 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		assertTrue(b2.getProducts(getContext()).contains(p));
 	}
 	
+	public void testReset() {
+		Product p1 = new Product();
+		p1.setName("test1");
+		p1.save(getContext());
+		
+		Product p2 = new Product();
+		p2.setName("test2");
+		p2.save(getContext());
+		
+		Supplier s = new Supplier();
+		s.setName("ACME");
+		s.addProducts(Arrays.asList(new Product[] { p1, p2 }));
+		s.save(getContext());
+		
+		assertEquals(2, s.getProducts(getContext()).count());
+		
+		s.delete(getContext());
+		
+		assertEquals(0, s.getProducts(getContext()).count());
+	}
+	
 	@Override
 	public void tearDown() {
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());

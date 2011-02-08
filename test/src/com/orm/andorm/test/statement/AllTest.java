@@ -9,6 +9,7 @@ public class AllTest extends TestSuite {
 		TestSuite suite = new TestSuite();
 		
 		suite.addTestSuite(AndStatementTest.class);
+		suite.addTestSuite(DeleteStatementTest.class);
 		suite.addTestSuite(InStatementTest.class);
 		suite.addTestSuite(JoinStatementTest.class);
 		suite.addTestSuite(LikeStatementTest.class);

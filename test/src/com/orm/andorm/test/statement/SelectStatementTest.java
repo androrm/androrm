@@ -46,6 +46,15 @@ public class SelectStatementTest extends AndroidTestCase {
 		assertEquals("SELECT * FROM (SELECT * FROM left_table) AS a JOIN (SELECT * FROM right_table) AS b ON a.field1=b.field2", mSelect.toString());
 	}
 	
+	public void testFromSelect() {
+		SelectStatement select = new SelectStatement();
+		select.from("another_table");
+		
+		mSelect.from(select);
+		
+		assertEquals("SELECT * FROM (SELECT * FROM another_table)", mSelect.toString());
+	}
+	
 	public void testWhere() {
 		Where where = new Where();
 		where.setStatement(new Statement("foo", "bar"));
