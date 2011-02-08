@@ -25,6 +25,8 @@ package com.orm.androrm;
 import java.util.Collection;
 import java.util.List;
 
+import android.content.Context;
+
 /**
  * @author Philipp Giese
  */
@@ -56,7 +58,7 @@ implements XToManyRelation<O, T> {
 	}
 
 	@Override
-	public void reset() {
+	public void reset(Context context, Model model) {
 		mValues.clear();
 	}
 	

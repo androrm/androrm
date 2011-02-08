@@ -196,8 +196,8 @@ public class DatabaseAdapter {
 		return this;
 	}
 	
-	public Cursor query(SelectStatement select) {
-		return mDb.rawQuery(select.toString(), null);
+	public Cursor query(Query query) {
+		return mDb.rawQuery(query.toString(), null);
 	}
 	
 	/**

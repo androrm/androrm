@@ -30,7 +30,7 @@ import android.util.Log;
  * 
  * @author Philipp Giese
  */
-public class SelectStatement implements Cloneable {
+public class SelectStatement implements Cloneable, Query {
 	
 	private static final String TAG = "ANDRORM:SELECT";
 	
@@ -155,7 +155,7 @@ public class SelectStatement implements Cloneable {
 	}
 	
 	public SelectStatement from(SelectStatement select) {
-		mFrom = "(" + select.toString() + ")";
+		mFrom = "(" + select + ")";
 		
 		return this;
 	}

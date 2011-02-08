@@ -122,4 +122,21 @@ extends AbstractToManyRelation<L, R> {
 		
 		return select;
 	}
+	
+	@Override
+	public void reset(Context context, Model model) {
+		super.reset(context, model);
+		
+		Where where = new Where();
+		where.setStatement(new Statement(DatabaseBuilder.getTableName(mOriginClass), model.getId()));
+		
+		DeleteStatement delete = new DeleteStatement();
+		delete.from(mTableName)
+			  .where(where);
+		
+		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		adapter.open();
+		adapter.query(delete);
+		adapter.close();
+	}
 }

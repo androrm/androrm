@@ -376,14 +376,14 @@ public abstract class Model {
 			if(affectedRows != 0) {
 				mId.set(0);
 				
-				return resetFields();
+				return resetFields(context);
 			}
 		}
 		
 		return false;
 	}
 	
-	private <T extends Model> boolean resetFields() {
+	private <T extends Model> boolean resetFields(Context context) {
 		List<Field> fields = DatabaseBuilder.getFields(getClass(), this);
 		
 		try {
@@ -392,7 +392,7 @@ public abstract class Model {
 				
 				if(o instanceof AndrormField) {
 					AndrormField f = (AndrormField) o;
-					f.reset();
+					f.reset(context, this);
 				}
 			}
 			

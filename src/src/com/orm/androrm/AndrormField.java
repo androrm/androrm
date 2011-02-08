@@ -22,9 +22,11 @@
  */
 package com.orm.androrm;
 
+import android.content.Context;
+
 /**
  * @author Philipp Giese
  */
 public interface AndrormField {
-	public void reset();
+	public void reset(Context context, Model model);
 }

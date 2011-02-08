@@ -23,6 +23,7 @@
 package com.orm.androrm;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
@@ -76,7 +77,7 @@ public class LocationField extends DataField<Location> {
 	}
 
 	@Override
-	public void reset() {
+	public void reset(Context context, Model model) {
 		mValue = null;
 	}
 
