@@ -68,6 +68,22 @@ public class DatabaseAdapter {
 	}
 	
 	/**
+	 * This opens a new database connection. If a connection or database already exists
+	 * the system will ensure that getWritableDatabase() will return this Database.
+	 * 
+	 * DO NOT try to do caching by yourself because this could result in an
+	 * inappropriate state of the database.
+	 * 
+	 * @return this to enable chaining.
+	 * @throws SQLException
+	 */
+	public DatabaseAdapter open() throws SQLException {
+		mDb = mDbHelper.getWritableDatabase();
+		
+		return this;
+	}
+	
+	/**
 	 * Closes the current connection to the database.
 	 * Call this method after every database interaction to prevent
 	 * data leaks.
@@ -103,8 +119,12 @@ public class DatabaseAdapter {
 	public int doInsertOrUpdate(String table, ContentValues values, Where where) {
 		int result;
 		
+		SelectStatement select = new SelectStatement();
+		select.from(table)
+			  .where(where);
+		
 		open();
-		Cursor oldVersion = get(table, where, null);
+		Cursor oldVersion = query(select);
 		
 		if(oldVersion.moveToNext()) {	
 			String whereClause = null;
@@ -147,53 +167,6 @@ public class DatabaseAdapter {
 		mDbHelper.onCreate(mDb);
 		
 		close();
-	}
-	
-	/**
-	 * Query the database for a specific item.
-	 * 
-	 * @param 	table	Query table.
-	 * @param 	where	{@link Where} clause to apply.
-	 * @param 	limit	{@link Limit} clause to apply.
-	 * @return	{@link Cursor} that represents the query result.
-	 */
-	private Cursor get(String table, Where where, Limit limit) {
-		String whereClause = null;
-		if(where != null) {
-			whereClause = where.toString().replace(" WHERE ", "");
-		} 
-		
-		String limitClause = null;
-		if(limit != null) {
-			limitClause = limit.toString().replace(" LIMIT ", "");
-		}
-		
-		Cursor result = mDb.query(table, 
-				null, 
-				whereClause, 
-				null, 
-				null, 
-				null, 
-				null, 
-				limitClause);
-		
-		return result;
-	}
-	
-	/**
-	 * This opens a new database connection. If a connection or database already exists
-	 * the system will ensure that getWritableDatabase() will return this Database.
-	 * 
-	 * DO NOT try to do caching by yourself because this could result in an
-	 * inappropriate state of the database.
-	 * 
-	 * @return this to enable chaining.
-	 * @throws SQLException
-	 */
-	public DatabaseAdapter open() throws SQLException {
-		mDb = mDbHelper.getWritableDatabase();
-		
-		return this;
 	}
 	
 	public Cursor query(Query query) {
