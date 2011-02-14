@@ -22,6 +22,7 @@
  */
 package com.orm.androrm;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
@@ -62,5 +63,11 @@ public interface XToManyRelation<O extends Model, T extends Model> extends Relat
 	 */
 	public QuerySet<T> get(Context context, O origin);
 	
+	/**
+	 * Get the {@link List} of values, that were added at runtime
+	 * and are currently not persisted to the database.
+	 * 
+	 * @return {@link List} of values of {@link Type} T;
+	 */
 	public List<T> getCachedValues();
 }
