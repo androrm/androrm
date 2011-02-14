@@ -23,6 +23,8 @@
 package com.orm.androrm;
 
 /**
+ * Java representation of the <code>ORDER BY</code> statement.
+ * 
  * @author Philipp Giese
  */
 public class OrderBy {

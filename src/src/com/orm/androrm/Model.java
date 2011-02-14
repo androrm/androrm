@@ -24,12 +24,14 @@ package com.orm.androrm;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.AvoidXfermode.Mode;
 import android.util.Log;
 
 
@@ -79,18 +81,25 @@ public abstract class Model {
 	/**
 	 * Name used for the primary key field, that is
 	 * automatically assigned to each model. 
+	 * <br /><br />
+	 * Always keep consistent with the {@link PrimaryKeyField}
+	 * of this class.
 	 */
 	public static final String PK = "mId";
 	
-	public static final String COUNT = "item_count";
+	/**
+	 * This is the name used, when selecting COUNT values
+	 * from the database.
+	 */
+	public static final String COUNT = "androrm_item_count";
 	
 	/**
 	 * Assigns a value gathered from the database to the
-	 * instance <code>object</b> of type T. Due to the nature
+	 * instance <code>object</code> of type T. Due to the nature
 	 * of this ORM only fields applicable for serialization
 	 * will be considered.
 	 * 
-	 * @param <T>		Type of the object.
+	 * @param <T>		{@link Type} of the object.
 	 * @param field		Field of the object, that a value shall be assigned to.
 	 * @param object	Object instance of type <T>.
 	 * @param c			Database {@link Cursor}
@@ -115,6 +124,14 @@ public abstract class Model {
 		}
 	}
 	
+	/**
+	 * Creates an instance of the given class, and populates the fields.
+	 * 
+	 * @param <T>	{@link Type} of the instance.
+	 * @param clazz	{@link Class} of the instance.
+	 * @param c		{@link Cursor} used to retrieve data.
+	 * @return	Instance of type <code>T</code>.
+	 */
 	protected static final <T extends Model> T createObject(
 			
 			Class<T> clazz,
@@ -135,6 +152,16 @@ public abstract class Model {
 		return object;
 	}
 	
+	/**
+	 * Populates all fields of an instance with the values gathered form the database.
+	 * 
+	 * @param <T>		{@link Type} of the instance.
+	 * @param instance	Object instance, that will be equipped with data.
+	 * @param clazz		{@link Class} of the instance.
+	 * @param c			{@link Cursor}, that is used to navigate over data.
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
 	private static final <T extends Model> void fillUpData(
 			
 			T 			instance, 
@@ -153,32 +180,41 @@ public abstract class Model {
 		}
 	}
 	
+	/**
+	 * This method is used, to find {@link ForeignKeyField} on a class, that point
+	 * to a certain target class. This method is used by the {@link OneToManyField}
+	 * in order, to find all fields, that a linking the class, it is defined on.
+	 * 
+	 * @param <O>			Type of the origin class.
+	 * @param <T>			Type of the target class.
+	 * @param originClass	{@link Class} on which the {@link ForeignKeyField} should
+	 * 						be defined on.
+	 * @param targetClass	{@link Class} the {@link ForeignKeyField} should point to.
+	 * @return
+	 * @throws NoSuchFieldException 
+	 */
 	protected static final <O extends Model, T extends Model> String getBackLinkFieldName(
 			
 			Class<O> originClass,
 			Class<T> targetClass
 			
-	) {
+	) throws NoSuchFieldException {
 		
-		Field fk = null;
+		Field fk = getForeignKeyField(targetClass, originClass, getInstace(originClass));
 		
-		try {
-			fk = getForeignKeyField(targetClass, originClass, getInstace(originClass));
-		}  catch (IllegalAccessException e) {
-			Log.e(TAG, "an exception has been thrown trying to gather the foreign key field pointing to " 
-					+ targetClass.getSimpleName() 
-					+ " from origin class " 
-					+ originClass.getSimpleName(), e);
-		}
-		
-		if(fk != null) {
-			return fk.getName();
-		}
-		
-		return null;
+		return fk.getName();
 	}
 	
-	private static final <T extends Model> List<String> getEligableFields(
+	/**
+	 * Find all fields on a class (and inherited fields), that
+	 * are eligible for a database lookup.
+	 * 
+	 * @param <T>
+	 * @param clazz		{@link Class} of the instance.
+	 * @param instance	Object instance.
+	 * @return {@link List} of field names.
+	 */
+	protected static final <T extends Model> List<String> getEligibleFields(
 			
 			Class<T> 	clazz, 
 			T 			instance
@@ -192,19 +228,30 @@ public abstract class Model {
 				eligableFields.add(field.getName());
 			}
 			
-			eligableFields.addAll(getEligableFields(getSuperclass(clazz), instance));
+			eligableFields.addAll(getEligibleFields(getSuperclass(clazz), instance));
 		}
 		
 		return eligableFields;
 	}
 	
+	/**
+	 * Searches for a field on a given object instance and all of it's 
+	 * superclasses.
+	 * 
+	 * @param <T>		Instance type.
+	 * @param clazz		Class of instance.
+	 * @param instance	Object instance.
+	 * @param fieldName	Name of the field, that you are looking for.
+	 * @return	{@link Field} instance.
+	 * @throws NoSuchFieldException
+	 */
 	protected static final <T extends Model> Field getField(
 			
 			Class<T> 	clazz, 
 			T 			instance, 
 			String 		fieldName
 			
-	) {
+	) throws NoSuchFieldException {
 		
 		Field field = null;
 		
@@ -219,6 +266,10 @@ public abstract class Model {
 			if(field == null) {
 				field = getField(getSuperclass(clazz), instance, fieldName);
 			}
+		}
+		
+		if(field == null) {
+			throw new NoSuchFieldException(fieldName, getEligibleFields(clazz, instance));
 		}
 		
 		return field;
@@ -244,39 +295,75 @@ public abstract class Model {
 		return null;
 	}
 	
+	/**
+	 * Searches for a {@link ForeignKeyField} on the origin class
+	 * and its superclasses.
+	 * 
+	 * @param <T>			{@link Type} of the target.
+	 * @param <O>			{@link Type} of the origin.
+	 * @param targetClass	{@link Class} of the target.
+	 * @param originClass	{@link Class} of the origin.
+	 * @param origin		Instance of the origin class.
+	 * @return {@link Field} instance of the {@link ForeignKeyField}.
+	 * @throws NoSuchFieldException
+	 */
 	private static final <T extends Model, O extends Model> Field getForeignKeyField(
 			
-			Class<T> 	target, 
+			Class<T> 	targetClass, 
 			Class<O> 	originClass, 
 			O 			origin
 			
-	) throws IllegalArgumentException, IllegalAccessException {
+	) throws NoSuchFieldException {
 		
 		Field fk = null;
 		
 		if(originClass != null && originClass.isInstance(origin)) {
 			for(Field field: DatabaseBuilder.getFields(originClass, origin)) {
-				Object f = field.get(origin);
+				Object f = null;
 				
-				if(f instanceof ForeignKeyField) {
-					ForeignKeyField<?> tmp = (ForeignKeyField<?>) f;
-					Class<? extends Model> t = tmp.getTarget();
+				try {
+					f = field.get(origin);
 					
-					if(t.equals(target)) {
-						fk = field;
-						break;
+					if(f instanceof ForeignKeyField) {
+						ForeignKeyField<?> tmp = (ForeignKeyField<?>) f;
+						Class<? extends Model> t = tmp.getTarget();
+						
+						if(t.equals(targetClass)) {
+							fk = field;
+							break;
+						}
 					}
+				} catch (IllegalAccessException e) {
+					Log.e(TAG, "an exception has been thrown trying to gather the foreign key field pointing to " 
+							+ targetClass.getSimpleName() 
+							+ " from origin class " 
+							+ originClass.getSimpleName(), e);
 				}
 			}
 			
 			if(fk == null) {
-				fk = getForeignKeyField(target, getSuperclass(originClass), origin);
+				fk = getForeignKeyField(targetClass, getSuperclass(originClass), origin);
 			}
+		}
+		
+		if(fk == null) {
+			throw new NoSuchFieldException("Could not find field on " 
+					+ DatabaseBuilder.getTableName(originClass) 
+					+ " that is defined as a ForeignKey and that points to " 
+					+ DatabaseBuilder.getTableName(targetClass));
 		}
 		
 		return fk;
 	}
 	
+	/**
+	 * Create an instance of a given class. This method expects
+	 * a <b>zero-argument</b> constructor on the class.
+	 * 
+	 * @param <T>	{@link Type} of the instance.
+	 * @param clazz	{@link Class} of the instance.
+	 * @return Instance of type <code>T</code> or <code>null</code>.
+	 */
 	protected static final <T extends Model> T getInstace(Class<T> clazz) {
 		T instance = null;
 		
@@ -291,6 +378,17 @@ public abstract class Model {
 		return instance;
 	}
 	
+	/**
+	 * Use this method to gather the superclass of a {@link Model} class.
+	 * This method will only return superclasses, until the {@link Mode}
+	 * class itsel is reached. This way you don't have to check, if the
+	 * {@link Object} class has been reached.
+	 * 
+	 * @param <T>	{@link Type} of the subclass.
+	 * @param <U>	{@link Type} of the superclass.
+	 * @param clazz	Subclass.
+	 * @return Superclass of <code>clazz</code> or <code>null</code>.
+	 */
 	@SuppressWarnings("unchecked")
 	protected static final <T extends Model, U extends Model> Class<U> getSuperclass(Class<T> clazz) {
 		Class<?> parent = clazz.getSuperclass();
@@ -331,10 +429,14 @@ public abstract class Model {
 					+ " was found in class " 
 					+ originClass.getSimpleName() 
 					+"! Choices are: " 
-					+ getEligableFields(originClass, origin).toString());
+					+ getEligibleFields(originClass, origin));
 		}
 	}
 
+	/**
+	 * ID field, that will be automatically assigned to each model class.
+	 * If you want to get the name of this field use {@link Model#PK}.
+	 */
 	protected PrimaryKeyField mId;
 	
 	public Model() {
@@ -345,6 +447,16 @@ public abstract class Model {
 		mId = new PrimaryKeyField(!suppressAutoincrement);
 	}
 	
+	/**
+	 * Queries each field for its current value. 
+	 * 
+	 * @param <T>		{@link Type} of the instance.
+	 * @param context	{@link Context} the application runs in.
+	 * @param values	{@link ContentValues} that the data is put into.
+	 * @param clazz		{@link Class} of the instance.
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
 	private <T extends Model> void collectData(
 			
 			Context 		context, 
@@ -383,6 +495,14 @@ public abstract class Model {
 		return false;
 	}
 	
+	/**
+	 * Called when an instance is being deleted. This will reset
+	 * each field to it's default value and also remove relations. 
+	 * 
+	 * @param <T>		{@link Type} of the instance.
+	 * @param context	{@link Context} this application runs in.
+	 * @return <code>true</code> if all fields could be reset.
+	 */
 	private <T extends Model> boolean resetFields(Context context) {
 		List<Field> fields = DatabaseBuilder.getFields(getClass(), this);
 		
@@ -407,11 +527,8 @@ public abstract class Model {
 		if(o instanceof Model) {
 			Model m = (Model) o;
 			
-			if(getClass().equals(m.getClass())
-					&& getId() == m.getId()) {
-				
-				return true;
-			}
+			return getClass().equals(m.getClass())
+					&& getId() == m.getId();
 		}
 		
 		return false;
@@ -476,6 +593,15 @@ public abstract class Model {
 		}
 	}
 	
+	/**
+	 * If you do not suppress automatic primary key generation
+	 * (call <code>super()</code> in your constructor without 
+	 * any arguments), call this save function to store your
+	 * object in the database.
+	 * 
+	 * @param context	{@link Context} your application runs in.
+	 * @return <code>true</code> on success.
+	 */
 	public boolean save(Context context) {
 		if(mId.isAutoincrement() || getId() != 0) {
 			return save(context, getId(), new ContentValues());
@@ -484,6 +610,15 @@ public abstract class Model {
 		return false;
 	}
 	
+	/**
+	 * If you suppress automatic primary key creation, use
+	 * this function to store your instance in the database, 
+	 * by handing in a unique id.
+	 * 
+	 * @param context	{@link Context} your application runs in.
+	 * @param id		ID under which the object will be stored.
+	 * @return <code>true</code> on success.
+	 */
 	public boolean save(Context context, int id) {
 		if(!mId.isAutoincrement()) {
 			mId.set(id);
@@ -528,7 +663,7 @@ public abstract class Model {
 		
 		try {
 			persistRelations(context, getClass());
-		} catch (Exception e) {
+		} catch (IllegalAccessException e) {
 			Log.e(TAG, "an exception has been thrown trying to save the relations for " 
 					+ getClass().getSimpleName(), e);
 			
@@ -595,6 +730,19 @@ public abstract class Model {
 		}
 	}
 	
+	/**
+	 * To perform any kind of query, first call this function, to 
+	 * obtain a set-up {@link QuerySet} instance. 
+	 * <br /><br />
+	 * Subclasses of {@link Model} should implement their own 
+	 * <code>objects</code> function, calling this one and handing in
+	 * the class param.
+	 * 
+	 * @param <T>		{@link Type} of the instance calling.
+	 * @param context	{@link Context} the application runs in.
+	 * @param clazz		{@link Class} requesting the {@link QuerySet}.
+	 * @return	{@link QuerySet} instance for the given class and type.
+	 */
 	public static <T extends Model> QuerySet<T> objects(
 			
 			Context 	context, 

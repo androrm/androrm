@@ -23,11 +23,19 @@
 package com.orm.androrm;
 
 /**
+ * Generic interface for all queries, that can be executed
+ * by {@link DatabaseAdapter#query(Query)}.
+ * 
  * @author Philipp Giese
- *
  */
 public interface Query {
 
+	/**
+	 * In order to work properly, each query has to override
+	 * the <code>toString</code> method of {@link Object}.
+	 * 
+	 * @return String representation of the query.
+	 */
 	public String toString();
 	
 }

@@ -22,10 +22,33 @@
  */
 package com.orm.androrm;
 
-public class NoSuchFieldException extends Exception {
+import java.util.List;
+
+/**
+ * This exception will be thrown if an attempt is made to 
+ * access a field on a class, that is either not present
+ * or not accessible from the {@link Model} class. Hence 
+ * building a query would not produce a valuable outcome. 
+ *   
+ * @author Philipp Giese
+ */
+public class NoSuchFieldException extends RuntimeException {
 
 	private static final long serialVersionUID = -2025468982439559222L;
 
+	/**
+	 * This constructor should be used, if this exception is being raised
+	 * as it is the most verbose one. 
+	 * 
+	 * @param fieldName	The name of the field, that produced the error
+	 * @param choices 	{@link List} of choices for fields, that are available
+	 * 					See {@link Model#getEligibleFields(Class, Model)} for more
+	 * 					information.
+	 */
+	public NoSuchFieldException(String fieldName, List<String> choices) {
+		super("No such field: " + fieldName + "! Choices are: " + choices);
+	}
+	
 	public NoSuchFieldException(String msg) {
 		super(msg);
 	}

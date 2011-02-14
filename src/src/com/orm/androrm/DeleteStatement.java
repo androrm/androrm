@@ -23,6 +23,8 @@
 package com.orm.androrm;
 
 /**
+ * Implements a <code>DELETE</code> on the database.
+ * 
  * @author Philipp Giese
  */
 public class DeleteStatement implements Query {

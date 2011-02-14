@@ -29,8 +29,11 @@ import android.location.Location;
 import android.location.LocationManager;
 
 /**
+ * As location based services are widely spread in mobile applications,
+ * this field can be used to store a {@link Location} instance as a field
+ * in the database. 
+ * 
  * @author Philipp Giese
- *
  */
 public class LocationField extends DataField<Location> {
 

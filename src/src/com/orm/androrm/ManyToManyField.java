@@ -29,6 +29,10 @@ import java.util.List;
 import android.content.Context;
 
 /**
+ * This class realizes a many to many relation between two model
+ * classes. When utilized a relation table will be created in the 
+ * database. 
+ * 
  * @author Philipp Giese
  *
  * @param <L>	Type of the origin class.

@@ -25,8 +25,21 @@ package com.orm.androrm;
 import android.content.Context;
 
 /**
+ * This interface has to be implemented by all fields,
+ * as it defines the reset method, that will be used 
+ * to destroy the representation of a field, when
+ * being deleted.
+ * 
  * @author Philipp Giese
  */
 public interface AndrormField {
+	
+	/**
+	 * When called, will reset the field to its default value
+	 * or destroy any relation. 
+	 * 
+	 * @param context	{@link Context} your application runs in.
+	 * @param model		Instance of the {@link Model} class this method is called on.
+	 */
 	public void reset(Context context, Model model);
 }
