@@ -29,7 +29,6 @@ import java.util.List;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 /**
  * The query set class is the central point for the user, to build up
@@ -38,12 +37,24 @@ import android.util.Log;
  * @author Philipp Giese
  */
 public class QuerySet<T extends Model> implements Iterable<T> {
-
-	private static final String TAG = "ANDRORM:QUERY:SET";
 	
+	/**
+	 * Query, that will be executed on the database.
+	 */
 	private SelectStatement mQuery;
+	/**
+	 * Model class, that build this QuerySet.
+	 */
 	private Class<T> mClass;
+	/**
+	 * Once a database access has been made, the result is
+	 * stored in the items list.
+	 */
 	private List<T> mItems;
+	/**
+	 * Adapter, to connect to the database and to execute
+	 * queries.
+	 */
 	private DatabaseAdapter mAdapter;
 	
 	public QuerySet(Context context, Class<T> model) {
@@ -65,6 +76,12 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		mAdapter.close();
 	}
 	
+	/**
+	 * Retrieves an object from database based on its id.
+	 * 
+	 * @param id	ID of the object. 
+	 * @return The object, if it could be found.
+	 */
 	public T get(int id) {
 		Where where = new Where();
 		where.setStatement(new Statement(Model.PK, id));
@@ -113,13 +130,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	}
 	
 	public QuerySet<T> filter(Filter filter) {
-		SelectStatement query = null;
-		
-		try {
-			query = QueryBuilder.buildQuery(mClass, filter.getRules());
-		} catch (NoSuchFieldException e) {
-			Log.e(TAG, "could not build query for filter", e);
-		}
+		SelectStatement query = QueryBuilder.buildQuery(mClass, filter.getRules());
 		
 		if(mQuery == null) {
 			mQuery = query;
@@ -273,7 +284,11 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	}
 
 	public boolean isEmpty() {
-		return count() == 0;
+		if(mQuery != null) {
+			return count() == 0;
+		}
+		
+		return true;
 	}
 
 	public List<T> toList() {
