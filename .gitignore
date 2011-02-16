@@ -3,3 +3,4 @@ gen/
 jar/
 sqlite/
 .DS_Store
+javadoc/

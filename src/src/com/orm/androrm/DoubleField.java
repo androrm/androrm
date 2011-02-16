@@ -23,6 +23,7 @@
 package com.orm.androrm;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 
 /**
@@ -74,7 +75,7 @@ public class DoubleField extends DataField<Double> {
 	}
 
 	@Override
-	public void reset() {
+	public void reset(Context context, Model model) {
 		mValue = 0.0;
 	}
 	

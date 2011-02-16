@@ -24,6 +24,8 @@ package com.orm.androrm;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * This class can be used to create an IN statement
  * for database queries. 
@@ -44,25 +46,9 @@ public class InStatement extends Statement {
 		mValues = values;
 	}
 	
-	private String getList() {
-		boolean first = true;
-		
-		String stmt = null;
-		for(Integer value: mValues) {
-			if(first) {
-				stmt = String.valueOf(value);
-				first = false;
-			} else {
-				stmt += "," + value;
-			}
-		}
-		
-		return stmt;
-	}
-	
 	@Override
 	public String toString() {
-		return mKey + " IN (" + getList() + ")";
+		return mKey + " IN (" + StringUtils.join(mValues, ",") + ")";
 	}
 	
 }

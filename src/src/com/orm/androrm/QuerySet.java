@@ -32,6 +32,9 @@ import android.database.Cursor;
 import android.util.Log;
 
 /**
+ * The query set class is the central point for the user, to build up
+ * queries on objects to the database. 
+ * 
  * @author Philipp Giese
  */
 public class QuerySet<T extends Model> implements Iterable<T> {

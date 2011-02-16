@@ -3,12 +3,12 @@ package com.orm.andorm.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.test.AndroidTestCase;
+
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.Model;
 import com.orm.androrm.impl.BlankModel;
 import com.orm.androrm.impl.BlankModelNoAutoincrement;
-
-import android.test.AndroidTestCase;
 
 public class ModelTest extends AndroidTestCase {
 

@@ -23,13 +23,17 @@
 package com.orm.androrm;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 
 /**
+ * As location based services are widely spread in mobile applications,
+ * this field can be used to store a {@link Location} instance as a field
+ * in the database. 
+ * 
  * @author Philipp Giese
- *
  */
 public class LocationField extends DataField<Location> {
 
@@ -76,7 +80,7 @@ public class LocationField extends DataField<Location> {
 	}
 
 	@Override
-	public void reset() {
+	public void reset(Context context, Model model) {
 		mValue = null;
 	}
 

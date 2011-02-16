@@ -23,6 +23,7 @@
 package com.orm.androrm;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 
 /**
@@ -70,7 +71,7 @@ public class CharField extends DataField<String> {
 	}
 
 	@Override
-	public void reset() {
+	public void reset(Context context, Model model) {
 		mValue = null;
 	}
 

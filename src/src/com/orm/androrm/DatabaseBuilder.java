@@ -30,8 +30,10 @@ import java.util.List;
 import android.util.Log;
 
 /**
+ * This class is utilized, when the database structure is build up. 
+ * It also holds some convenience functions to retrieve fields or table names.
+ * 
  * @author Philipp Giese
- *
  */
 public class DatabaseBuilder {
 

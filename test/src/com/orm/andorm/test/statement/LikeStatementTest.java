@@ -13,6 +13,11 @@ public class LikeStatementTest extends AndroidTestCase {
 		assertEquals("foo LIKE '%bar%'", like.toString());
 	}
 	
+	public void testMatchBeginning() {
+		LikeStatement like = new LikeStatement("^foo", "bar");
+		assertEquals("foo LIKE 'bar%'", like.toString());
+	}
+	
 	public void testGetKeys() {
 		LikeStatement like = new LikeStatement("foo", "bar");
 		

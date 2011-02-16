@@ -1,5 +1,5 @@
 /**
- * 	Copyright (c) 2010 Philipp Giese
+ * 	Copyright (c) 2011 Philipp Giese
  * 
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -22,34 +22,20 @@
  */
 package com.orm.androrm;
 
-import java.util.List;
-
 /**
- * This exception will be thrown if an attempt is made to 
- * access a field on a class, that is either not present
- * or not accessible from the {@link Model} class. Hence 
- * building a query would not produce a valuable outcome. 
- *   
+ * Generic interface for all queries, that can be executed
+ * by {@link DatabaseAdapter#query(Query)}.
+ * 
  * @author Philipp Giese
  */
-public class NoSuchFieldException extends RuntimeException {
-
-	private static final long serialVersionUID = -2025468982439559222L;
+public interface Query {
 
 	/**
-	 * This constructor should be used, if this exception is being raised
-	 * as it is the most verbose one. 
+	 * In order to work properly, each query has to override
+	 * the <code>toString</code> method of {@link Object}.
 	 * 
-	 * @param fieldName	The name of the field, that produced the error
-	 * @param choices 	{@link List} of choices for fields, that are available
-	 * 					See {@link Model#getEligibleFields(Class, Model)} for more
-	 * 					information.
+	 * @return String representation of the query.
 	 */
-	public NoSuchFieldException(String fieldName, List<String> choices) {
-		super("No such field: " + fieldName + "! Choices are: " + choices);
-	}
+	public String toString();
 	
-	public NoSuchFieldException(String msg) {
-		super(msg);
-	}
 }

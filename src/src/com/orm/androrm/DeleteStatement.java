@@ -1,5 +1,5 @@
 /**
- * 	Copyright (c) 2010 Philipp Giese
+ * 	Copyright (c) 2011 Philipp Giese
  * 
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -22,50 +22,33 @@
  */
 package com.orm.androrm;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
 /**
- * Java representation of the <code>ORDER BY</code> statement.
+ * Implements a <code>DELETE</code> on the database.
  * 
  * @author Philipp Giese
  */
-public class OrderBy {
+public class DeleteStatement implements Query {
 
-	private List<String> mColumns;
-	
-	/**
-	 * Add an ORDER BY statement. For convenience ASC and DESC can
-	 * be toggled by adding a preceding a <code>+</code> or <code>-</code>
-	 * to the table column. 
-	 * <br /><br />
-	 * For example <code>-foo</code> will result in <code>foo DESC</code>.
-	 * <br /><br />
-	 * If no preceding <code>+</code> or <code>-</code> is given 
-	 * <code>ASC</code> is assumed.
-	 * 
-	 * @param col Name of the table column.
-	 */
-	public OrderBy(String... columns) {
-		mColumns = new ArrayList<String>();
+	private String mFrom;
+	private Where mWhere;
+
+	public DeleteStatement from(String table) {
+		mFrom = table;
 		
-		for(int i = 0, length = columns.length; i < length; i++) {
-			String col = columns[i];
-			
-			if(col.startsWith("-")) {
-				mColumns.add("UPPER(" + col.substring(1) + ") DESC");
-			} else if(col.startsWith("+")) {
-				mColumns.add("UPPER(" + col.substring(1) + ") ASC");
-			} else {
-				mColumns.add("UPPER(" + col + ") ASC");
-			}
-		}
+		return this;
+	}
+	
+	public DeleteStatement where(Where where) {
+		mWhere = where;
+		
+		return this;
 	}
 	
 	@Override
 	public String toString() {
-		return " ORDER BY " + StringUtils.join(mColumns, ", ");
+		return "DELETE FROM "
+			+ mFrom
+			+ mWhere;
 	}
+	
 }

@@ -65,7 +65,7 @@ public class Filter {
 	 * @return <code>this</code> for chaining.
 	 */
 	public Filter contains(String key, String needle) {
-		mRules.add(new Rule(key, new LikeStatement(getFieldName(key), needle)));
+		mRules.add(new Rule(key, new LikeStatement(getLastFieldName(key), needle)));
 		
 		return this;
 	}
@@ -92,7 +92,7 @@ public class Filter {
 	 * @param sequence	List of field names separated by __
 	 * @return The last field name in the chain.
 	 */
-	private String getFieldName(String sequence) {
+	private String getLastFieldName(String sequence) {
 		String[] fields = sequence.split("__");
 		
 		return fields[fields.length - 1];
@@ -115,7 +115,7 @@ public class Filter {
 	 * @return	<code>this</code> for chaining.
 	 */
 	public Filter in(String key, List<?> values) {
-		mRules.add(new Rule(key, new InStatement(getFieldName(key), filterValues(values))));
+		mRules.add(new Rule(key, new InStatement(getLastFieldName(key), filterValues(values))));
 		
 		return this;
 	}
@@ -143,7 +143,7 @@ public class Filter {
 	 * @return <code>this</code> for chaining.
 	 */
 	public Filter is(String key, String value) {
-		mRules.add(new Rule(key, new Statement(getFieldName(key), value)));
+		mRules.add(new Rule(key, new Statement(getLastFieldName(key), value)));
 		
 		return this;
 	}

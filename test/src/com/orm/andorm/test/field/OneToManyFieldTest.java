@@ -107,6 +107,26 @@ public class OneToManyFieldTest extends AndroidTestCase {
 		assertEquals(2, p.branchCount(getContext()));
 	}
 	
+	public void testReset() {
+		Branch b1 = new Branch();
+		b1.setName("test1");
+		b1.save(getContext());
+		
+		Branch b2 = new Branch();
+		b2.setName("test2");
+		b2.save(getContext());
+		
+		Product p = new Product();
+		p.addBranches(Arrays.asList(new Branch[] { b1, b2 }));
+		p.save(getContext());
+		
+		assertEquals(2, p.getBranches(getContext()).count());
+		
+		p.delete(getContext());
+		
+		assertEquals(0, p.getBranches(getContext()).count());
+	}
+	
 	@Override
 	public void tearDown() {
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());

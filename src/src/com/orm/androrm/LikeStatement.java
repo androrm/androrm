@@ -35,13 +35,35 @@ package com.orm.androrm;
  */
 public class LikeStatement extends Statement {
 
+	private boolean mMatchBeginning = false;
+	
+	private static String parseKey(String key) {
+		if(key.substring(0, 1).equals("^")) {
+			key = key.substring(1);
+		}
+		
+		return key;
+	}
+	
 	public LikeStatement(String key, String value) {
-		super(key, value);
+		super(parseKey(key), value);
+		
+		if(key.substring(0, 1).equals("^")) {
+			mMatchBeginning = true;
+		}
 	}
 	
 	@Override
 	public String toString() {
-		return mKey + " LIKE '%" + mValue + "%'";
+		String stmt = mKey + " LIKE '";
+		
+		if(!mMatchBeginning) {
+			stmt += "%";
+		}
+		
+		stmt += mValue + "%'";
+		
+		return stmt;
 	}
 	
 }

@@ -76,7 +76,7 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 		assertEquals(p.getName(), fk.get(getContext()).getName());
 	}
 	
-	public void testRelease() {
+	public void testReset() {
 		Product p = new Product();
 		p.setName("test product");
 		p.save(getContext());
@@ -84,12 +84,12 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 		ForeignKeyField<Product> fk = new ForeignKeyField<Product>(Product.class);
 		
 		fk.set(p);
-		fk.reset();
+		fk.reset(getContext(), null);
 		
 		assertNull(fk.get(getContext()));
 		
 		fk.set(p.getId());
-		fk.reset();
+		fk.reset(getContext(), null);
 		
 		assertNull(fk.get(getContext()));
 	}
