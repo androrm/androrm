@@ -139,7 +139,7 @@ public abstract class Model {
 			
 	) {
 		
-		T object = getInstace(clazz);
+		T object = getInstance(clazz);
 		
 		try {
 			fillUpData(object, clazz, c);
@@ -200,7 +200,7 @@ public abstract class Model {
 			
 	) throws NoSuchFieldException {
 		
-		Field fk = getForeignKeyField(targetClass, originClass, getInstace(originClass));
+		Field fk = getForeignKeyField(targetClass, originClass, getInstance(originClass));
 		
 		return fk.getName();
 	}
@@ -364,7 +364,7 @@ public abstract class Model {
 	 * @param clazz	{@link Class} of the instance.
 	 * @return Instance of type <code>T</code> or <code>null</code>.
 	 */
-	protected static final <T extends Model> T getInstace(Class<T> clazz) {
+	protected static final <T extends Model> T getInstance(Class<T> clazz) {
 		T instance = null;
 		
 		try {

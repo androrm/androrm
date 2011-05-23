@@ -48,7 +48,7 @@ public class DatabaseBuilder {
 		
 		if(!Modifier.isAbstract(clazz.getModifiers())) {
 			try {
-				T object = Model.getInstace(clazz);
+				T object = Model.getInstance(clazz);
 				TableDefinition definition = new TableDefinition(getTableName(clazz));
 				
 				getFieldDefinitions(object, clazz, definition);
@@ -173,7 +173,7 @@ public class DatabaseBuilder {
 	private static final<T extends Model> List<TableDefinition> getRelationDefinitions(Class<T> clazz) {
 		List<TableDefinition> definitions = new ArrayList<TableDefinition>();
 		
-		T object = Model.getInstace(clazz);
+		T object = Model.getInstance(clazz);
 		getRelationDefinitions(object, clazz, definitions);
 		
 		return definitions;
