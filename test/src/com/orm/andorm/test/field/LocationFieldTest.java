@@ -18,38 +18,38 @@ public class LocationFieldTest extends AndroidTestCase {
 	public void setUp() {
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
 		models.add(BlankModel.class);
-		
+
 		DatabaseAdapter.setDatabaseName("test_db");
-		
+
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
 	}
-	
+
 	@Override
 	public void tearDown() {
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.drop();
 	}
-	
+
 	public void testDefinition() {
 		LocationField field = new LocationField();
-		
+
 		assertEquals("fooLat numeric, fooLng numeric", field.getDefinition("foo"));
 	}
-	
+
 	public void testSave() {
 		Location l = new Location(LocationManager.GPS_PROVIDER);
 		l.setLatitude(1.0);
 		l.setLongitude(2.0);
-		
+
 		BlankModel b = new BlankModel();
 		b.setLocation(l);
-		
+
 		b.save(getContext());
-		
-		BlankModel b2 = BlankModel.objects(getContext(), BlankModel.class).get(b.getId());
+
+		BlankModel b2 = Model.objects(getContext(), BlankModel.class).get(b.getId());
 		Location l2 = b2.getLocation();
-		
+
 		assertEquals(1.0, l2.getLatitude());
 		assertEquals(2.0, l2.getLongitude());
 	}
