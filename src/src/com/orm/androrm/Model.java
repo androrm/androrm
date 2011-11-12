@@ -180,8 +180,8 @@ public abstract class Model {
 	
 	private static final <T extends Model> List<String> getEligableFields(
 			
-			Class<T> 	clazz, 
-			T 			instance
+			Class<? extends Model> 	clazz, 
+			T 						instance
 			
 	) {
 		
@@ -219,15 +219,15 @@ public abstract class Model {
 			if(field == null) {
 				field = getField(getSuperclass(clazz), instance, fieldName);
 			}
-		}
-		
-		if(field == null) {
-			throw new NoSuchFieldException("No field named " 
-					+ fieldName 
-					+ " was found in class " 
-					+ clazz.getSimpleName() 
-					+"! Choices are: " 
-					+ getEligableFields(clazz, instance).toString());
+			
+			if(field == null) {
+				throw new NoSuchFieldException("No field named " 
+						+ fieldName 
+						+ " was found in class " 
+						+ instance.getClass().getSimpleName() 
+						+"! Choices are: " 
+						+ getEligableFields(instance.getClass(), instance).toString());
+			}
 		}
 		
 		return field;

@@ -29,15 +29,12 @@ import java.util.List;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 /**
  * @author Philipp Giese
  */
 public class QuerySet<T extends Model> implements Iterable<T> {
 
-	private static final String TAG = "ANDRORM:QUERY:SET";
-	
 	private SelectStatement mQuery;
 	private Class<T> mClass;
 	private List<T> mItems;
@@ -110,9 +107,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	}
 	
 	public QuerySet<T> filter(Filter filter) throws NoSuchFieldException {
-		SelectStatement query = null;
-		
-		query = QueryBuilder.buildQuery(mClass, filter.getRules());
+		SelectStatement query = QueryBuilder.buildQuery(mClass, filter.getRules());
 		
 		if(mQuery == null) {
 			mQuery = query;
