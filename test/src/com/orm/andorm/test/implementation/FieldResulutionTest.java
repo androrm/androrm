@@ -10,11 +10,13 @@ import com.orm.androrm.Filter;
 import com.orm.androrm.Model;
 import com.orm.androrm.QuerySet;
 import com.orm.androrm.impl.Branch;
+import com.orm.androrm.impl.Brand;
 import com.orm.androrm.impl.Product;
 import com.orm.androrm.impl.Supplier;
 
 public class FieldResulutionTest extends AndroidTestCase {
 
+	private Brand mB;
 	private Branch mB1, mB2, mB3;
 	private Product mP1;
 	private Supplier mS1;
@@ -25,27 +27,36 @@ public class FieldResulutionTest extends AndroidTestCase {
 		models.add(Product.class);
 		models.add(Branch.class);
 		models.add(Supplier.class);
+		models.add(Brand.class);
 		
 		DatabaseAdapter.setDatabaseName("test_db");
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
 		
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
+		mB = b;
+		
 		// ID 1
 		Branch b1 = new Branch();
 		b1.setName("Cashbuild Pretoria");
+		b1.setBrand(b);
 		b1.save(getContext());
 		mB1 = b1;
 		
 		// ID 2
 		Branch b2 = new Branch();
 		b2.setName("Plumblink Pretoria");
+		b2.setBrand(b);
 		b2.save(getContext());
 		mB2 = b2;
 		
 		// ID 3
 		Branch b3 = new Branch();
 		b3.setName("The third Branch");
+		b3.setBrand(b);
 		b3.save(getContext());
 		mB3 = b3;
 		
@@ -130,18 +141,18 @@ public class FieldResulutionTest extends AndroidTestCase {
 	
 	public void testForeignKeyResolutionOnlyField() {
 		Filter filter = new Filter();
-		filter.is("mProduct", mP1);
+		filter.is("mBrand", mB);
 		
 		QuerySet<Branch> branches = Branch.objects(getContext()).filter(filter);
 		
-		assertEquals(2, branches.count());
+		assertEquals(3, branches.count());
 		assertTrue(branches.contains(mB1));
 		assertTrue(branches.contains(mB3));
 	}
 	
 	public void testForeignKeyResolutionLastField() {
 		Filter filter = new Filter();
-		filter.is("mBranches__mProduct", mP1);
+		filter.is("mBranches__mBrand", mB);
 		
 		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
 		
@@ -151,7 +162,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 	
 	public void testForeignKeyResolutionInBetween() {
 		Filter filter = new Filter();
-		filter.contains("mBranches__mProduct__mName", "fen");
+		filter.contains("mBranches__mBrand__mName", "cal");
 		
 		QuerySet<Supplier> suppliers = Supplier.objects(getContext()).filter(filter);
 		
@@ -159,7 +170,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		assertTrue(suppliers.contains(mS1));
 		
 		filter = new Filter();
-		filter.is("mBranches__mProduct__mName", "false");
+		filter.is("mBranches__mBrand__mName", "false");
 		
 		suppliers = Supplier.objects(getContext()).filter(filter);
 		

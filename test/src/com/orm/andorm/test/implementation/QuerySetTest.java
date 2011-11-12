@@ -10,6 +10,7 @@ import com.orm.androrm.Filter;
 import com.orm.androrm.Model;
 import com.orm.androrm.QuerySet;
 import com.orm.androrm.impl.Branch;
+import com.orm.androrm.impl.Brand;
 import com.orm.androrm.impl.Product;
 import com.orm.androrm.impl.Supplier;
 
@@ -21,25 +22,33 @@ public class QuerySetTest extends AndroidTestCase {
 		models.add(Product.class);
 		models.add(Branch.class);
 		models.add(Supplier.class);
+		models.add(Brand.class);
 		
 		DatabaseAdapter.setDatabaseName("test_db");
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
 		
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
+		
 		// ID 1
 		Branch b1 = new Branch();
 		b1.setName("Cashbuild Pretoria");
+		b1.setBrand(b);
 		b1.save(getContext());
 		
 		// ID 2
 		Branch b2 = new Branch();
 		b2.setName("Plumblink Pretoria");
+		b2.setBrand(b);
 		b2.save(getContext());
 		
 		// ID 3
 		Branch b3 = new Branch();
 		b3.setName("The third Branch");
+		b3.setBrand(b);
 		b3.save(getContext());
 	}
 	
