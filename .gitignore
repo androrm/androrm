@@ -2,3 +2,6 @@ bin/
 gen/
 jar/
 sqlite/
+default.properties
+project.properties
+.DS_Store
