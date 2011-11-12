@@ -15,7 +15,7 @@ public class Branch extends Model {
 	}
 	
 	protected CharField mName;
-	protected ForeignKeyField<Product> mProduct;
+	protected ForeignKeyField<Brand> mBrand;
 	protected ManyToManyField<Branch, Supplier> mSuppliers;
 	protected ManyToManyField<Branch, Product> mProducts;
 	
@@ -23,9 +23,9 @@ public class Branch extends Model {
 		super();
 
 		mName = new CharField(50);
-		mProduct = new ForeignKeyField<Product>(Product.class);
 		mProducts = new ManyToManyField<Branch, Product>(Branch.class, Product.class);
 		mSuppliers = new ManyToManyField<Branch, Supplier>(Branch.class, Supplier.class);
+		mBrand = new ForeignKeyField<Brand>(Brand.class);
 	}
 
 	public void setName(String name) {
@@ -36,8 +36,12 @@ public class Branch extends Model {
 		return mName.get();
 	}
 	
-	public Product getProduct(Context context) {
-		return mProduct.get(context);
+	public void setBrand(Brand brand) {
+		mBrand.set(brand);
+	}
+	
+	public Brand getBrand(Context context) {
+		return mBrand.get(context);
 	}
 	
 	public void addProduct(Product product) {

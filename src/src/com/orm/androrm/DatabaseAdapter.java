@@ -53,6 +53,10 @@ public class DatabaseAdapter {
 		DATABASE_NAME = name;
 	}
 	
+	public static final String getDatabaseName() {
+		return DATABASE_NAME;
+	}
+	
 	/**
 	 * {@link DatabaseAdapter.DatabaseHelper Database Helper} to deal with connecting to a SQLite database
 	 * and creating tables.

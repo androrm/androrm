@@ -5,8 +5,8 @@ import java.util.List;
 import android.content.Context;
 
 import com.orm.androrm.CharField;
+import com.orm.androrm.ManyToManyField;
 import com.orm.androrm.Model;
-import com.orm.androrm.OneToManyField;
 import com.orm.androrm.QuerySet;
 
 public class Product extends Model {
@@ -16,13 +16,13 @@ public class Product extends Model {
 	}
 	
 	protected CharField mName;
-	protected OneToManyField<Product, Branch> mBranches;
+	protected ManyToManyField<Product, Branch> mBranches;
 	
 	public Product() {
 		super();
 		
 		mName = new CharField(50);
-		mBranches = new OneToManyField<Product, Branch>(Product.class, Branch.class);
+		mBranches = new ManyToManyField<Product, Branch>(Product.class, Branch.class);
 	}
 
 	public void setName(String name) {
