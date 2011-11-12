@@ -45,7 +45,7 @@ public class QueryBuilder {
 			Rule 			filter, 
 			int 			depth
 			
-	) throws NoSuchFieldException {
+	) {
 		
 		T instance = Model.getInstace(clazz);
 		
@@ -69,7 +69,7 @@ public class QueryBuilder {
 			Class<T> 	clazz, 
 			List<Rule> 	rules
 			
-	) throws NoSuchFieldException {
+	) {
 		
 		return buildQuery(clazz, rules, 0);
 	}
@@ -80,7 +80,7 @@ public class QueryBuilder {
 			List<Rule> 	rules,
 			int 		depth
 			
-	) throws NoSuchFieldException {
+	)  {
 		
 		String tableName = DatabaseBuilder.getTableName(clazz);
 		
@@ -165,7 +165,7 @@ public class QueryBuilder {
 			T 			instance, 
 			String 		fieldName
 	
-	) {
+	)  {
 		Field field = Model.getField(clazz, instance, fieldName);
 		Object fieldInstance = null;
 		
@@ -263,7 +263,7 @@ public class QueryBuilder {
 			Rule 			rule,
 			int 			depth
 			
-	) throws NoSuchFieldException {
+	)  {
 		
 		Relation<?> r = (Relation<?>) field;
 		SelectStatement select = new SelectStatement();

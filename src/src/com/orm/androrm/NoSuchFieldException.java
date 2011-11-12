@@ -22,7 +22,7 @@
  */
 package com.orm.androrm;
 
-public class NoSuchFieldException extends Exception {
+public class NoSuchFieldException extends RuntimeException {
 
 	private static final long serialVersionUID = -2025468982439559222L;
 

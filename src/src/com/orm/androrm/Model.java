@@ -221,6 +221,15 @@ public abstract class Model {
 			}
 		}
 		
+		if(field == null) {
+			throw new NoSuchFieldException("No field named " 
+					+ fieldName 
+					+ " was found in class " 
+					+ clazz.getSimpleName() 
+					+"! Choices are: " 
+					+ getEligableFields(clazz, instance).toString());
+		}
+		
 		return field;
 	}
 	
