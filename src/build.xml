@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="androrm" default="com.orm.androrm.jar">
+
+    <!--    
+        The local.properties file is created and updated by the 'android' tool.
+		It contains the path to the SDK. It should *NOT* be checked into
+		Version Control Systems. 
+	-->
+    <loadproperties srcFile="local.properties" />
+
+    <!--    
+        The ant.properties file can be created by you. It is only edited by the
+		'android' tool to add properties to it.
+		This is the place to change some Ant specific build properties.
+		Here are some properties you may want to change/update:
+		
+		source.dir
+		The name of the source directory. Default is 'src'.
+		out.dir
+		The name of the output directory. Default is 'bin'.
+		
+		For other overridable properties, look at the beginning of the rules
+		files in the SDK, at tools/ant/build.xml
+		
+		Properties related to the SDK location or the project target should
+		be updated using the 'android' tool with the 'update' action.
+		
+		This file is an integral part of the build system for your
+		application and should be checked into Version Control Systems.
+			
+	-->
+    <property file="ant.properties" />
+
+    <!--    
+        The project.properties file is created and updated by the 'android'
+		tool, as well as ADT.
+		
+		This contains project specific properties such as project target, and library
+		dependencies. Lower level build properties are stored in ant.properties
+		(or in .classpath for Eclipse projects).
+		
+		This file is an integral part of the build system for your
+		application and should be checked into Version Control Systems. 
+	-->
+    <loadproperties srcFile="project.properties" />
+
+    <!-- quick check on sdk.dir -->
+    <fail
+            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project'"
+            unless="sdk.dir"
+    />
+
+    <import file="${sdk.dir}/tools/ant/build.xml" />
+	
+	<target name="com.orm.androrm.clean">
+	    <delete dir="${jar.dir}/classes" />
+		<delete file="${jar.dir}/androrm.jar" />
+	</target>
+	
+	<target name="com.orm.androrm.jar" depends="-compile">
+        <move file="${out.dir}/classes/com/orm/androrm" tofile="${jar.dir}/classes/com/orm/androrm" />
+		
+		<jar destfile="${jar.dir}/androrm.jar" basedir="${jar.dir}/classes"></jar>
+	</target>
+	
+	<target name="com.orm.androrm.gzip" depends="com.orm.androrm.jar">
+		<tar destfile="${release.dir}/androrm.tar">
+	        <tarfileset dir="${jar.dir}">
+	        	   <include name="androrm.jar" />
+	        </tarfileset>
+		</tar>
+		
+		<gzip src="${release.dir}/androrm.tar" destfile="${release.dir}/androrm_${version}.tar.gz" />
+		
+		<delete file="${release.dir}/androrm.tar" />
+	</target>
+
+	<target name="com.orm.androrm.zip" depends="com.orm.androrm.jar">
+	    <zip destfile="${release.dir}/androrm_${version}.zip">
+	        <fileset dir="${jar.dir}" includes="androrm.jar" />
+	    </zip>
+	</target>
+	
+</project>
