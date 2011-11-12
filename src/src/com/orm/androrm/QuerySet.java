@@ -31,30 +31,13 @@ import android.content.Context;
 import android.database.Cursor;
 
 /**
- * The query set class is the central point for the user, to build up
- * queries on objects to the database. 
- * 
  * @author Philipp Giese
  */
 public class QuerySet<T extends Model> implements Iterable<T> {
-	
-	/**
-	 * Query, that will be executed on the database.
-	 */
+
 	private SelectStatement mQuery;
-	/**
-	 * Model class, that build this QuerySet.
-	 */
 	private Class<T> mClass;
-	/**
-	 * Once a database access has been made, the result is
-	 * stored in the items list.
-	 */
 	private List<T> mItems;
-	/**
-	 * Adapter, to connect to the database and to execute
-	 * queries.
-	 */
 	private DatabaseAdapter mAdapter;
 	
 	public QuerySet(Context context, Class<T> model) {
@@ -76,12 +59,6 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		mAdapter.close();
 	}
 	
-	/**
-	 * Retrieves an object from database based on its id.
-	 * 
-	 * @param id	ID of the object. 
-	 * @return The object, if it could be found.
-	 */
 	public T get(int id) {
 		Where where = new Where();
 		where.setStatement(new Statement(Model.PK, id));
@@ -129,7 +106,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		return this;
 	}
 	
-	public QuerySet<T> filter(Filter filter) {
+	public QuerySet<T> filter(Filter filter) throws NoSuchFieldException {
 		SelectStatement query = QueryBuilder.buildQuery(mClass, filter.getRules());
 		
 		if(mQuery == null) {
@@ -284,11 +261,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	}
 
 	public boolean isEmpty() {
-		if(mQuery != null) {
-			return count() == 0;
-		}
-		
-		return true;
+		return count() == 0;
 	}
 
 	public List<T> toList() {

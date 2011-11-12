@@ -23,8 +23,6 @@
 package com.orm.androrm;
 
 /**
- * <code>OR</code> statement for database queries.
- * 
  * @author Philipp Giese
  */
 public class OrStatement extends ComposedStatement {

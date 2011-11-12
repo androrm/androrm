@@ -23,14 +23,9 @@
 package com.orm.androrm;
 
 /**
- * Each relation has to implement this interface, as it defines
- * the <code>getTarget</code> method, that is used to determine
- * the class, this relations links. 
- * 
  * @author Philipp Giese
  */
 public interface Relation<T extends Model> extends AndrormField {
-	
 	/**
 	 * Retrieves the target class of this specific
 	 * relation. 

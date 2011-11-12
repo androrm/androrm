@@ -28,14 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
-
-/**
- * This class is used to construct the table definition
- * for each model class.
- * 
- * @author Philipp Giese
- */
 public class TableDefinition {
 	private String mTableName;
 	private Map<String, DataField<?>> mFields;
@@ -62,25 +54,30 @@ public class TableDefinition {
 	}
 	
 	private <T extends DataField<?>> String getFieldDefintions(Map<String, T> fields, boolean addConstraints) {
-		List<String> definitionParts = new ArrayList<String>();
+		boolean first = true;
+		
+		String definition = "";
 		
 		for(Entry<String, T> entry : fields.entrySet()) {
 			T value = entry.getValue();
-			String part;
+			String part = value.getDefinition(entry.getKey());
 			
 			if(addConstraints 
 					&& value instanceof ForeignKeyField) {
 				
 				ForeignKeyField<?> fk = (ForeignKeyField<?>) value;
 				part = fk.getConstraint(entry.getKey());
-			} else {
-				part = value.getDefinition(entry.getKey());
 			}
 			
-			definitionParts.add(part);
+			if(first) {
+				definition += part;
+				first = false;
+			} else {
+				definition += "," + part;
+			}
 		}
 		
-		return StringUtils.join(definitionParts, ",");
+		return definition;
 	}
 	
 	public List<Class<? extends Model>> getRelationalClasses() {

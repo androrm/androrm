@@ -29,10 +29,6 @@ import java.util.List;
 import android.content.Context;
 
 /**
- * This class realizes a many to many relation between two model
- * classes. When utilized a relation table will be created in the 
- * database. 
- * 
  * @author Philipp Giese
  *
  * @param <L>	Type of the origin class.
@@ -125,22 +121,5 @@ extends AbstractToManyRelation<L, R> {
 			  .select("left." + rightTable + " AS " + rightTable);
 		
 		return select;
-	}
-	
-	@Override
-	public void reset(Context context, Model model) {
-		super.reset(context, model);
-		
-		Where where = new Where();
-		where.setStatement(new Statement(DatabaseBuilder.getTableName(mOriginClass), model.getId()));
-		
-		DeleteStatement delete = new DeleteStatement();
-		delete.from(mTableName)
-			  .where(where);
-		
-		DatabaseAdapter adapter = new DatabaseAdapter(context);
-		adapter.open();
-		adapter.query(delete);
-		adapter.close();
 	}
 }

@@ -22,8 +22,6 @@
  */
 package com.orm.androrm;
 
-import org.apache.commons.lang.StringUtils;
-
 import android.util.Log;
 
 /**
@@ -32,7 +30,7 @@ import android.util.Log;
  * 
  * @author Philipp Giese
  */
-public class SelectStatement implements Cloneable, Query {
+public class SelectStatement implements Cloneable {
 	
 	private static final String TAG = "ANDRORM:SELECT";
 	
@@ -73,7 +71,20 @@ public class SelectStatement implements Cloneable, Query {
 			return " COUNT(*) AS " + Model.COUNT;
 		}
 		
-		return " " + StringUtils.join(mFields, ", ");
+		boolean first = true;
+		
+		String fields = " ";
+		
+		for(int i = 0, length = mFields.length; i < length; i++) {
+			if(first) {
+				fields += mFields[i];
+				first = false;
+			} else {
+				fields += ", " + mFields[i];
+			}
+		}
+		
+		return fields;
 	}
 	
 	private String buildWhere() {
@@ -144,7 +155,7 @@ public class SelectStatement implements Cloneable, Query {
 	}
 	
 	public SelectStatement from(SelectStatement select) {
-		mFrom = "(" + select + ")";
+		mFrom = "(" + select.toString() + ")";
 		
 		return this;
 	}
@@ -202,6 +213,17 @@ public class SelectStatement implements Cloneable, Query {
 		return this;
 	}
 	
+	@Override
+	public String toString() {
+		return "SELECT"
+			+ buildDistinct()
+			+ buildSelect()
+			+ " FROM " + mFrom
+			+ buildWhere()
+			+ buildOrderBy()
+			+ buildLimit();
+	}
+	
 	/**
 	 * Hand in a {@link Where} statement to drill down 
 	 * the results of the select. 
@@ -230,16 +252,5 @@ public class SelectStatement implements Cloneable, Query {
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public String toString() {
-		return "SELECT"
-			+ buildDistinct()
-			+ buildSelect()
-			+ " FROM " + mFrom
-			+ buildWhere()
-			+ buildOrderBy()
-			+ buildLimit();
 	}
 }

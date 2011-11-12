@@ -31,10 +31,8 @@ import java.util.Map;
 import android.util.Log;
 
 /**
- * As the name implies, this class is fully capable of building
- * complex queries from a given set of rules.
- * 
  * @author Philipp GIese
+ *
  */
 public class QueryBuilder {
 	
@@ -47,9 +45,9 @@ public class QueryBuilder {
 			Rule 			filter, 
 			int 			depth
 			
-	) throws NoSuchFieldException {
+	) {
 		
-		T instance = Model.getInstance(clazz);
+		T instance = Model.getInstace(clazz);
 		
 		if(instance != null) {
 			Object fieldInstance = getFieldInstance(clazz, instance, fields.get(0));
@@ -66,25 +64,13 @@ public class QueryBuilder {
 		return null;
 	}
 	
-	/**
-	 * Query the database for a certain result, given a set of 
-	 * rules to apply. 
-	 * 
-	 * @param <T>	Type of the result
-	 * @param clazz	Class of the objects contained in the result
-	 * @param rules	{@link List} of {@link Rule Rules} to apply. 
-	 * @return {@link SelectStatement} representing all {@link Rule Rules} as SQL.
-	 * @throws NoSuchFieldException
-	 */
 	public static final <T extends Model> SelectStatement buildQuery(
 			
 			Class<T> 	clazz, 
 			List<Rule> 	rules
 			
-	) throws NoSuchFieldException {
+	) {
 		
-		// only handing in depth param to have
-		// recursion going well
 		return buildQuery(clazz, rules, 0);
 	}
 	
@@ -94,7 +80,7 @@ public class QueryBuilder {
 			List<Rule> 	rules,
 			int 		depth
 			
-	) throws NoSuchFieldException {
+	)  {
 		
 		String tableName = DatabaseBuilder.getTableName(clazz);
 		
@@ -109,7 +95,7 @@ public class QueryBuilder {
 		if(fields.size() == 1) {
 			String fieldName = fields.get(0);
 			
-			T instance = Model.getInstance(clazz);
+			T instance = Model.getInstace(clazz);
 			
 			if(instance != null) {
 				Object o = getFieldInstance(clazz, instance, fieldName);
@@ -159,9 +145,10 @@ public class QueryBuilder {
 		JoinStatement outerSelfJoin = new JoinStatement();
 		outerSelfJoin.left(subSelect, "outerSelf" + depth)
 					 .right(buildQuery(clazz, 
-							 		   rules.subList(1, rules.size()), 
-							 		   (depth + 2)
-							), "outerSelf" + (depth + 1))
+							 rules.subList(1, 
+									 rules.size()), 
+							 (depth + 2)), 
+							 "outerSelf" + (depth + 1))
 					 .on(Model.PK, Model.PK);
 		
 		SelectStatement select = new SelectStatement();
@@ -178,17 +165,19 @@ public class QueryBuilder {
 			T 			instance, 
 			String 		fieldName
 	
-	) throws NoSuchFieldException {
+	)  {
 		Field field = Model.getField(clazz, instance, fieldName);
 		Object fieldInstance = null;
 		
-		try {
-			fieldInstance = field.get(instance);
-		} catch(IllegalAccessException e) {
-			Log.e(TAG, "exception thrown while trying to create representation of " 
-					+ clazz.getSimpleName() 
-					+ " and fetching field object for field " 
-					+ fieldName, e);
+		if(field != null) {
+			try {
+				fieldInstance = field.get(instance);
+			} catch(IllegalAccessException e) {
+				Log.e(TAG, "exception thrown while trying to create representation of " 
+						+ clazz.getSimpleName() 
+						+ " and fetching field object for field " 
+						+ fieldName, e);
+			}
 		}
 		
 		return fieldInstance;
@@ -216,7 +205,9 @@ public class QueryBuilder {
 			
 			select.from(m.getRelationTableName())
 			 	  .select(DatabaseBuilder.getTableName(clazz));
-		} else if(r instanceof OneToManyField) {
+		} 
+		
+		if(r instanceof OneToManyField) {
 			String backLinkFieldName = Model.getBackLinkFieldName(target, clazz);
 			
 			stmt.setKey(backLinkFieldName);
@@ -227,7 +218,6 @@ public class QueryBuilder {
 			 	  .select(backLinkFieldName + " AS " + DatabaseBuilder.getTableName(clazz));
 		}	
 		
-		// TODO: is distinct influencing query?
 		select.where(where)
 			  .distinct();
 		
@@ -257,7 +247,6 @@ public class QueryBuilder {
 		Where where = new Where();
 		where.setStatement(rule.getStatement());
 		
-		// TODO: is distinct here influencing query?
 		select.from(tableName)
 			  .distinct()
 			  .select(Model.PK + " AS " + tableName)
@@ -274,7 +263,7 @@ public class QueryBuilder {
 			Rule 			rule,
 			int 			depth
 			
-	) throws NoSuchFieldException {
+	)  {
 		
 		Relation<?> r = (Relation<?>) field;
 		SelectStatement select = new SelectStatement();

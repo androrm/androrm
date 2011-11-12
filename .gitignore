@@ -2,5 +2,7 @@ bin/
 gen/
 jar/
 sqlite/
-.DS_Store
 javadoc/
+release/
+*.properties
+.DS_Store

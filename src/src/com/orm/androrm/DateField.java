@@ -29,7 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
 /**
@@ -144,7 +143,7 @@ public class DateField extends DataField<Date> {
 	}
 
 	@Override
-	public void reset(Context context, Model model) {
+	public void reset() {
 		mValue = null;
 	}
 }

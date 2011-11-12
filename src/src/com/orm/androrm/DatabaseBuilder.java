@@ -30,10 +30,8 @@ import java.util.List;
 import android.util.Log;
 
 /**
- * This class is utilized, when the database structure is build up. 
- * It also holds some convenience functions to retrieve fields or table names.
- * 
  * @author Philipp Giese
+ *
  */
 public class DatabaseBuilder {
 
@@ -48,7 +46,7 @@ public class DatabaseBuilder {
 		
 		if(!Modifier.isAbstract(clazz.getModifiers())) {
 			try {
-				T object = Model.getInstance(clazz);
+				T object = Model.getInstace(clazz);
 				TableDefinition definition = new TableDefinition(getTableName(clazz));
 				
 				getFieldDefinitions(object, clazz, definition);
@@ -173,7 +171,7 @@ public class DatabaseBuilder {
 	private static final<T extends Model> List<TableDefinition> getRelationDefinitions(Class<T> clazz) {
 		List<TableDefinition> definitions = new ArrayList<TableDefinition>();
 		
-		T object = Model.getInstance(clazz);
+		T object = Model.getInstace(clazz);
 		getRelationDefinitions(object, clazz, definitions);
 		
 		return definitions;

@@ -101,6 +101,8 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 		
 		if(mOnDeleteCascade) {
 			constraint += " ON DELETE CASCADE"; 
+		} else {
+			constraint += " ON DELETE NO ACTION";
 		}
 		
 		return constraint;
@@ -144,7 +146,7 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 	 * To do this on a foreign key, call this function. 
 	 */
 	@Override
-	public void reset(Context context, Model model) {
+	public void reset() {
 		mValue = null;
 		mReference = 0;
 	}

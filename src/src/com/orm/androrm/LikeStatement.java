@@ -65,5 +65,5 @@ public class LikeStatement extends Statement {
 		
 		return stmt;
 	}
-	
+
 }

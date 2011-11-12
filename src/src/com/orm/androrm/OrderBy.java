@@ -22,19 +22,12 @@
  */
 package com.orm.androrm;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
 /**
- * Java representation of the <code>ORDER BY</code> statement.
- * 
  * @author Philipp Giese
  */
 public class OrderBy {
 
-	private List<String> mColumns;
+	private String mOrderBy;
 	
 	/**
 	 * Add an ORDER BY statement. For convenience ASC and DESC can
@@ -49,23 +42,33 @@ public class OrderBy {
 	 * @param col Name of the table column.
 	 */
 	public OrderBy(String... columns) {
-		mColumns = new ArrayList<String>();
+		boolean first = true;
 		
 		for(int i = 0, length = columns.length; i < length; i++) {
 			String col = columns[i];
 			
-			if(col.startsWith("-")) {
-				mColumns.add("UPPER(" + col.substring(1) + ") DESC");
-			} else if(col.startsWith("+")) {
-				mColumns.add("UPPER(" + col.substring(1) + ") ASC");
+			if(!first) {
+				mOrderBy += ", ";
 			} else {
-				mColumns.add("UPPER(" + col + ") ASC");
+				mOrderBy = " ";
+			}
+			
+			if(col.startsWith("-")) {
+				mOrderBy += "UPPER(" + col.substring(1) + ") DESC";
+			} else if(col.startsWith("+")) {
+				mOrderBy += "UPPER(" + col.substring(1) + ") ASC";
+			} else {
+				mOrderBy += "UPPER(" + col + ") ASC";
+			}
+			
+			if(first) {
+				first = false;
 			}
 		}
 	}
 	
 	@Override
 	public String toString() {
-		return " ORDER BY " + StringUtils.join(mColumns, ", ");
+		return " ORDER BY" + mOrderBy;
 	}
 }

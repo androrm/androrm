@@ -53,6 +53,10 @@ public class DatabaseAdapter {
 		DATABASE_NAME = name;
 	}
 	
+	public static final String getDatabaseName() {
+		return DATABASE_NAME;
+	}
+	
 	/**
 	 * {@link DatabaseAdapter.DatabaseHelper Database Helper} to deal with connecting to a SQLite database
 	 * and creating tables.
@@ -65,22 +69,6 @@ public class DatabaseAdapter {
 	
 	public DatabaseAdapter(Context context) {
 		mDbHelper = new DatabaseHelper(context, DATABASE_NAME);
-	}
-	
-	/**
-	 * This opens a new database connection. If a connection or database already exists
-	 * the system will ensure that getWritableDatabase() will return this Database.
-	 * 
-	 * DO NOT try to do caching by yourself because this could result in an
-	 * inappropriate state of the database.
-	 * 
-	 * @return this to enable chaining.
-	 * @throws SQLException
-	 */
-	public DatabaseAdapter open() throws SQLException {
-		mDb = mDbHelper.getWritableDatabase();
-		
-		return this;
 	}
 	
 	/**
@@ -119,12 +107,8 @@ public class DatabaseAdapter {
 	public int doInsertOrUpdate(String table, ContentValues values, Where where) {
 		int result;
 		
-		SelectStatement select = new SelectStatement();
-		select.from(table)
-			  .where(where);
-		
 		open();
-		Cursor oldVersion = query(select);
+		Cursor oldVersion = get(table, where, null);
 		
 		if(oldVersion.moveToNext()) {	
 			String whereClause = null;
@@ -169,8 +153,55 @@ public class DatabaseAdapter {
 		close();
 	}
 	
-	public Cursor query(Query query) {
-		return mDb.rawQuery(query.toString(), null);
+	/**
+	 * Query the database for a specific item.
+	 * 
+	 * @param 	table	Query table.
+	 * @param 	where	{@link Where} clause to apply.
+	 * @param 	limit	{@link Limit} clause to apply.
+	 * @return	{@link Cursor} that represents the query result.
+	 */
+	private Cursor get(String table, Where where, Limit limit) {
+		String whereClause = null;
+		if(where != null) {
+			whereClause = where.toString().replace(" WHERE ", "");
+		} 
+		
+		String limitClause = null;
+		if(limit != null) {
+			limitClause = limit.toString().replace(" LIMIT ", "");
+		}
+		
+		Cursor result = mDb.query(table, 
+				null, 
+				whereClause, 
+				null, 
+				null, 
+				null, 
+				null, 
+				limitClause);
+		
+		return result;
+	}
+	
+	/**
+	 * This opens a new database connection. If a connection or database already exists
+	 * the system will ensure that getWritableDatabase() will return this Database.
+	 * 
+	 * DO NOT try to do caching by yourself because this could result in an
+	 * inappropriate state of the database.
+	 * 
+	 * @return this to enable chaining.
+	 * @throws SQLException
+	 */
+	public DatabaseAdapter open() throws SQLException {
+		mDb = mDbHelper.getWritableDatabase();
+		
+		return this;
+	}
+	
+	public Cursor query(SelectStatement select) {
+		return mDb.rawQuery(select.toString(), null);
 	}
 	
 	/**

@@ -12,6 +12,7 @@ import com.orm.androrm.ManyToManyField;
 import com.orm.androrm.Model;
 import com.orm.androrm.QuerySet;
 import com.orm.androrm.impl.Branch;
+import com.orm.androrm.impl.Brand;
 import com.orm.androrm.impl.Product;
 import com.orm.androrm.impl.Supplier;
 
@@ -25,7 +26,8 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		models.add(Product.class);
 		models.add(Supplier.class);
 		models.add(Branch.class);
-
+		models.add(Brand.class);
+		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
 	}
@@ -129,10 +131,14 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		Product p = new Product();
 		p.setName("test product");
 		p.save(getContext());
-
+		
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
+		
 		Branch b1 = new Branch();
 		b1.setName("test branch");
-
+		b1.setBrand(b);
 		b1.addProduct(p);
 		b1.addProduct(p);
 

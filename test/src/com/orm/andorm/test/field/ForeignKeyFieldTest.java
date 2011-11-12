@@ -84,12 +84,12 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 		ForeignKeyField<Product> fk = new ForeignKeyField<Product>(Product.class);
 		
 		fk.set(p);
-		fk.reset(getContext(), null);
+		fk.reset();
 		
 		assertNull(fk.get(getContext()));
 		
 		fk.set(p.getId());
-		fk.reset(getContext(), null);
+		fk.reset();
 		
 		assertNull(fk.get(getContext()));
 	}

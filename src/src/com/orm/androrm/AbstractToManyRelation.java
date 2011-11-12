@@ -22,22 +22,11 @@
  */
 package com.orm.androrm;
 
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
-import android.content.Context;
-
 /**
- * This abstract class, can be used as superclass
- * for classes, that will implement some kind of many
- * to many relation between models. Note, that OneToMany and ManyToOne
- * relations are only special cases. 
- * 
  * @author Philipp Giese
- *
- * @param <O> {@link Type} of the origin class.
- * @param <T> {@link Type} of the target class.
  */
 public abstract class AbstractToManyRelation<O extends Model, 
 											 T extends Model> 
@@ -67,7 +56,7 @@ implements XToManyRelation<O, T> {
 	}
 
 	@Override
-	public void reset(Context context, Model model) {
+	public void reset() {
 		mValues.clear();
 	}
 	

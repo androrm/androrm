@@ -11,6 +11,7 @@ import com.orm.androrm.Model;
 import com.orm.androrm.OneToManyField;
 import com.orm.androrm.QuerySet;
 import com.orm.androrm.impl.Branch;
+import com.orm.androrm.impl.Brand;
 import com.orm.androrm.impl.Product;
 
 public class OneToManyFieldTest extends AndroidTestCase {
@@ -18,8 +19,9 @@ public class OneToManyFieldTest extends AndroidTestCase {
 	@Override
 	public void setUp() {
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
-		models.add(Product.class);
+		models.add(Brand.class);
 		models.add(Branch.class);
+		models.add(Product.class);
 		
 		DatabaseAdapter.setDatabaseName("test_db");
 		
@@ -28,92 +30,100 @@ public class OneToManyFieldTest extends AndroidTestCase {
 	}
 	
 	public void testGetTarget() {
-		OneToManyField<Product, Branch> o = new OneToManyField<Product, Branch>(Product.class, Branch.class);
+		OneToManyField<Brand, Branch> o = new OneToManyField<Brand, Branch>(Brand.class, Branch.class);
 		
 		assertEquals(Branch.class, o.getTarget());
 	}
 	
 	public void testAddAndGet() {
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
+		
 		Branch b1 = new Branch();
 		b1.setName("test1");
+		b1.setBrand(b);
 		b1.save(getContext());
 		
 		Branch b2 = new Branch();
 		b2.setName("test2");
+		b2.setBrand(b);
 		b2.save(getContext());
 		
-		Product p = new Product();
-		p.addBranch(b1);
-		p.addBranch(b2);
+		QuerySet<Branch> branches = b.getBranches(getContext());
 		
-		QuerySet<Branch> branches = p.getBranches(getContext());
+		b = Brand.objects(getContext()).get(b.getId());
 		
-		p.save(getContext());
-		
-		p = Product.objects(getContext()).get(p.getId());
-		
-		branches = p.getBranches(getContext());
+		branches = b.getBranches(getContext());
 		
 		assertEquals(2, branches.count());
 		assertTrue(branches.contains(b1));
 		assertTrue(branches.contains(b2));
 		
-		assertEquals(p, b1.getProduct(getContext()));
-		assertEquals(p, b2.getProduct(getContext()));
+		assertEquals(b, b1.getBrand(getContext()));
+		assertEquals(b, b2.getBrand(getContext()));
 	}
 	
 	public void testAddAllAndGet() {
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
+		
 		Branch b1 = new Branch();
 		b1.setName("test1");
+		b1.setBrand(b);
 		b1.save(getContext());
 		
 		Branch b2 = new Branch();
 		b2.setName("test2");
+		b2.setBrand(b);
 		b2.save(getContext());
 		
-		Product p = new Product();
-		p.addBranches(Arrays.asList(new Branch[] { b1, b2 }));
-		p.save(getContext());
+		b = Brand.objects(getContext()).get(b.getId());
 		
-		p = Product.objects(getContext()).get(p.getId());
-		
-		QuerySet<Branch> branches = p.getBranches(getContext());
+		QuerySet<Branch> branches = b.getBranches(getContext());
 		
 		assertEquals(2, branches.count());
 		assertTrue(branches.contains(b1));
 		assertTrue(branches.contains(b2));
 		
-		assertEquals(p, b1.getProduct(getContext()));
-		assertEquals(p, b2.getProduct(getContext()));
+		assertEquals(b, b1.getBrand(getContext()));
+		assertEquals(b, b2.getBrand(getContext()));
 	}
 	
 	public void testCount() {
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
+		
 		Branch b1 = new Branch();
 		b1.setName("test1");
+		b1.setBrand(b);
 		b1.save(getContext());
 		
 		Branch b2 = new Branch();
 		b2.setName("test2");
+		b2.setBrand(b);
 		b2.save(getContext());
 		
-		Product p = new Product();
-		p.addBranches(Arrays.asList(new Branch[] { b1, b2 }));
+		b = Brand.objects(getContext()).get(b.getId());
 		
-		assertEquals(2, p.branchCount(getContext()));
-		
-		p.save(getContext());
-		p = Product.objects(getContext()).get(p.getId());
-		
-		assertEquals(2, p.branchCount(getContext()));
+		assertEquals(2, b.branchCount(getContext()));
 	}
 	
 	public void testReset() {
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
+		
 		Branch b1 = new Branch();
 		b1.setName("test1");
+		b1.setBrand(b);
 		b1.save(getContext());
 		
 		Branch b2 = new Branch();
 		b2.setName("test2");
+		b2.setBrand(b);
 		b2.save(getContext());
 		
 		Product p = new Product();
