@@ -17,7 +17,7 @@ public class FilterTest extends AndroidTestCase {
 			
 			fail();
 		} catch (NoSuchFieldException e) {
-			
+
 		}
 	}
 	
