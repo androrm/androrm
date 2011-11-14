@@ -102,7 +102,7 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 		if(mOnDeleteCascade) {
 			constraint += " ON DELETE CASCADE"; 
 		} else {
-			constraint += " ON DELETE NO ACTION";
+			constraint += " ON DELETE SET NULL";
 		}
 		
 		return constraint;
