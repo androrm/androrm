@@ -70,6 +70,7 @@ public class FieldResulutionTest extends AndroidTestCase {
 		
 		Supplier s1 = new Supplier();
 		s1.setName("ACME");
+		s1.setBrand(b);
 		s1.addProduct(p1);
 		s1.addBranch(b1);
 		s1.save(getContext());

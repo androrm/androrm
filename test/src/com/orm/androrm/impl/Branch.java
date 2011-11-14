@@ -27,7 +27,7 @@ public class Branch extends Model {
 		mSuppliers = new ManyToManyField<Branch, Supplier>(Branch.class, Supplier.class);
 		mBrand = new ForeignKeyField<Brand>(Brand.class);
 	}
-
+	
 	public void setName(String name) {
 		mName.set(name);
 	}

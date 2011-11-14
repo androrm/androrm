@@ -67,9 +67,14 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		Product p2 = new Product();
 		p2.setName("test2");
 		p2.save(getContext());
+		
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
 
 		Supplier s = new Supplier();
 		s.setName("ACME");
+		s.setBrand(b);
 		s.addProduct(p1);
 		s.addProduct(p2);
 		s.save(getContext());
@@ -91,9 +96,14 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		Product p2 = new Product();
 		p2.setName("test2");
 		p2.save(getContext());
+		
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
 
 		Supplier s = new Supplier();
 		s.setName("ACME");
+		s.setBrand(b);
 		s.addProducts(Arrays.asList(new Product[] { p1, p2 }));
 		s.save(getContext());
 
@@ -114,9 +124,14 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		Product p2 = new Product();
 		p2.setName("test2");
 		p2.save(getContext());
+		
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
 
 		Supplier s = new Supplier();
 		s.setName("ACME");
+		s.setBrand(b);
 		s.addProducts(Arrays.asList(new Product[] { p1, p2 }));
 
 		assertEquals(0, s.productCount(getContext()));
@@ -158,9 +173,14 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		Product p2 = new Product();
 		p2.setName("test2");
 		p2.save(getContext());
+		
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
 
 		Supplier s = new Supplier();
 		s.setName("ACME");
+		s.setBrand(b);
 		s.addProducts(Arrays.asList(new Product[] { p1, p2 }));
 		s.save(getContext());
 

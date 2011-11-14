@@ -12,6 +12,7 @@ import com.orm.androrm.Model;
 import com.orm.androrm.impl.Branch;
 import com.orm.androrm.impl.Brand;
 import com.orm.androrm.impl.Product;
+import com.orm.androrm.impl.Supplier;
 
 public class ForeignKeyFieldTest extends AndroidTestCase {
 
@@ -21,11 +22,42 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 		models.add(Product.class);
 		models.add(Branch.class);
 		models.add(Brand.class);
+		models.add(Supplier.class);
 		
 		DatabaseAdapter.setDatabaseName("test_db");
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
+	}
+	
+	public void testDoCascade() {
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
+		
+		Branch br = new Branch();
+		br.setBrand(b);
+		br.setName("Pretoria");
+		br.save(getContext());
+		
+		b.delete(getContext());
+		
+		assertEquals(0, Branch.objects(getContext()).count());
+	}
+	
+	public void testDoNotCascade() {
+		Brand b = new Brand();
+		b.setName("Copcal");
+		b.save(getContext());
+		
+		Supplier s = new Supplier();
+		s.setName("test_supplier");
+		s.setBrand(b);
+		s.save(getContext());
+		
+		b.delete(getContext());
+		
+		assertEquals(1, Supplier.objects(getContext()).count());
 	}
 	
 	public void testGetDefauls() {
@@ -38,6 +70,22 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 					+ " (" 
 					+ Model.PK 
 					+ ") ON DELETE CASCADE", fk.getConstraint("product_id"));
+		
+		assertNull(fk.get(getContext()));
+	}
+	
+	public void testGetDefaultsNoCascade() {
+		ForeignKeyField<Product> fk = new ForeignKeyField<Product>(Product.class);
+		fk.doNotCascade();
+		
+		String targetTable = DatabaseBuilder.getTableName(Product.class);
+		
+		assertEquals("product_id integer", fk.getDefinition("product_id"));
+		assertEquals("FOREIGN KEY (product_id) REFERENCES " 
+					+ targetTable 
+					+ " (" 
+					+ Model.PK 
+					+ ") ON DELETE SET NULL", fk.getConstraint("product_id"));
 		
 		assertNull(fk.get(getContext()));
 	}
