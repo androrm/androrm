@@ -8,8 +8,6 @@ import java.util.Map;
 
 public abstract class ModelCache {
 	
-	private static boolean ACTIVE = true;
-
 	private static List<Class<? extends Model>> KNOWN_MODELS = new ArrayList<Class<? extends Model>>();
 	
 	private static Map<Class<? extends Model>, List<TableDefinition>> TABLE_DEFINITIONS = new HashMap<Class<? extends Model>, List<TableDefinition>>();
@@ -18,15 +16,13 @@ public abstract class ModelCache {
 	
 	private static Map<Class<? extends Model>, List<Field>> KNOWN_FIELD_INSTANCES = new HashMap<Class<? extends Model>, List<Field>>();
 	
+	private static Map<String, Field> FIELD_SHORTCUTS = new HashMap<String, Field>();
+	
 	public static <T extends Model> boolean knowsModel(Class<T> clazz) {
-		return ACTIVE && KNOWN_MODELS.contains(clazz);
+		return KNOWN_MODELS.contains(clazz);
 	}
 	
 	public static <T extends Model> boolean knowsFields(Class<T> clazz) {
-		if(!ACTIVE) {
-			return false;
-		}
-		
 		if(knowsModel(clazz)) {
 			return !KNOWN_MODEL_FIELDS.get(clazz).isEmpty();
 		}
@@ -57,9 +53,12 @@ public abstract class ModelCache {
 	}
 	
 	public static <T extends Model> void setModelFields(Class<T> clazz, List<Field> fields) {
-		if(knowsModel(clazz)) {
+		if(knowsModel(clazz)) {		
 			for(Field field : fields) {
-				KNOWN_MODEL_FIELDS.get(clazz).add(field.getName());
+				String fieldName = field.getName();
+				
+				KNOWN_MODEL_FIELDS.get(clazz).add(fieldName);
+				FIELD_SHORTCUTS.put(clazz.toString() + fieldName, field);
 			}
 			
 			KNOWN_FIELD_INSTANCES.put(clazz, fields);
@@ -75,11 +74,19 @@ public abstract class ModelCache {
 	}
 	
 	public static <T extends Model> boolean modelHasField(Class<T> clazz, String field) {
-		if(knowsModel(clazz)) {
+		if(knowsFields(clazz)) {
 			return KNOWN_MODEL_FIELDS.get(clazz).contains(field);
 		}
 		
 		return false;
+	}
+	
+	public static <T extends Model> Field getField(Class<T> clazz, String fieldName) {
+		if(knowsFields(clazz)) {
+			return FIELD_SHORTCUTS.get(clazz.toString() + fieldName);
+		}
+		
+		return null;
 	}
 	
 	public static void reset() {
@@ -87,5 +94,6 @@ public abstract class ModelCache {
 		KNOWN_FIELD_INSTANCES.clear();
 		KNOWN_MODEL_FIELDS.clear();
 		TABLE_DEFINITIONS.clear();
+		FIELD_SHORTCUTS.clear();
 	}
 }

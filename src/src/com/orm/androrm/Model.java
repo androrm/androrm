@@ -198,6 +198,15 @@ public abstract class Model {
 		return eligableFields;
 	}
 	
+	private static final <T extends Model> void raiseFieldExecption(T instance, String fieldName) {
+		throw new NoSuchFieldException("No field named " 
+				+ fieldName 
+				+ " was found in class " 
+				+ instance.getClass().getSimpleName() 
+				+"! Choices are: " 
+				+ getEligableFields(instance.getClass(), instance).toString());
+	}
+	
 	protected static final <T extends Model> Field getField(
 			
 			Class<T> 	clazz, 
@@ -209,10 +218,9 @@ public abstract class Model {
 		Field field = null;
 		
 		if(clazz != null) {
-			for(Field f: DatabaseBuilder.getFields(clazz, instance)) {
-				if(f.getName().equals(fieldName)) {
-					field = f;
-					break;
+			if(ModelCache.knowsFields(clazz)) {
+				if(ModelCache.modelHasField(clazz, fieldName)) {
+					field = ModelCache.getField(clazz, fieldName);
 				}
 			}
 			
@@ -221,13 +229,9 @@ public abstract class Model {
 			}
 			
 			if(field == null) {
-				throw new NoSuchFieldException("No field named " 
-						+ fieldName 
-						+ " was found in class " 
-						+ instance.getClass().getSimpleName() 
-						+"! Choices are: " 
-						+ getEligableFields(instance.getClass(), instance).toString());
+				raiseFieldExecption(instance, fieldName);
 			}
+			
 		}
 		
 		return field;
