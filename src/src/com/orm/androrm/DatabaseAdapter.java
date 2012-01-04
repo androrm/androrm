@@ -136,6 +136,8 @@ public class DatabaseAdapter {
 		mDbHelper.onCreate(mDb);
 		
 		close();
+		
+		ModelCache.reset();
 	}
 	
 	/**

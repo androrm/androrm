@@ -3,6 +3,7 @@ package com.orm.androrm.test.field;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.os.Build;
 import android.test.AndroidTestCase;
 
 import com.orm.androrm.DatabaseAdapter;
@@ -31,6 +32,10 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 	}
 	
 	public void testDoCascade() {
+		if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.ECLAIR_MR1) {
+			return;
+		}
+		
 		Brand b = new Brand();
 		b.setName("Copcal");
 		b.save(getContext());

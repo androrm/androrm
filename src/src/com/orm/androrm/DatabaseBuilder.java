@@ -46,6 +46,10 @@ public class DatabaseBuilder {
 		
 		if(!Modifier.isAbstract(clazz.getModifiers())) {
 			try {
+				if(ModelCache.knowsModel(clazz)) {
+					return ModelCache.getTableDefinitions(clazz);
+				}
+
 				T object = Model.getInstace(clazz);
 				TableDefinition definition = new TableDefinition(getTableName(clazz));
 				
@@ -56,6 +60,8 @@ public class DatabaseBuilder {
 				for(Class<? extends Model> c: definition.getRelationalClasses()) {
 					definitions.addAll(getRelationDefinitions(c));
 				}
+				
+				ModelCache.setTableDefinitions(clazz, definitions);
 				
 				return definitions;
 			} catch(IllegalAccessException e) {
@@ -77,6 +83,8 @@ public class DatabaseBuilder {
 		if(clazz != null && clazz.isInstance(instance)) {
 			// TODO: only create fields from superclass, if superclass is
 			// abstract. Otherwise create a pointer to superclass.
+			
+			ModelCache.addModel(clazz);
 			
 			for(Field field: getFields(clazz, instance)) {
 				String name = field.getName();
@@ -119,6 +127,10 @@ public class DatabaseBuilder {
 			
 	) {
 		
+		if(ModelCache.knowsFields(clazz)) {
+			return ModelCache.fieldsForModel(clazz);
+		}
+		
 		Field[] declaredFields = clazz.getDeclaredFields();
 		List<Field> fields = new ArrayList<Field>();
 		
@@ -139,6 +151,8 @@ public class DatabaseBuilder {
 			Log.e(TAG, "exception thrown while trying to gain access to fields of class " 
 					+ clazz.getSimpleName(), e);
 		}
+		
+		ModelCache.setModelFields(clazz, fields);
 		
 		return fields;
 	}
