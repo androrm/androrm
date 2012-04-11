@@ -126,12 +126,20 @@ public class Filter {
 	public Filter is(String key, Integer value) {
 		return is(key, String.valueOf(value));
 	}
+
+	public Filter is(String key, String operator, Integer value) {
+		return is(key, operator, String.valueOf(value));
+	}
 	
 	/**
 	 * See {@link Filter#is(String, String)}.
 	 */
 	public Filter is(String key, Model value) {
 		return is(key, value.getId());
+	}
+
+	public Filter is(String key, String operator, Model value) {
+		return is(key, operator, value.getId());
 	}
 	
 	/**
@@ -144,6 +152,12 @@ public class Filter {
 	 */
 	public Filter is(String key, String value) {
 		mRules.add(new Rule(key, new Statement(getFieldName(key), value)));
+		
+		return this;
+	}
+
+	public Filter is(String key, String operator, String value) {
+		mRules.add(new Rule(key, new Statement(getFieldName(key), String operator, value)));
 		
 		return this;
 	}
