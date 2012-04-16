@@ -59,6 +59,10 @@ public class Statement {
 	 */
 	protected String mKey;
 	/**
+	 * Key of the statement.
+	 */
+	protected String mOperator;
+	/**
 	 * Value of the statement.
 	 */
 	protected String mValue;
@@ -70,6 +74,13 @@ public class Statement {
 	
 	public Statement(String key, int value) {
 		mKey = key;
+		mOperator = "=";
+		mValue = String.valueOf(value);
+	}
+
+	public Statement(String key, String operator, int value) {
+		mKey = key;
+		mOperator = operator;
 		mValue = String.valueOf(value);
 	}
 	
@@ -82,6 +93,13 @@ public class Statement {
 	 */
 	public Statement(String key, String value) {
 		mKey = key;
+		mOperator = "=";
+		mValue = value;
+	}
+
+	public Statement(String key, String operator, String value) {
+		mKey = key;
+		mOperator = operator;
 		mValue = value;
 	}
 	
@@ -103,6 +121,6 @@ public class Statement {
 	
 	@Override
 	public String toString() {
-		return mKey + " = '" + mValue + "'";
+		return mKey + " " + mOperator + " '" + mValue + "'";
 	}
 }
