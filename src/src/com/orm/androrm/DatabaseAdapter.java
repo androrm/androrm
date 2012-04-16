@@ -118,6 +118,8 @@ public class DatabaseAdapter {
 			
 			result = mDb.update(table, values, whereClause, null);
 		} else {	
+			// TODO: crashes DB, if values map has no entries!
+			
 			result = (int) mDb.insert(table, null, values);
 		}
 		

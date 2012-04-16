@@ -241,7 +241,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	 */
 	public boolean containsAll(Collection<T> values) {
 		if(mQuery != null) {
-			List<Integer> ids = new ArrayList<Integer>();
+			List<Object> ids = new ArrayList<Object>();
 			
 			for(T item : values) {
 				ids.add(item.getId());
