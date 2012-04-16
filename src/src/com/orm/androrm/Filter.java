@@ -157,7 +157,7 @@ public class Filter {
 	}
 
 	public Filter is(String key, String operator, String value) {
-		mRules.add(new Rule(key, new Statement(getFieldName(key), String operator, value)));
+		mRules.add(new Rule(key, new Statement(getFieldName(key), operator, value)));
 		
 		return this;
 	}
