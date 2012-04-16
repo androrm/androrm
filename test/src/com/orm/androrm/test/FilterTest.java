@@ -79,7 +79,7 @@ public class FilterTest extends AndroidTestCase {
 		assertEquals("product__id", filter.getKey());
 		assertTrue(keys.contains("id"));
 		assertTrue(s instanceof InStatement);
-		assertEquals("id IN (3,5)", s.toString());
+		assertEquals("id IN ('3','5')", s.toString());
 		
 		List<Product> products = new ArrayList<Product>();
 		Product p1 = new Product();
@@ -104,7 +104,7 @@ public class FilterTest extends AndroidTestCase {
 		assertEquals("supplier__product", filter.getKey());
 		assertTrue(keys.contains("product"));
 		assertTrue(s instanceof InStatement);
-		assertEquals("product IN (" + p1.getId() + "," + p2.getId() + ")", s.toString());
+		assertEquals("product IN ('" + p1.getId() + "','" + p2.getId() + "')", s.toString());
 	}
 	
 	public void testContains() {
