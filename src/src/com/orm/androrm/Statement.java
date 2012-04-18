@@ -71,12 +71,6 @@ public class Statement {
 	 * Empty constructor.
 	 */
 	public Statement() {}
-	
-	public Statement(String key, int value) {
-		mKey = key;
-		mOperator = "=";
-		mValue = String.valueOf(value);
-	}
 
 	public Statement(String key, String operator, int value) {
 		mKey = key;
@@ -89,13 +83,9 @@ public class Statement {
 	 * statement.
 	 * 
 	 * @param key Database column.
+	 * @param operator Where clause operator.
 	 * @param value Expected value of this column.
 	 */
-	public Statement(String key, String value) {
-		mKey = key;
-		mOperator = "=";
-		mValue = value;
-	}
 
 	public Statement(String key, String operator, String value) {
 		mKey = key;
