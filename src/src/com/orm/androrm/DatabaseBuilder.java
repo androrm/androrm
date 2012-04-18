@@ -47,7 +47,12 @@ public class DatabaseBuilder {
 		if(!Modifier.isAbstract(clazz.getModifiers())) {
 			try {
 				if(ModelCache.knowsModel(clazz)) {
-					return ModelCache.getTableDefinitions(clazz);
+					// TODO: TABLE_DEFINITIONS is not cached. 
+					// After application restarting TABLE_DEFINITIONS is null
+					List<TableDefinition> cachedDefinitions = ModelCache.getTableDefinitions(clazz);
+					if (cachedDefinitions != null) {
+						return ModelCache.getTableDefinitions(clazz);
+					}
 				}
 
 				T object = Model.getInstace(clazz);

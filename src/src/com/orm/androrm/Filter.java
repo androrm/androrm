@@ -45,6 +45,13 @@ import java.util.List;
  * @author Philipp Giese
  */
 public class Filter {
+	public static final String EQUAL = "=";
+	public static final String NOT_EQUAL = "<>";
+	public static final String LESS_THAN = "<";
+	public static final String LESS_THAN_OR_EQUAL = "<="; 
+	public static final String GREATER_THAN = ">";
+	public static final String GREATER_THAN_OR_EQUALS = ">=";
+
 	/**
 	 * {@link List} of all {@link Rule filters}, that were
 	 * added to this set.
@@ -153,9 +160,7 @@ public class Filter {
 	 * @return <code>this</code> for chaining.
 	 */
 	public Filter is(String key, String value) {
-		mRules.add(new Rule(key, new Statement(getFieldName(key), value)));
-		
-		return this;
+		return is(key, EQUAL, value);
 	}
 
 	public Filter is(String key, String operator, String value) {
