@@ -1,0 +1,3 @@
+jar.dir=../jar
+release.dir=../release
+version=0.3.1
