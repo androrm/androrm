@@ -208,6 +208,10 @@ public class DatabaseAdapter {
 		return mDb.rawQuery(select.toString(), null);
 	}
 	
+	public Cursor query(String query) {
+		return mDb.rawQuery(query, null);
+	}
+	
 	/**
 	 * Registers all models, that will then be handled by the
 	 * ORM. 
