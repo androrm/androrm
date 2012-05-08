@@ -115,12 +115,18 @@ public class DatabaseAdapter {
 			if(where != null) {
 				whereClause = where.toString().replace(" WHERE ", "");
 			}
-			
+
 			result = mDb.update(table, values, whereClause, null);
 		} else {	
-			// TODO: crashes DB, if values map has no entries!
+			String nullColumnHack = null;
 			
-			result = (int) mDb.insert(table, null, values);
+			if(values.size() == 0) {
+				// if no fields are defined on a model instance the nullColumnHack
+				// needs to be utilized in order to insert an empty row. 
+				nullColumnHack = Model.PK;
+			}
+			
+			result = (int) mDb.insertOrThrow(table, nullColumnHack, values);
 		}
 		
 		oldVersion.close();
