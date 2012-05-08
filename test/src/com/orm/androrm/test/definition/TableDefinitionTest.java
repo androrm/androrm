@@ -16,7 +16,7 @@ public class TableDefinitionTest extends AndroidTestCase {
 		TableDefinition def = new TableDefinition("foo");
 		
 		assertEquals("foo", def.getTableName());
-		assertEquals("CREATE TABLE IF NOT EXISTS foo ();", def.toString());
+		assertEquals("CREATE TABLE IF NOT EXISTS `foo` ();", def.toString());
 	}
 	
 	public void testAddSimpleField() {
@@ -25,7 +25,7 @@ public class TableDefinitionTest extends AndroidTestCase {
 		
 		def.addField("pk", i);
 
-		assertEquals("CREATE TABLE IF NOT EXISTS foo (pk integer);", def.toString());
+		assertEquals("CREATE TABLE IF NOT EXISTS `foo` (pk integer);", def.toString());
 	}
 	
 	public void testForeignKeyField() {
@@ -34,7 +34,7 @@ public class TableDefinitionTest extends AndroidTestCase {
 		
 		def.addField("product", fk);
 		
-		assertEquals("CREATE TABLE IF NOT EXISTS foo ("
+		assertEquals("CREATE TABLE IF NOT EXISTS `foo` ("
 					+ "product integer," 
 					+ "FOREIGN KEY (product) "
 						+ "REFERENCES product (mId) "
