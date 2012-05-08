@@ -13,7 +13,7 @@ public class JoinStatementTest extends AndroidTestCase {
 			.right("right_table", "b")
 			.on("field1", "field2");
 		
-		assertEquals("(SELECT * FROM left_table) AS a JOIN (SELECT * FROM right_table) AS b ON a.field1=b.field2", join.toString()); 
+		assertEquals("(SELECT * FROM `left_table`) AS a JOIN (SELECT * FROM `right_table`) AS b ON a.field1=b.field2", join.toString()); 
 	}
 	
 	public void testOnSubselect() {
@@ -30,6 +30,6 @@ public class JoinStatementTest extends AndroidTestCase {
 			.right(right, "b")
 			.on("foo", "bar");
 		
-		assertEquals("(SELECT foo FROM left_table) AS a JOIN (SELECT bar FROM right_table) AS b ON a.foo=b.bar", join.toString());
+		assertEquals("(SELECT foo FROM `left_table`) AS a JOIN (SELECT bar FROM `right_table`) AS b ON a.foo=b.bar", join.toString());
 	}
 }
