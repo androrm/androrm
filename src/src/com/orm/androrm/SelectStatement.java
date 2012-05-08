@@ -149,7 +149,7 @@ public class SelectStatement implements Cloneable {
 	 * @return
 	 */
 	public SelectStatement from(String table) {
-		mFrom = table;
+		mFrom = "`" + table + "`";
 		
 		return this;
 	}

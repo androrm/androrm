@@ -37,7 +37,7 @@ public class JoinStatement {
 	private String mLeftColumn;
 	private String mRightColumn;
 
-	private String buildStatement(int counter) {
+	private String buildStatement() {
 		String join = "(" +
 				mLeft.toString() + 
 			") AS " + mLeftAlias + 
@@ -134,6 +134,6 @@ public class JoinStatement {
 	
 	@Override
 	public String toString() {
-		return buildStatement(0);
+		return buildStatement();
 	}
 }
