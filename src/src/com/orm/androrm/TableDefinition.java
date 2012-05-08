@@ -98,7 +98,7 @@ public class TableDefinition {
 			definition += getFieldDefintions(mRelations, true);
 		}
 		
-		definition = "CREATE TABLE IF NOT EXISTS " + mTableName + " (" + definition + ");";
+		definition = "CREATE TABLE IF NOT EXISTS `" + mTableName + "` (" + definition + ");";
 		
 		return definition;
 	}
