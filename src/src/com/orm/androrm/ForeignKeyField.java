@@ -135,9 +135,13 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 
 	@Override
 	public void putData(String key, ContentValues values) {
-		values.put(key, mReference);
+		if (mReference == 0) {
+			values.putNull(key);
+		} else {
+			values.put(key, mReference);
+		}
 	}
-	
+
 	/**
 	 * When models are deleted you may wish to also release
 	 * all references to other models on the instance in order
