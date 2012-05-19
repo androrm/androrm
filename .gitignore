@@ -6,3 +6,4 @@ javadoc/
 release/
 *.properties
 .DS_Store
+.classpath

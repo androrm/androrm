@@ -126,11 +126,7 @@ public class ForeignKeyField<T extends Model> extends DataField<T> implements Re
 	 * 			the database, <code>false</code> otherwise.
 	 */
 	public boolean isPersisted() {
-		if((mValue != null && mValue.getId() != 0) || mReference != 0) {
-			return true;
-		}
-		
-		return false;
+		return (mValue != null && mValue.getId() != 0) || mReference != 0;
 	}
 
 	@Override

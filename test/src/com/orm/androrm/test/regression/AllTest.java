@@ -9,6 +9,7 @@ public class AllTest extends TestSuite {
 		
 		suite.addTestSuite(ModelRegression.class);
 		suite.addTestSuite(QueryRegression.class);
+		suite.addTestSuite(ForeignKeyRegression.class);
 		
 		return suite;
 	}

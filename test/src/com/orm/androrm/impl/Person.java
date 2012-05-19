@@ -13,14 +13,14 @@ public class Person extends Model {
 		return objects(context, Person.class);
 	}
 	
-	protected ForeignKeyField<Car> mCars;
+	protected ForeignKeyField<Car> mCar;
 	protected CharField mName;
 	
 	public Person() {
 		super();
 		
 		mName = new CharField();
-		mCars = new ForeignKeyField<Car>(Car.class);
+		mCar = new ForeignKeyField<Car>(Car.class);
 	}
 	
 	public void setName(String name) {
