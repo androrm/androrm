@@ -13,6 +13,7 @@ public class AllTest extends TestSuite {
 		suite.addTest(com.orm.androrm.test.field.AllTest.suite());
 		suite.addTest(com.orm.androrm.test.implementation.AllTest.suite());
 		suite.addTest(com.orm.androrm.test.cache.AllTest.suite());
+		suite.addTest(com.orm.androrm.test.migration.AllTest.suite());
 		
 		suite.addTestSuite(ModelTest.class);
 		suite.addTestSuite(RuleTest.class);

@@ -347,6 +347,15 @@ public abstract class Model {
 					+ getEligableFields(originClass, origin).toString());
 		}
 	}
+	
+	public static <T extends Model> QuerySet<T> objects(
+			
+			Context 	context, 
+			Class<T> 	clazz
+			
+	) {
+		return new QuerySet<T>(context, clazz);
+	}
 
 	protected PrimaryKeyField mId;
 	
@@ -608,12 +617,7 @@ public abstract class Model {
 		}
 	}
 	
-	public static <T extends Model> QuerySet<T> objects(
-			
-			Context 	context, 
-			Class<T> 	clazz
-			
-	) {
-		return new QuerySet<T>(context, clazz);
+	protected void migrate() {
+		
 	}
 }
