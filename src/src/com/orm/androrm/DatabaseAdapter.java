@@ -25,11 +25,14 @@ package com.orm.androrm;
 import java.util.Collection;
 import java.util.List;
 
+import com.orm.androrm.migration.Migration;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 /**
  * This class provides access to the underlying SQLite database. 
@@ -37,6 +40,8 @@ import android.database.sqlite.SQLiteDatabase;
  * @author Philipp Giese
  */
 public class DatabaseAdapter {
+	
+	private static final String TAG = "ANDORM:DATABASE:ADAPTER";
 	
 	/**
 	 * Name that will be used for the database. Defaults
@@ -156,7 +161,17 @@ public class DatabaseAdapter {
 	public void drop(String tableName) {
 		open();
 		
-		String sql = "DROP TABLE IF EXISTS " + tableName + ";";
+		String sql = "DROP TABLE IF EXISTS `" + tableName + "`;";
+		mDb.execSQL(sql);
+		mDbHelper.onCreate(mDb);
+		
+		close();
+	}
+	
+	public void resetMigrations() {
+		open();
+		
+		String sql = "DROP TABLE IF EXISTS `" + DatabaseBuilder.getTableName(Migration.class) + "`;";
 		mDb.execSQL(sql);
 		mDbHelper.onCreate(mDb);
 		
@@ -215,6 +230,8 @@ public class DatabaseAdapter {
 	}
 	
 	public Cursor query(String query) {
+		Log.d(TAG, "Executing query: " + query);
+		
 		return mDb.rawQuery(query, null);
 	}
 	

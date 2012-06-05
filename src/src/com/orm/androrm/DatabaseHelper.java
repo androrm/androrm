@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.orm.androrm.migration.Migration;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -106,7 +108,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL("PRAGMA foreign_keys=OFF;");
 		
 		for(String table: getTables()) {
-			db.execSQL("DROP TABLE IF EXISTS " + table);
+			db.execSQL("DROP TABLE IF EXISTS `" + table + "`;");
 		}
 		
 		db.execSQL("PRAGMA foreign_keys=" + FOREIGN_KEY_CONSTRAINTS + ";");
@@ -124,6 +126,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				db.execSQL(definition.toString());
 				getTables().add(definition.getTableName());
 			}
+		}
+		
+		/*
+		 * After all models of the user have been registered with the db, we also 
+		 * need to register the migrations table, that androrm uses to keep track 
+		 * which migration have already been applied, and which still need to be.  
+		 */
+		addMigrations(db);
+	}
+	
+	/**
+	 * Creates the internal table, that is used in order to keep track of migrations,
+	 * that were defined be a user. The migrations table is not added to the global
+	 * list of tables in order to prevent it from being delete, when the user attempts 
+	 * to drop the database. 
+	 * 
+	 * @param db	{@link SQLiteDatabase} instance.
+	 */
+	private void addMigrations(SQLiteDatabase db) {
+		List<TableDefinition> tableDefinitions = DatabaseBuilder.getTableDefinitions(Migration.class);
+		
+		for(TableDefinition definition : tableDefinitions) {
+			db.execSQL(definition.toString());
 		}
 	}
 

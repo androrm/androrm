@@ -54,7 +54,7 @@ public abstract class DataField<T> implements DatabaseField<T> {
 	
 	@Override
 	public String getDefinition(String fieldName) {
-		String definition = fieldName + " " + mType;
+		String definition = "`" + fieldName + "` " + mType;
 		
 		if(mMaxLength > 0) {
 			definition += "(" + mMaxLength + ")";

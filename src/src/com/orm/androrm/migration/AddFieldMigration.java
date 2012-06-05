@@ -32,7 +32,10 @@ public class AddFieldMigration extends AndrormMigration<DatabaseField<?>> {
 				"ADD COLUMN " + mFieldInstance.getDefinition(mName);
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		
+		adapter.open();
 		adapter.query(sql);
+		adapter.close();
 		
 		// TODO: check query result (exception!?)
 		return true;

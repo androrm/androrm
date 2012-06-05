@@ -42,7 +42,7 @@ public abstract class ModelCache {
 	
 	public static <T extends Model> List<TableDefinition> getTableDefinitions(Class<T> clazz) {
 		if(knowsModel(clazz)) {
-			return TABLE_DEFINITIONS.get(DatabaseBuilder.getTableName(clazz));
+			return TABLE_DEFINITIONS.get(clazz);
 		}
 		
 		return null;
