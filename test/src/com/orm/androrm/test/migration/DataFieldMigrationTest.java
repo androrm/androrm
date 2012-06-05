@@ -7,12 +7,15 @@ import com.orm.androrm.CharField;
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.Model;
 import com.orm.androrm.impl.migration.EmptyModel;
+import com.orm.androrm.migration.MigrationHelper;
 import com.orm.androrm.migration.Migrator;
 
 import android.test.AndroidTestCase;
 
 public class DataFieldMigrationTest extends AndroidTestCase {
 
+	private MigrationHelper mHelper;
+	
 	@Override
 	public void setUp() {
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
@@ -20,12 +23,18 @@ public class DataFieldMigrationTest extends AndroidTestCase {
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
+		
+		mHelper = new MigrationHelper(getContext());
 	}
 	
 	public void testFieldAdd() {
 		Migrator migrator = Migrator.get(EmptyModel.class);
-				
+		
+		assertFalse(mHelper.hasField(EmptyModel.class, "mName"));
+		
 		migrator.addField("mName", new CharField());
+		
+		assertTrue(mHelper.hasField(EmptyModel.class, "mName"));
 	}
 	
 	@Override

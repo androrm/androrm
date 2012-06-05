@@ -8,7 +8,7 @@ import android.test.AndroidTestCase;
 
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.Model;
-import com.orm.androrm.impl.EmptyModel;
+import com.orm.androrm.impl.migration.EmptyModel;
 
 public class ModelRegression extends AndroidTestCase {
 
