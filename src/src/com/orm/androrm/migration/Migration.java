@@ -24,8 +24,37 @@ package com.orm.androrm.migration;
 
 import android.content.Context;
 
-public interface Migration {
+import com.orm.androrm.CharField;
+import com.orm.androrm.DatabaseBuilder;
+import com.orm.androrm.Model;
+import com.orm.androrm.QuerySet;
+
+public class Migration extends Model {
 	
-	public void run(Context context);
+	public static final Migration create(Class<? extends Model> model, AndrormMigration<?> migration) {
+		Migration self = new Migration();
+		
+		self.mModel.set(DatabaseBuilder.getTableName(model));
+		self.mAction.set(migration.getAction());
+		self.mFieldName.set(migration.getFieldName());
+		
+		return self;
+	}
+	
+	public static QuerySet<Migration> objects(Context context) {
+		return objects(context, Migration.class);
+	}
+
+	protected CharField mModel;
+	protected CharField mAction;
+	protected CharField mFieldName;
+	
+	public Migration() {
+		super();
+		
+		mModel = new CharField();
+		mAction = new CharField();
+		mFieldName = new CharField();
+	}
 	
 }

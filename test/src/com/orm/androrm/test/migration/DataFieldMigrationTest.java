@@ -28,11 +28,12 @@ public class DataFieldMigrationTest extends AndroidTestCase {
 	}
 	
 	public void testFieldAdd() {
-		Migrator migrator = Migrator.get(EmptyModel.class);
+		Migrator<EmptyModel> migrator = new Migrator<EmptyModel>(EmptyModel.class);
 		
 		assertFalse(mHelper.hasField(EmptyModel.class, "mName"));
 		
 		migrator.addField("mName", new CharField());
+		migrator.migrate(getContext());
 		
 		assertTrue(mHelper.hasField(EmptyModel.class, "mName"));
 	}

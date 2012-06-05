@@ -22,6 +22,11 @@
  */
 package com.orm.androrm.migration;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.Context;
+
 import com.orm.androrm.DatabaseField;
 import com.orm.androrm.Model;
 
@@ -29,14 +34,28 @@ import com.orm.androrm.Model;
  * @author Philipp Giese
  *
  */
-public class Migrator {
+public class Migrator<T extends Model> {
 
-	public static Migrator get(Class<? extends Model> model) {
-		return new Migrator();
+	private Class<T> mModel;
+	private List<AndrormMigration<?>> mMigrations;
+	
+	public Migrator(Class<T> model) {
+		mModel = model;
+		mMigrations = new ArrayList<AndrormMigration<?>>();
 	}
 	
 	public void addField(String name, DatabaseField<?> field) {
+		AddFieldMigration migration = new AddFieldMigration(name, field);
 		
+		mMigrations.add(migration);
+	}
+	
+	public void migrate(Context context) {
+		for(AndrormMigration<?> migration : mMigrations) {
+			if(migration.execute(mModel, context)) {
+				Migration.create(mModel, migration).save(context);
+			}
+		}
 	}
 	
 }
