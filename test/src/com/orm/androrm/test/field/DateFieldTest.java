@@ -34,7 +34,7 @@ public class DateFieldTest extends AndroidTestCase {
 	public void testDefaults() {
 		DateField d = new DateField();
 
-		assertEquals("foo varchar(19)", d.getDefinition("foo"));
+		assertEquals("`foo` varchar(19)", d.getDefinition("foo"));
 		assertNull(d.get());
 	}
 

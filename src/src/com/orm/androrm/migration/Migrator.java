@@ -50,6 +50,12 @@ public class Migrator<T extends Model> {
 		mMigrations.add(migration);
 	}
 	
+	public void renameTable(String old, Class<? extends Model> updated) {
+		RenameModelMigration migration = new RenameModelMigration(old);
+		
+		mMigrations.add(migration);
+	}
+	
 	public void migrate(Context context) {
 		for(AndrormMigration migration : mMigrations) {
 			if(migration.execute(mModel, context)) {

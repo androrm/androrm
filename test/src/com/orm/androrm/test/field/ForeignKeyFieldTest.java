@@ -69,12 +69,12 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 		ForeignKeyField<Product> fk = new ForeignKeyField<Product>(Product.class);
 		String targetTable = DatabaseBuilder.getTableName(Product.class);
 		
-		assertEquals("product_id integer", fk.getDefinition("product_id"));
-		assertEquals("FOREIGN KEY (product_id) REFERENCES " 
+		assertEquals("`product_id` integer", fk.getDefinition("product_id"));
+		assertEquals("FOREIGN KEY (`product_id`) REFERENCES `" 
 					+ targetTable 
-					+ " (" 
+					+ "` (`" 
 					+ Model.PK 
-					+ ") ON DELETE CASCADE", fk.getConstraint("product_id"));
+					+ "`) ON DELETE CASCADE", fk.getConstraint("product_id"));
 		
 		assertNull(fk.get(getContext()));
 	}
@@ -85,12 +85,12 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 		
 		String targetTable = DatabaseBuilder.getTableName(Product.class);
 		
-		assertEquals("product_id integer", fk.getDefinition("product_id"));
-		assertEquals("FOREIGN KEY (product_id) REFERENCES " 
+		assertEquals("`product_id` integer", fk.getDefinition("product_id"));
+		assertEquals("FOREIGN KEY (`product_id`) REFERENCES `" 
 					+ targetTable 
-					+ " (" 
+					+ "` (`" 
 					+ Model.PK 
-					+ ") ON DELETE SET NULL", fk.getConstraint("product_id"));
+					+ "`) ON DELETE SET NULL", fk.getConstraint("product_id"));
 		
 		assertNull(fk.get(getContext()));
 	}

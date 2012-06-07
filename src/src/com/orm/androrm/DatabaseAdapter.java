@@ -136,6 +136,14 @@ public class DatabaseAdapter {
 		return result;
 	}
 	
+	public void reloadSchema() {
+		open();
+		
+		mDbHelper.onCreate(mDb);
+		
+		close();
+	}
+	
 	/**
 	 * Drops all tables of the current database. 
 	 */
@@ -143,7 +151,6 @@ public class DatabaseAdapter {
 		open();
 		
 		mDbHelper.drop(mDb);		
-		mDbHelper.onCreate(mDb);
 		
 		close();
 		
@@ -160,7 +167,8 @@ public class DatabaseAdapter {
 		
 		String sql = "DROP TABLE IF EXISTS `" + tableName + "`;";
 		mDb.execSQL(sql);
-		mDbHelper.onCreate(mDb);
+		
+		ModelCache.reset(tableName);
 		
 		close();
 	}
@@ -170,7 +178,8 @@ public class DatabaseAdapter {
 		
 		String sql = "DROP TABLE IF EXISTS `" + DatabaseBuilder.getTableName(Migration.class) + "`;";
 		mDb.execSQL(sql);
-		mDbHelper.onCreate(mDb);
+
+		ModelCache.reset(DatabaseBuilder.getTableName(Migration.class));
 		
 		close();
 	}

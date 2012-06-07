@@ -36,7 +36,7 @@ public class Migration extends Model {
 		
 		self.mModel.set(DatabaseBuilder.getTableName(model));
 		self.mAction.set(migration.getAction());
-		self.mValue.set(migration.getValue());
+		self.mValue.set(migration.getValue(model));
 		
 		return self;
 	}

@@ -9,7 +9,7 @@ public class BooleanFieldTest extends AndroidTestCase {
 	public void testDefaults() {
 		BooleanField b = new BooleanField();
 		
-		assertEquals("foo integer(1)", b.getDefinition("foo"));
+		assertEquals("`foo` integer(1)", b.getDefinition("foo"));
 		assertFalse(b.get());
 	}
 	

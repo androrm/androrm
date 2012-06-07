@@ -30,6 +30,13 @@ public class MigrationHelperTest extends AndroidTestCase {
 		assertTrue(helper.hasField(OneFieldModel.class, "mName"));
 	}
 	
+	public void testTableExists() {
+		MigrationHelper helper = new MigrationHelper(getContext());
+		
+		assertTrue(helper.tableExists("EmptyModel"));
+		assertFalse(helper.tableExists("WrongTable"));
+	}
+	
 	@Override
 	public void tearDown() {
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());

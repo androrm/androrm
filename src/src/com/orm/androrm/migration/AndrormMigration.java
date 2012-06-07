@@ -30,12 +30,12 @@ import com.orm.androrm.Model;
 
 public abstract class AndrormMigration {
 
-	protected static String ACTION;
-	
+	protected String mAction;	
 	protected String mValue;
 	
-	public AndrormMigration(String name) {
-		mValue = name;
+	public AndrormMigration(String value, String action) {
+		mValue = value;
+		mAction = action;
 	}
 	
 	public abstract boolean execute(Class<? extends Model> model, Context context);
@@ -44,8 +44,8 @@ public abstract class AndrormMigration {
 		Filter filter = new Filter();
 		
 		filter.is("mModel", DatabaseBuilder.getTableName(model))
-			  .is("mAction", ACTION)
-			  .is("mValue", mValue);
+			  .is("mAction", mAction)
+			  .is("mValue", getValue(model));
 		
 		return filter;
 	}
@@ -57,11 +57,9 @@ public abstract class AndrormMigration {
 	}
 	
 	public String getAction() {
-		return ACTION;
+		return mAction;
 	}
 	
-	public String getValue() {
-		return mValue;
-	}
+	public abstract String getValue(Class<? extends Model> model);
 	
 }

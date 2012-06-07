@@ -35,15 +35,10 @@ import com.orm.androrm.IntegerField;
 import com.orm.androrm.LocationField;
 import com.orm.androrm.Model;
 import com.orm.androrm.impl.migration.EmptyModel;
-import com.orm.androrm.migration.MigrationHelper;
 import com.orm.androrm.migration.Migrator;
 
-import android.test.AndroidTestCase;
+public class DataFieldMigrationTest extends AbstractMigrationTest {
 
-public class DataFieldMigrationTest extends AndroidTestCase {
-
-	private MigrationHelper mHelper;
-	
 	@Override
 	public void setUp() {
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
@@ -52,7 +47,7 @@ public class DataFieldMigrationTest extends AndroidTestCase {
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
 		
-		mHelper = new MigrationHelper(getContext());
+		super.setUp();
 	}
 	
 	public void testCharFieldAdd() {
@@ -98,13 +93,6 @@ public class DataFieldMigrationTest extends AndroidTestCase {
 		migrator.migrate(getContext());
 		
 		assertTrue(mHelper.hasField(EmptyModel.class, name));
-	}
-	
-	@Override
-	public void tearDown() {
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
-		adapter.drop();
-		adapter.resetMigrations();
 	}
 	
 }

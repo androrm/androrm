@@ -25,7 +25,7 @@ public class TableDefinitionTest extends AndroidTestCase {
 		
 		def.addField("pk", i);
 
-		assertEquals("CREATE TABLE IF NOT EXISTS `foo` (pk integer);", def.toString());
+		assertEquals("CREATE TABLE IF NOT EXISTS `foo` (`pk` integer);", def.toString());
 	}
 	
 	public void testForeignKeyField() {
@@ -35,10 +35,25 @@ public class TableDefinitionTest extends AndroidTestCase {
 		def.addField("product", fk);
 		
 		assertEquals("CREATE TABLE IF NOT EXISTS `foo` ("
-					+ "product integer," 
-					+ "FOREIGN KEY (product) "
-						+ "REFERENCES product (mId) "
+					+ "`product` integer," 
+					+ "FOREIGN KEY (`product`) "
+						+ "REFERENCES `product` (`mId`) "
 						+ "ON DELETE CASCADE);", def.toString());
+	}
+	
+	public void testForeignKeyNotCascading() {
+		TableDefinition def = new TableDefinition("foo");
+		ForeignKeyField<Product> fk = new  ForeignKeyField<Product>(Product.class);
+		
+		fk.doNotCascade();
+		
+		def.addField("product", fk);
+		
+		assertEquals("CREATE TABLE IF NOT EXISTS `foo` ("
+				+ "`product` integer," 
+				+ "FOREIGN KEY (`product`) "
+					+ "REFERENCES `product` (`mId`) "
+					+ "ON DELETE SET NULL);", def.toString());
 	}
 	
 	public void testRelationalClasses() {

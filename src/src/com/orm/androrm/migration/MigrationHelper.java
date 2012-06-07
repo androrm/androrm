@@ -44,4 +44,29 @@ public class MigrationHelper {
 		return false;
 	}
 	
+	public boolean tableExists(Class<? extends Model> model) {
+		return tableExists(DatabaseBuilder.getTableName(model));
+	}
+	
+	public boolean tableExists(String name) {
+		name = name.toLowerCase();
+		
+		String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='" + name + "'";
+		
+		Cursor c = getCursor(sql);
+		
+		while(c.moveToNext()) {
+			String table = c.getString(c.getColumnIndexOrThrow("name"));
+			
+			if(table.equals(name)) {
+				close(c);
+				
+				return true;
+			}
+		}
+		
+		close(c);
+		return false;
+	}
+	
 }

@@ -31,12 +31,10 @@ public class AddFieldMigration extends AndrormMigration {
 
 	DatabaseField<?> mFieldInstance;
 	
-	public AddFieldMigration(String name, DatabaseField<?> field) {
-		super(name);
+	public AddFieldMigration(String value, DatabaseField<?> field) {
+		super(value, "add_field");
 
 		mFieldInstance = field;
-		
-		ACTION = "add_field";
 	}
 
 	@Override
@@ -46,6 +44,11 @@ public class AddFieldMigration extends AndrormMigration {
 		}
 		
 		return mFieldInstance.addToAs(context, model, mValue);
+	}
+
+	@Override
+	public String getValue(Class<? extends Model> model) {
+		return mValue;
 	}
 
 }
