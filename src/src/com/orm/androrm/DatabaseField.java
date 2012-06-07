@@ -23,6 +23,7 @@
 package com.orm.androrm;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 
 /**
@@ -80,4 +81,6 @@ public interface DatabaseField<T> extends AndrormField {
 	 * @param value	The value this field is set to.
 	 */
 	public void set(T value);
+	
+	public boolean addToAs(Context context, Class<? extends Model> model, String name);
 }

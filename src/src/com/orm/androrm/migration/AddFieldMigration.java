@@ -24,7 +24,6 @@ package com.orm.androrm.migration;
 
 import android.content.Context;
 
-import com.orm.androrm.DatabaseBuilder;
 import com.orm.androrm.DatabaseField;
 import com.orm.androrm.Model;
 
@@ -42,10 +41,11 @@ public class AddFieldMigration extends AndrormMigration {
 
 	@Override
 	public boolean execute(Class<? extends Model> model, Context context) {
-		String sql = "ALTER TABLE `" + DatabaseBuilder.getTableName(model) + "` " +
-				"ADD COLUMN " + mFieldInstance.getDefinition(mValue);
+		if(isApplied(model, context)) {
+			return false;
+		}
 		
-		return exec(context, model, sql);
+		return mFieldInstance.addToAs(context, model, mValue);
 	}
 
 }

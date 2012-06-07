@@ -25,8 +25,14 @@ package com.orm.androrm.test.migration;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.orm.androrm.BooleanField;
 import com.orm.androrm.CharField;
+import com.orm.androrm.DataField;
 import com.orm.androrm.DatabaseAdapter;
+import com.orm.androrm.DateField;
+import com.orm.androrm.DoubleField;
+import com.orm.androrm.IntegerField;
+import com.orm.androrm.LocationField;
 import com.orm.androrm.Model;
 import com.orm.androrm.impl.migration.EmptyModel;
 import com.orm.androrm.migration.MigrationHelper;
@@ -49,15 +55,49 @@ public class DataFieldMigrationTest extends AndroidTestCase {
 		mHelper = new MigrationHelper(getContext());
 	}
 	
-	public void testFieldAdd() {
+	public void testCharFieldAdd() {
+		fieldAdd("mChar", new CharField());
+	}
+	
+	public void testIntegerFieldAdd() {
+		fieldAdd("mInteger", new IntegerField());
+	}
+	
+	public void testDoubleFieldAdd() {
+		fieldAdd("mDouble", new DoubleField());
+	}
+	
+	public void testLocationFieldAdd() {
 		Migrator<EmptyModel> migrator = new Migrator<EmptyModel>(EmptyModel.class);
 		
-		assertFalse(mHelper.hasField(EmptyModel.class, "mName"));
+		assertFalse(mHelper.hasField(EmptyModel.class, "mLocationLat"));
+		assertFalse(mHelper.hasField(EmptyModel.class, "mLocationLng"));
 		
-		migrator.addField("mName", new CharField());
+		migrator.addField("mLocation", new LocationField());
 		migrator.migrate(getContext());
 		
-		assertTrue(mHelper.hasField(EmptyModel.class, "mName"));
+		assertTrue(mHelper.hasField(EmptyModel.class, "mLocationLat"));
+		assertTrue(mHelper.hasField(EmptyModel.class, "mLocationLng"));
+		
+	}
+	
+	public void testBooleanFieldAdd() {
+		fieldAdd("mBoolean", new BooleanField());
+	}
+	
+	public void testDateFieldAdd() {
+		fieldAdd("mDate", new DateField());
+	}
+	
+	private void fieldAdd(String name, DataField<?> field) {
+		Migrator<EmptyModel> migrator = new Migrator<EmptyModel>(EmptyModel.class);
+		
+		assertFalse(mHelper.hasField(EmptyModel.class, name));
+		
+		migrator.addField(name, field);
+		migrator.migrate(getContext());
+		
+		assertTrue(mHelper.hasField(EmptyModel.class, name));
 	}
 	
 	@Override

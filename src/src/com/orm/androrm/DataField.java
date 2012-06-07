@@ -22,6 +22,9 @@
  */
 package com.orm.androrm;
 
+import android.content.Context;
+import android.database.SQLException;
+
 /**
  * This class is the superclass for all database fields,
  * that need a real field in the database. This for example 
@@ -73,4 +76,28 @@ public abstract class DataField<T> implements DatabaseField<T> {
 		return String.valueOf(mValue);
 	}
 	
+	protected boolean exec(Context context, Class<? extends Model> model, String sql) {
+		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		
+		adapter.open();
+		
+		try {
+			adapter.exec(sql);
+		} catch(SQLException e) {
+			adapter.close();
+		
+			return false;
+		}
+		
+		adapter.close();
+		return true;
+	}
+	
+	public boolean addToAs(Context context, Class<? extends Model> model, String name) {
+		String sql = "ALTER TABLE `" + DatabaseBuilder.getTableName(model) + "` "
+					+ "ADD COLUMN " + getDefinition(name);
+		
+		return exec(context, model, sql);
+				
+	}
 }

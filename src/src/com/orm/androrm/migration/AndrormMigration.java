@@ -23,9 +23,7 @@
 package com.orm.androrm.migration;
 
 import android.content.Context;
-import android.database.SQLException;
 
-import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.DatabaseBuilder;
 import com.orm.androrm.Filter;
 import com.orm.androrm.Model;
@@ -52,31 +50,10 @@ public abstract class AndrormMigration {
 		return filter;
 	}
 	
-	private boolean isApplied(Class<? extends Model> model, Context context) {
+	protected boolean isApplied(Class<? extends Model> model, Context context) {
 		Filter filter = getFilter(model);
 		
 		return !Migration.objects(context).filter(filter).isEmpty();
-	}
-	
-	protected boolean exec(Context context, Class<? extends Model> model, String sql) {
-		if(isApplied(model, context)) {
-			return false;
-		}
-		
-		DatabaseAdapter adapter = new DatabaseAdapter(context);
-		
-		adapter.open();
-		
-		try {
-			adapter.exec(sql);
-		} catch(SQLException e) {
-			adapter.close();
-		
-			return false;
-		}
-		
-		adapter.close();
-		return true;
 	}
 	
 	public String getAction() {

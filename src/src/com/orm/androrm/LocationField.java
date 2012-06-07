@@ -23,6 +23,7 @@
 package com.orm.androrm;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
@@ -43,10 +44,18 @@ public class LocationField extends DataField<Location> {
 	 */
 	@Override
 	public String getDefinition(String fieldName) {
-		String definition = fieldName + "Lat " + mType + ", ";
-		definition += fieldName + "Lng " + mType; 
+		String definition = latName(fieldName) + " " + mType + ", ";
+		definition += lngName(fieldName) + " " + mType; 
 		
 		return definition;
+	}
+	
+	private String latName(String fieldName) {
+		return fieldName + "Lat";
+	}
+	
+	private String lngName(String fieldName) {
+		return fieldName + "Lng";
 	}
 	
 	@Override
@@ -59,14 +68,14 @@ public class LocationField extends DataField<Location> {
 			lng = mValue.getLongitude();
 		}
 		
-		values.put(fieldName + "Lat", lat);
-		values.put(fieldName + "Lng", lng);
+		values.put(latName(fieldName), lat);
+		values.put(lngName(fieldName), lng);
 	}
 	
 	@Override
 	public void set(Cursor c, String fieldName) {
-		double lat = c.getDouble(c.getColumnIndexOrThrow(fieldName + "Lat"));
-		double lng = c.getDouble(c.getColumnIndexOrThrow(fieldName + "Lng"));
+		double lat = c.getDouble(c.getColumnIndexOrThrow(latName(fieldName)));
+		double lng = c.getDouble(c.getColumnIndexOrThrow(lngName(fieldName)));
 		
 		Location l = new Location(LocationManager.GPS_PROVIDER);
 		l.setLatitude(lat);
@@ -78,6 +87,18 @@ public class LocationField extends DataField<Location> {
 	@Override
 	public void reset() {
 		mValue = null;
+	}
+
+	@Override
+	public boolean addToAs(Context context, Class<? extends Model> model, String name) {
+		String latSQL = "ALTER TABLE `" + DatabaseBuilder.getTableName(model) + "` "
+						+ "ADD COLUMN `" + latName(name) + "` " + mType;
+		
+		String lngSQL = "ALTER TABLE `" + DatabaseBuilder.getTableName(model) + "` "
+						+ "ADD COLUMN `" + lngName(name) + "` " + mType; 
+		
+		
+		return exec(context, model, latSQL) && exec(context, model, lngSQL);
 	}
 
 }
