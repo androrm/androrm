@@ -81,4 +81,16 @@
 	    </zip>
 	</target>
 	
+	<target name="com.orm.androrm.source">
+		<copy todir="${release.dir}/source">
+			  <fileset dir="${src.dir}" includes="*/**"/>
+		</copy>
+		
+		<zip destfile="${release.dir}/androrm.source_${version}.zip">
+			  <fileset dir="${release.dir}/source" includes="*/**" />
+		</zip>
+		
+		<delete dir="${release.dir}/source" />
+	</target>
+	
 </project>
