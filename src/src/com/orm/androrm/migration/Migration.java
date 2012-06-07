@@ -31,12 +31,12 @@ import com.orm.androrm.QuerySet;
 
 public class Migration extends Model {
 	
-	public static final Migration create(Class<? extends Model> model, AndrormMigration<?> migration) {
+	public static final Migration create(Class<? extends Model> model, AndrormMigration migration) {
 		Migration self = new Migration();
 		
 		self.mModel.set(DatabaseBuilder.getTableName(model));
 		self.mAction.set(migration.getAction());
-		self.mFieldName.set(migration.getFieldName());
+		self.mValue.set(migration.getValue());
 		
 		return self;
 	}
@@ -47,14 +47,14 @@ public class Migration extends Model {
 
 	protected CharField mModel;
 	protected CharField mAction;
-	protected CharField mFieldName;
+	protected CharField mValue;
 	
 	public Migration() {
 		super();
 		
 		mModel = new CharField();
 		mAction = new CharField();
-		mFieldName = new CharField();
+		mValue = new CharField();
 	}
 	
 }

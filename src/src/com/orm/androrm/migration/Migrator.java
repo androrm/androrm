@@ -37,11 +37,11 @@ import com.orm.androrm.Model;
 public class Migrator<T extends Model> {
 
 	private Class<T> mModel;
-	private List<AndrormMigration<?>> mMigrations;
+	private List<AndrormMigration> mMigrations;
 	
 	public Migrator(Class<T> model) {
 		mModel = model;
-		mMigrations = new ArrayList<AndrormMigration<?>>();
+		mMigrations = new ArrayList<AndrormMigration>();
 	}
 	
 	public void addField(String name, DatabaseField<?> field) {
@@ -51,7 +51,7 @@ public class Migrator<T extends Model> {
 	}
 	
 	public void migrate(Context context) {
-		for(AndrormMigration<?> migration : mMigrations) {
+		for(AndrormMigration migration : mMigrations) {
 			if(migration.execute(mModel, context)) {
 				Migration.create(mModel, migration).save(context);
 			}

@@ -25,14 +25,13 @@ package com.orm.androrm;
 import java.util.Collection;
 import java.util.List;
 
-import com.orm.androrm.migration.Migration;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
+
+import com.orm.androrm.migration.Migration;
 
 /**
  * This class provides access to the underlying SQLite database. 
@@ -40,8 +39,6 @@ import android.util.Log;
  * @author Philipp Giese
  */
 public class DatabaseAdapter {
-	
-	private static final String TAG = "ANDORM:DATABASE:ADAPTER";
 	
 	/**
 	 * Name that will be used for the database. Defaults
@@ -230,9 +227,16 @@ public class DatabaseAdapter {
 	}
 	
 	public Cursor query(String query) {
-		Log.d(TAG, "Executing query: " + query);
-		
 		return mDb.rawQuery(query, null);
+	}
+	
+	/**
+	 * Execute a single SQL statement that is NOT a SELECT or any other SQL statement that returns data.
+	 * 
+	 * @param query
+	 */
+	public void exec(String query) {
+		mDb.execSQL(query);
 	}
 	
 	/**
