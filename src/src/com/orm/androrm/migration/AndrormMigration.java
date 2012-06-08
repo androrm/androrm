@@ -28,7 +28,7 @@ import com.orm.androrm.DatabaseBuilder;
 import com.orm.androrm.Filter;
 import com.orm.androrm.Model;
 
-public abstract class AndrormMigration {
+public abstract class AndrormMigration<T extends Model> {
 
 	protected String mAction;	
 	protected String mValue;
@@ -38,9 +38,9 @@ public abstract class AndrormMigration {
 		mAction = action;
 	}
 	
-	public abstract boolean execute(Class<? extends Model> model, Context context);
+	public abstract boolean execute(Class<T> model, Context context);
 	
-	public Filter getFilter(Class<? extends Model> model) {
+	private Filter getFilter(Class<T> model) {
 		Filter filter = new Filter();
 		
 		filter.is("mModel", DatabaseBuilder.getTableName(model))
@@ -50,7 +50,7 @@ public abstract class AndrormMigration {
 		return filter;
 	}
 	
-	protected boolean isApplied(Class<? extends Model> model, Context context) {
+	protected boolean isApplied(Class<T> model, Context context) {
 		Filter filter = getFilter(model);
 		
 		return !Migration.objects(context).filter(filter).isEmpty();
@@ -60,6 +60,6 @@ public abstract class AndrormMigration {
 		return mAction;
 	}
 	
-	public abstract String getValue(Class<? extends Model> model);
+	public abstract String getValue(Class<T> model);
 	
 }

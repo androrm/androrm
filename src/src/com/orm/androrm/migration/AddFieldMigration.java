@@ -27,7 +27,7 @@ import android.content.Context;
 import com.orm.androrm.DatabaseField;
 import com.orm.androrm.Model;
 
-public class AddFieldMigration extends AndrormMigration {
+public class AddFieldMigration<T extends Model> extends AndrormMigration<T> {
 
 	DatabaseField<?> mFieldInstance;
 	
@@ -38,7 +38,7 @@ public class AddFieldMigration extends AndrormMigration {
 	}
 
 	@Override
-	public boolean execute(Class<? extends Model> model, Context context) {
+	public boolean execute(Class<T> model, Context context) {
 		if(isApplied(model, context)) {
 			return false;
 		}
@@ -47,7 +47,7 @@ public class AddFieldMigration extends AndrormMigration {
 	}
 
 	@Override
-	public String getValue(Class<? extends Model> model) {
+	public String getValue(Class<T> model) {
 		return mValue;
 	}
 

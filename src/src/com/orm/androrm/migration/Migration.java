@@ -31,7 +31,7 @@ import com.orm.androrm.QuerySet;
 
 public class Migration extends Model {
 	
-	public static final Migration create(Class<? extends Model> model, AndrormMigration migration) {
+	public static final<T extends Model> Migration create(Class<T> model, AndrormMigration<T> migration) {
 		Migration self = new Migration();
 		
 		self.mModel.set(DatabaseBuilder.getTableName(model));

@@ -37,27 +37,27 @@ import com.orm.androrm.Model;
 public class Migrator<T extends Model> {
 
 	private Class<T> mModel;
-	private List<AndrormMigration> mMigrations;
+	private List<AndrormMigration<T>> mMigrations;
 	
 	public Migrator(Class<T> model) {
 		mModel = model;
-		mMigrations = new ArrayList<AndrormMigration>();
+		mMigrations = new ArrayList<AndrormMigration<T>>();
 	}
 	
 	public void addField(String name, DatabaseField<?> field) {
-		AddFieldMigration migration = new AddFieldMigration(name, field);
+		AddFieldMigration<T> migration = new AddFieldMigration<T>(name, field);
 		
 		mMigrations.add(migration);
 	}
 	
 	public void renameTable(String old, Class<? extends Model> updated) {
-		RenameModelMigration migration = new RenameModelMigration(old);
+		RenameModelMigration<T> migration = new RenameModelMigration<T>(old);
 		
 		mMigrations.add(migration);
 	}
 	
 	public void migrate(Context context) {
-		for(AndrormMigration migration : mMigrations) {
+		for(AndrormMigration<T> migration : mMigrations) {
 			if(migration.execute(mModel, context)) {
 				Migration.create(mModel, migration).save(context);
 			}
