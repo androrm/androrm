@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.orm.androrm.migration.Migration;
+import com.orm.androrm.migration.Migrator;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -157,11 +158,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		super.onOpen(db);
 
 		if (!db.isReadOnly()) {
-			// Enable foreign key constraints
+			// Enable or disable foreign key constraints
 			db.execSQL("PRAGMA foreign_keys=" + FOREIGN_KEY_CONSTRAINTS + ";");
 		}
 	}
 
+	/**
+	 * Androrm won't make use of the onUpgrade method. Instead we are using our
+	 * own mechanism called {@link Migration}. In order to update a {@link Model}
+	 * use the {@link Migrator} class instead.  
+	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.w(TAG, "Upgrading database from version " + oldVersion + " to " +
@@ -169,7 +175,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		drop(db);
 		onCreate(db);
-
 	}
 
 	/**

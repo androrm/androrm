@@ -7,3 +7,4 @@ release/
 *.properties
 .DS_Store
 .classpath
+coverage/
