@@ -9,6 +9,7 @@ public class AllTest extends TestSuite {
 		TestSuite suite = new TestSuite();
 		
 		suite.addTestSuite(FieldCacheTest.class);
+		suite.addTestSuite(TableDefinitionCacheTest.class);
 		
 		return suite;
 	}

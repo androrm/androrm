@@ -113,8 +113,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		
 		db.execSQL("PRAGMA foreign_keys=" + FOREIGN_KEY_CONSTRAINTS + ";");
 
-		mTables.clear();
-		mModels.clear();
+		getTables().clear();
+		getModels().clear();
 	}
 
 	@Override

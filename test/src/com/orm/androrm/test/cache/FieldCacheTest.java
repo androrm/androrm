@@ -10,6 +10,7 @@ import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.Model;
 import com.orm.androrm.ModelCache;
 import com.orm.androrm.impl.BlankModel;
+import com.orm.androrm.impl.BlankModelNoAutoincrement;
 
 public class FieldCacheTest extends AndroidTestCase {
 
@@ -43,11 +44,24 @@ public class FieldCacheTest extends AndroidTestCase {
 		adapter.setModels(models);
 		
 		assertTrue(ModelCache.modelHasField(BlankModel.class, "mName"));
+	}
+	
+	public void testFieldShortcur() {
+		assertNull(ModelCache.getField(BlankModelNoAutoincrement.class, "mName"));
 		
-		adapter.drop();
+		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
+		models.add(BlankModelNoAutoincrement.class);
+		
+		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		adapter.setModels(models);
+		
+		assertNotNull(ModelCache.getField(BlankModelNoAutoincrement.class, "mName"));
 	}
 	
 	public void tearDown() {
+		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		adapter.drop();
+		
 		ModelCache.reset();
 	}
 }
