@@ -29,6 +29,7 @@ import android.content.Context;
 
 import com.orm.androrm.Model;
 import com.orm.androrm.field.DatabaseField;
+import com.orm.androrm.field.ManyToManyField;
 
 /**
  * @author Philipp Giese
@@ -37,15 +38,21 @@ import com.orm.androrm.field.DatabaseField;
 public class Migrator<T extends Model> {
 
 	private Class<T> mModel;
-	private List<AndrormMigration<T>> mMigrations;
+	private List<Migratable<T>> mMigrations;
 	
 	public Migrator(Class<T> model) {
 		mModel = model;
-		mMigrations = new ArrayList<AndrormMigration<T>>();
+		mMigrations = new ArrayList<Migratable<T>>();
 	}
 	
 	public void addField(String name, DatabaseField<?> field) {
 		AddFieldMigration<T> migration = new AddFieldMigration<T>(name, field);
+		
+		mMigrations.add(migration);
+	}
+	
+	public <R extends Model> void addField(String name, ManyToManyField<T, R> field) {
+		AddRelationMigration<T, R> migration = new AddRelationMigration<T, R>(name, field);
 		
 		mMigrations.add(migration);
 	}
@@ -57,8 +64,8 @@ public class Migrator<T extends Model> {
 	}
 	
 	public void migrate(Context context) {
-		for(AndrormMigration<T> migration : mMigrations) {
-			if(migration.execute(mModel, context)) {
+		for(Migratable<T> migration : mMigrations) {
+			if(migration.execute(context, mModel)) {
 				Migration.create(mModel, migration).save(context);
 			}
 		}

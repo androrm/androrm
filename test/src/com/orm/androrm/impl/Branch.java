@@ -2,11 +2,11 @@ package com.orm.androrm.impl;
 
 import android.content.Context;
 
-import com.orm.androrm.ManyToManyField;
 import com.orm.androrm.Model;
 import com.orm.androrm.QuerySet;
 import com.orm.androrm.field.CharField;
 import com.orm.androrm.field.ForeignKeyField;
+import com.orm.androrm.field.ManyToManyField;
 
 public class Branch extends Model {
 

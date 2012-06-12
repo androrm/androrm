@@ -20,14 +20,16 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.orm.androrm;
+package com.orm.androrm.field;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.orm.androrm.field.AbstractToManyRelation;
-import com.orm.androrm.field.ForeignKeyField;
+import com.orm.androrm.DatabaseBuilder;
+import com.orm.androrm.Model;
+import com.orm.androrm.QuerySet;
+import com.orm.androrm.Where;
 import com.orm.androrm.statement.JoinStatement;
 import com.orm.androrm.statement.SelectStatement;
 import com.orm.androrm.statement.Statement;

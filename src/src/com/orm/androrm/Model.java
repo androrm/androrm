@@ -31,6 +31,7 @@ import com.orm.androrm.field.AndrormField;
 import com.orm.androrm.field.DataField;
 import com.orm.androrm.field.ForeignKeyField;
 import com.orm.androrm.field.IntegerField;
+import com.orm.androrm.field.ManyToManyField;
 import com.orm.androrm.field.NoSuchFieldException;
 import com.orm.androrm.field.OneToManyField;
 

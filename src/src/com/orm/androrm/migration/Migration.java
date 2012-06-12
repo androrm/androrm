@@ -31,7 +31,7 @@ import com.orm.androrm.field.CharField;
 
 public class Migration extends Model {
 	
-	public static final<T extends Model> Migration create(Class<T> model, AndrormMigration<T> migration) {
+	public static final<T extends Model> Migration create(Class<T> model, Migratable<T> migration) {
 		Migration self = new Migration();
 		
 		self.mModel.set(DatabaseBuilder.getTableName(model));

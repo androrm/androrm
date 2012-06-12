@@ -18,7 +18,7 @@ public class RenameModelMigration<T extends Model> extends AndrormMigration<T> {
 	}
 
 	@Override
-	public boolean execute(Class<T> model, Context context) {
+	public boolean execute(Context context, Class<T> model) {
 		if(isApplied(model, context)) {
 			return false;
 		}

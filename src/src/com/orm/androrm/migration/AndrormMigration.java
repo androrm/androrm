@@ -28,7 +28,7 @@ import com.orm.androrm.DatabaseBuilder;
 import com.orm.androrm.Filter;
 import com.orm.androrm.Model;
 
-public abstract class AndrormMigration<T extends Model> {
+public abstract class AndrormMigration<T extends Model> implements Migratable<T> {
 
 	protected String mAction;	
 	protected String mValue;
@@ -37,8 +37,6 @@ public abstract class AndrormMigration<T extends Model> {
 		mValue = value;
 		mAction = action;
 	}
-	
-	public abstract boolean execute(Class<T> model, Context context);
 	
 	private Filter getFilter(Class<T> model) {
 		Filter filter = new Filter();

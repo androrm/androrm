@@ -29,6 +29,7 @@ import java.util.List;
 
 import com.orm.androrm.field.DataField;
 import com.orm.androrm.field.ForeignKeyField;
+import com.orm.androrm.field.ManyToManyField;
 import com.orm.androrm.field.OneToManyField;
 
 import android.util.Log;
@@ -85,9 +86,6 @@ public class DatabaseBuilder {
 	) throws IllegalArgumentException, IllegalAccessException {
 		
 		if(clazz != null && clazz.isInstance(instance)) {
-			// TODO: only create fields from superclass, if superclass is
-			// abstract. Otherwise create a pointer to superclass.
-			
 			ModelCache.addModel(clazz);
 			
 			for(Field field: getFields(clazz, instance)) {
