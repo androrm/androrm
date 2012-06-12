@@ -7,10 +7,10 @@ import java.util.List;
 import android.test.AndroidTestCase;
 
 import com.orm.androrm.DatabaseAdapter;
-import com.orm.androrm.ForeignKeyField;
 import com.orm.androrm.ManyToManyField;
 import com.orm.androrm.Model;
 import com.orm.androrm.QuerySet;
+import com.orm.androrm.field.ForeignKeyField;
 import com.orm.androrm.impl.Branch;
 import com.orm.androrm.impl.Brand;
 import com.orm.androrm.impl.Product;

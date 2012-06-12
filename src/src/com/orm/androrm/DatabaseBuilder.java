@@ -27,6 +27,10 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.orm.androrm.field.DataField;
+import com.orm.androrm.field.ForeignKeyField;
+import com.orm.androrm.field.OneToManyField;
+
 import android.util.Log;
 
 /**

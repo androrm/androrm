@@ -4,10 +4,10 @@ import java.util.List;
 
 import android.test.AndroidTestCase;
 
-import com.orm.androrm.ForeignKeyField;
-import com.orm.androrm.IntegerField;
 import com.orm.androrm.Model;
 import com.orm.androrm.TableDefinition;
+import com.orm.androrm.field.ForeignKeyField;
+import com.orm.androrm.field.IntegerField;
 import com.orm.androrm.impl.Product;
 
 public class TableDefinitionTest extends AndroidTestCase {

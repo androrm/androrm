@@ -1,6 +1,6 @@
 package com.orm.androrm.test.field;
 
-import com.orm.androrm.DoubleField;
+import com.orm.androrm.field.DoubleField;
 
 import android.test.AndroidTestCase;
 

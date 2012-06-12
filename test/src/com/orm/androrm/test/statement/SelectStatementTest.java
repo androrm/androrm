@@ -2,12 +2,12 @@ package com.orm.androrm.test.statement;
 
 import android.test.AndroidTestCase;
 
-import com.orm.androrm.JoinStatement;
 import com.orm.androrm.Limit;
 import com.orm.androrm.Model;
-import com.orm.androrm.SelectStatement;
-import com.orm.androrm.Statement;
 import com.orm.androrm.Where;
+import com.orm.androrm.statement.JoinStatement;
+import com.orm.androrm.statement.SelectStatement;
+import com.orm.androrm.statement.Statement;
 
 public class SelectStatementTest extends AndroidTestCase {
 

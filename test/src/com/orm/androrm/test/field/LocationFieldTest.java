@@ -8,8 +8,8 @@ import android.location.LocationManager;
 import android.test.AndroidTestCase;
 
 import com.orm.androrm.DatabaseAdapter;
-import com.orm.androrm.LocationField;
 import com.orm.androrm.Model;
+import com.orm.androrm.field.LocationField;
 import com.orm.androrm.impl.BlankModel;
 
 public class LocationFieldTest extends AndroidTestCase {

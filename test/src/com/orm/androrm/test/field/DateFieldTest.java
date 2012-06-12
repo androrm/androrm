@@ -8,8 +8,8 @@ import java.util.List;
 import android.test.AndroidTestCase;
 
 import com.orm.androrm.DatabaseAdapter;
-import com.orm.androrm.DateField;
 import com.orm.androrm.Model;
+import com.orm.androrm.field.DateField;
 import com.orm.androrm.impl.BlankModel;
 
 public class DateFieldTest extends AndroidTestCase {

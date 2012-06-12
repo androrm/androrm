@@ -4,7 +4,7 @@ import java.util.Set;
 
 import android.test.AndroidTestCase;
 
-import com.orm.androrm.Statement;
+import com.orm.androrm.statement.Statement;
 
 public class StatementTest extends AndroidTestCase {
 

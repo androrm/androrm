@@ -24,8 +24,8 @@ package com.orm.androrm.migration;
 
 import android.content.Context;
 
-import com.orm.androrm.DatabaseField;
 import com.orm.androrm.Model;
+import com.orm.androrm.field.DatabaseField;
 
 public class AddFieldMigration<T extends Model> extends AndrormMigration<T> {
 

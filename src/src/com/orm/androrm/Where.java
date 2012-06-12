@@ -25,6 +25,10 @@ package com.orm.androrm;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.orm.androrm.statement.AndStatement;
+import com.orm.androrm.statement.OrStatement;
+import com.orm.androrm.statement.Statement;
+
 import android.database.sqlite.SQLiteDatabase;
 
 /**

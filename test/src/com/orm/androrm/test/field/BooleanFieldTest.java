@@ -2,7 +2,7 @@ package com.orm.androrm.test.field;
 
 import android.test.AndroidTestCase;
 
-import com.orm.androrm.BooleanField;
+import com.orm.androrm.field.BooleanField;
 
 public class BooleanFieldTest extends AndroidTestCase {
 

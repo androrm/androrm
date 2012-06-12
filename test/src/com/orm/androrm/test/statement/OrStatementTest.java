@@ -1,9 +1,9 @@
 package com.orm.androrm.test.statement;
 
-import com.orm.androrm.AndStatement;
-import com.orm.androrm.LikeStatement;
-import com.orm.androrm.OrStatement;
-import com.orm.androrm.Statement;
+import com.orm.androrm.statement.AndStatement;
+import com.orm.androrm.statement.LikeStatement;
+import com.orm.androrm.statement.OrStatement;
+import com.orm.androrm.statement.Statement;
 
 import android.test.AndroidTestCase;
 

@@ -27,6 +27,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import com.orm.androrm.field.NoSuchFieldException;
+import com.orm.androrm.statement.InStatement;
+import com.orm.androrm.statement.JoinStatement;
+import com.orm.androrm.statement.SelectStatement;
+import com.orm.androrm.statement.Statement;
+
 import android.content.Context;
 import android.database.Cursor;
 

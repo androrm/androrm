@@ -24,10 +24,10 @@ package com.orm.androrm.migration;
 
 import android.content.Context;
 
-import com.orm.androrm.CharField;
 import com.orm.androrm.DatabaseBuilder;
 import com.orm.androrm.Model;
 import com.orm.androrm.QuerySet;
+import com.orm.androrm.field.CharField;
 
 public class Migration extends Model {
 	

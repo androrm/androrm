@@ -17,6 +17,7 @@ public class AllTest extends TestSuite {
 		suite.addTestSuite(LocationFieldTest.class);
 		suite.addTestSuite(ManyToManyFieldTest.class);
 		suite.addTestSuite(OneToManyFieldTest.class);
+		suite.addTestSuite(BlobFieldTest.class);
 		
 		return suite;
 	}

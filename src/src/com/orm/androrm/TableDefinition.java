@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.orm.androrm.field.DataField;
+import com.orm.androrm.field.ForeignKeyField;
+
 public class TableDefinition {
 	private String mTableName;
 	private Map<String, DataField<?>> mFields;

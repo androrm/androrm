@@ -27,6 +27,13 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.orm.androrm.field.AndrormField;
+import com.orm.androrm.field.DataField;
+import com.orm.androrm.field.ForeignKeyField;
+import com.orm.androrm.field.IntegerField;
+import com.orm.androrm.field.NoSuchFieldException;
+import com.orm.androrm.field.OneToManyField;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -153,7 +160,7 @@ public abstract class Model {
 		}
 	}
 	
-	protected static final <O extends Model, T extends Model> String getBackLinkFieldName(
+	public static final <O extends Model, T extends Model> String getBackLinkFieldName(
 			
 			Class<O> originClass,
 			Class<T> targetClass

@@ -1,7 +1,7 @@
 package com.orm.androrm.test;
 
 import com.orm.androrm.Rule;
-import com.orm.androrm.Statement;
+import com.orm.androrm.statement.Statement;
 
 import android.test.AndroidTestCase;
 

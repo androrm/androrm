@@ -2,8 +2,8 @@ package com.orm.androrm.test.statement;
 
 import android.test.AndroidTestCase;
 
-import com.orm.androrm.JoinStatement;
-import com.orm.androrm.SelectStatement;
+import com.orm.androrm.statement.JoinStatement;
+import com.orm.androrm.statement.SelectStatement;
 
 public class JoinStatementTest extends AndroidTestCase {
 

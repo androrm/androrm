@@ -8,8 +8,8 @@ import android.test.AndroidTestCase;
 
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.Model;
-import com.orm.androrm.OneToManyField;
 import com.orm.androrm.QuerySet;
+import com.orm.androrm.field.OneToManyField;
 import com.orm.androrm.impl.Branch;
 import com.orm.androrm.impl.Brand;
 import com.orm.androrm.impl.Product;

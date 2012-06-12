@@ -4,10 +4,10 @@ import java.util.Date;
 
 import android.location.Location;
 
-import com.orm.androrm.CharField;
-import com.orm.androrm.DateField;
-import com.orm.androrm.LocationField;
 import com.orm.androrm.Model;
+import com.orm.androrm.field.CharField;
+import com.orm.androrm.field.DateField;
+import com.orm.androrm.field.LocationField;
 
 public class BlankModel extends Model {
 

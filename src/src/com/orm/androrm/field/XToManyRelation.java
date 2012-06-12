@@ -20,10 +20,13 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.orm.androrm;
+package com.orm.androrm.field;
 
 import java.util.Collection;
 import java.util.List;
+
+import com.orm.androrm.Model;
+import com.orm.androrm.QuerySet;
 
 import android.content.Context;
 

@@ -7,13 +7,13 @@ import java.util.Set;
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.Rule;
 import com.orm.androrm.Filter;
-import com.orm.androrm.InStatement;
-import com.orm.androrm.LikeStatement;
 import com.orm.androrm.Model;
-import com.orm.androrm.Statement;
 import com.orm.androrm.impl.Branch;
 import com.orm.androrm.impl.Product;
 import com.orm.androrm.impl.Supplier;
+import com.orm.androrm.statement.InStatement;
+import com.orm.androrm.statement.LikeStatement;
+import com.orm.androrm.statement.Statement;
 
 import android.test.AndroidTestCase;
 

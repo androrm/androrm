@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.orm.androrm.DatabaseAdapter;
-import com.orm.androrm.ForeignKeyField;
 import com.orm.androrm.Model;
+import com.orm.androrm.field.ForeignKeyField;
 import com.orm.androrm.impl.Product;
 import com.orm.androrm.impl.migration.EmptyModel;
 import com.orm.androrm.migration.Migrator;
@@ -28,6 +28,7 @@ public class ForeignKeyMigrationTest extends AbstractMigrationTest {
 		
 		Migrator<EmptyModel> migrator = new Migrator<EmptyModel>(EmptyModel.class);
 		migrator.addField("mProduct", new ForeignKeyField<Product>(Product.class));
+		migrator.migrate(getContext());
 		
 		assertTrue(mHelper.hasField(EmptyModel.class, "mProduct"));
 	}

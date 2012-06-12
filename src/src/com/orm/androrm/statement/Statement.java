@@ -20,10 +20,12 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.orm.androrm;
+package com.orm.androrm.statement;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import com.orm.androrm.Where;
 
 /**
  * This class is the superclass of all statements. The whole statement

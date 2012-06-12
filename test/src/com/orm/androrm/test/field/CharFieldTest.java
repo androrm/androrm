@@ -1,6 +1,6 @@
 package com.orm.androrm.test.field;
 
-import com.orm.androrm.CharField;
+import com.orm.androrm.field.CharField;
 
 import android.test.AndroidTestCase;
 

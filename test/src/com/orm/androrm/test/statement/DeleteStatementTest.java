@@ -1,8 +1,8 @@
 package com.orm.androrm.test.statement;
 
-import com.orm.androrm.DeleteStatement;
-import com.orm.androrm.Statement;
 import com.orm.androrm.Where;
+import com.orm.androrm.statement.DeleteStatement;
+import com.orm.androrm.statement.Statement;
 
 import android.test.AndroidTestCase;
 

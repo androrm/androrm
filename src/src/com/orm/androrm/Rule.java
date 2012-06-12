@@ -22,6 +22,8 @@
  */
 package com.orm.androrm;
 
+import com.orm.androrm.statement.Statement;
+
 /**
  * A {@link Rule} is used by {@link Filter Filter Sets}
  * to create complex queries on the database. Each filter consists

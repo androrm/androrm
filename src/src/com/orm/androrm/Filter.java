@@ -25,6 +25,10 @@ package com.orm.androrm;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.orm.androrm.statement.InStatement;
+import com.orm.androrm.statement.LikeStatement;
+import com.orm.androrm.statement.Statement;
+
 /**
  * Filters are a mechanism, to execute complex 
  * queries on the model classes in a very easy manner

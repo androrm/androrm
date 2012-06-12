@@ -20,7 +20,11 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.orm.androrm;
+package com.orm.androrm.field;
+
+import com.orm.androrm.DatabaseAdapter;
+import com.orm.androrm.DatabaseBuilder;
+import com.orm.androrm.Model;
 
 import android.content.Context;
 import android.database.SQLException;

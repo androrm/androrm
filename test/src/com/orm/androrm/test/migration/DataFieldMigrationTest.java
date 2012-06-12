@@ -25,15 +25,16 @@ package com.orm.androrm.test.migration;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.orm.androrm.BooleanField;
-import com.orm.androrm.CharField;
-import com.orm.androrm.DataField;
 import com.orm.androrm.DatabaseAdapter;
-import com.orm.androrm.DateField;
-import com.orm.androrm.DoubleField;
-import com.orm.androrm.IntegerField;
-import com.orm.androrm.LocationField;
 import com.orm.androrm.Model;
+import com.orm.androrm.field.BlobField;
+import com.orm.androrm.field.BooleanField;
+import com.orm.androrm.field.CharField;
+import com.orm.androrm.field.DataField;
+import com.orm.androrm.field.DateField;
+import com.orm.androrm.field.DoubleField;
+import com.orm.androrm.field.IntegerField;
+import com.orm.androrm.field.LocationField;
 import com.orm.androrm.impl.migration.EmptyModel;
 import com.orm.androrm.migration.Migrator;
 
@@ -60,6 +61,10 @@ public class DataFieldMigrationTest extends AbstractMigrationTest {
 	
 	public void testDoubleFieldAdd() {
 		fieldAdd("mDouble", new DoubleField());
+	}
+	
+	public void testBlobFieldAdd() {
+		fieldAdd("mBlob", new BlobField());
 	}
 	
 	public void testLocationFieldAdd() {

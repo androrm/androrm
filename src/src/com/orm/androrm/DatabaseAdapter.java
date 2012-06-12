@@ -32,6 +32,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.orm.androrm.migration.Migration;
+import com.orm.androrm.statement.SelectStatement;
 
 /**
  * This class provides access to the underlying SQLite database. 

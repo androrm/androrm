@@ -5,10 +5,10 @@ import java.util.List;
 
 import android.test.AndroidTestCase;
 
-import com.orm.androrm.CharField;
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.Model;
 import com.orm.androrm.ModelCache;
+import com.orm.androrm.field.CharField;
 import com.orm.androrm.impl.BlankModel;
 import com.orm.androrm.impl.BlankModelNoAutoincrement;
 

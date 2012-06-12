@@ -4,7 +4,7 @@ import java.util.Set;
 
 import android.test.AndroidTestCase;
 
-import com.orm.androrm.LikeStatement;
+import com.orm.androrm.statement.LikeStatement;
 
 public class LikeStatementTest extends AndroidTestCase {
 

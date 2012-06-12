@@ -27,8 +27,8 @@ import java.util.List;
 
 import android.content.Context;
 
-import com.orm.androrm.DatabaseField;
 import com.orm.androrm.Model;
+import com.orm.androrm.field.DatabaseField;
 
 /**
  * @author Philipp Giese

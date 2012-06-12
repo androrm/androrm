@@ -6,7 +6,7 @@ import java.util.Set;
 
 import android.test.AndroidTestCase;
 
-import com.orm.androrm.InStatement;
+import com.orm.androrm.statement.InStatement;
 
 public class InStatementTest extends AndroidTestCase {
 

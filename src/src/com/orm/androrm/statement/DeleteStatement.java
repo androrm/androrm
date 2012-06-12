@@ -20,7 +20,10 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.orm.androrm;
+package com.orm.androrm.statement;
+
+import com.orm.androrm.Query;
+import com.orm.androrm.Where;
 
 /**
  * Implements a <code>DELETE</code> on the database.

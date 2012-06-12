@@ -1,6 +1,6 @@
 package com.orm.androrm.test.field;
 
-import com.orm.androrm.IntegerField;
+import com.orm.androrm.field.IntegerField;
 
 import android.test.AndroidTestCase;
 

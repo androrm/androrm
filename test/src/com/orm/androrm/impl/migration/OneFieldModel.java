@@ -1,7 +1,7 @@
 package com.orm.androrm.impl.migration;
 
-import com.orm.androrm.CharField;
 import com.orm.androrm.Model;
+import com.orm.androrm.field.CharField;
 
 public class OneFieldModel extends Model {
 
