@@ -11,6 +11,7 @@ public class AllTest extends TestSuite {
 		suite.addTestSuite(DataFieldMigrationTest.class);
 		suite.addTestSuite(MigrationHelperTest.class);
 		suite.addTestSuite(RenameModelMigrationTest.class);
+		suite.addTestSuite(ForeignKeyMigrationTest.class);
 		
 		return suite;
 	}
