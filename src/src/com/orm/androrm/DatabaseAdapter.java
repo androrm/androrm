@@ -22,7 +22,6 @@
  */
 package com.orm.androrm;
 
-import java.util.Collection;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -70,8 +69,11 @@ public class DatabaseAdapter {
 	 */
 	private SQLiteDatabase mDb;	
 	
+	private Context mContext;
+	
 	public DatabaseAdapter(Context context) {
 		mDbHelper = new DatabaseHelper(context, DATABASE_NAME);
+		mContext = context;
 	}
 	
 	/**
@@ -255,11 +257,15 @@ public class DatabaseAdapter {
 	 * 
 	 * @param models	{@link List} of classes inheriting from {@link Model}.
 	 */
-	public void setModels(Collection<Class<? extends Model>> models) {
+	public void setModels(List<Class<? extends Model>> models) {
 		open();
 		
 		mDbHelper.setModels(mDb, models);
 		
 		close();
+		
+		// After all tables have initially been created, run the migrations 
+		// on them in order to get all of them up to date.
+		Model.runMigrations(mContext, models);
 	}
 }

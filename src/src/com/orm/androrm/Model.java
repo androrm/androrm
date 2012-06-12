@@ -214,6 +214,13 @@ public abstract class Model {
 				+ getEligableFields(instance.getClass(), instance).toString());
 	}
 	
+	protected static final void runMigrations(Context context, List<Class<? extends Model>> models) {
+		for(Class<? extends Model> model : models) {
+			Model instance = getInstace(model);
+			instance.migrate(context);
+		}
+	}
+	
 	protected static final <T extends Model> Field getField(
 			
 			Class<T> 	clazz, 
@@ -624,7 +631,7 @@ public abstract class Model {
 		}
 	}
 	
-	protected void migrate() {
+	protected void migrate(Context context) {
 		
 	}
 }

@@ -96,7 +96,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		return mTables;
 	}
-
+	
 	public DatabaseHelper(Context context, String dbName) {
 		super(context, dbName, null, DATABASE_VERSION);
 	}
@@ -190,5 +190,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		onCreate(db);
 	}
-
+	
 }
