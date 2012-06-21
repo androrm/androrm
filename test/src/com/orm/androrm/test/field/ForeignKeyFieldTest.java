@@ -25,8 +25,6 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 		models.add(Brand.class);
 		models.add(Supplier.class);
 		
-		DatabaseAdapter.setDatabaseName("test_db");
-		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
 	}

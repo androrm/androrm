@@ -18,8 +18,6 @@ public class ModelTest extends AndroidTestCase {
 		models.add(BlankModel.class);
 		models.add(BlankModelNoAutoincrement.class);
 		
-		DatabaseAdapter.setDatabaseName("test_db");
-		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
 	}

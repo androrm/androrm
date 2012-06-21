@@ -13,7 +13,6 @@ public class AllTest extends TestSuite {
 		suite.addTestSuite(RenameModelMigrationTest.class);
 		suite.addTestSuite(ForeignKeyMigrationTest.class);
 		suite.addTestSuite(ModelTest.class);
-		suite.addTestSuite(ManyToManyFieldMigrationTest.class);
 		
 		return suite;
 	}

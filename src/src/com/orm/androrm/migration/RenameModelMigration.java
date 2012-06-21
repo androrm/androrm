@@ -9,7 +9,7 @@ import com.orm.androrm.Model;
 
 public class RenameModelMigration<T extends Model> extends AndrormMigration<T> {
 
-	private String mOldName;
+	protected String mOldName;
 	
 	public RenameModelMigration(String old) {
 		super(null, "rename_table");
@@ -50,9 +50,21 @@ public class RenameModelMigration<T extends Model> extends AndrormMigration<T> {
 			return false;
 		}
 		
+		renameRelationTables(context, model);
+		
 		adapter.close();
 		
 		return true;
+	}
+	
+	private void renameRelationTables(Context context, Class<T> model) {
+		MigrationHelper helper = new MigrationHelper(context);
+		
+		if(helper.hasRelationTable(mOldName)) {
+			Migrator<T> migrator = new Migrator<T>(model);
+			migrator.renameRelation(mOldName, model);
+			migrator.migrate(context);
+		}
 	}
 
 	@Override

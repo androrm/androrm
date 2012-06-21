@@ -31,4 +31,14 @@ public class IntegerFieldTest extends AndroidTestCase {
 		
 		assertTrue(123 == i.get());
 	}
+	
+	public void testReset() {
+		IntegerField i = new IntegerField();
+		
+		i.set(123);
+		assertTrue(123 == i.get());
+		
+		i.reset();
+		assertTrue(0 == i.get());
+	}
 }

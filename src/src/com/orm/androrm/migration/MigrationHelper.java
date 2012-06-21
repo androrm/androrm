@@ -1,5 +1,8 @@
 package com.orm.androrm.migration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.database.Cursor;
 
@@ -69,4 +72,32 @@ public class MigrationHelper {
 		return false;
 	}
 	
+	public boolean hasRelationTable(Class<? extends Model> model) {
+		return hasRelationTable(DatabaseBuilder.getTableName(model));
+	}
+	
+	public boolean hasRelationTable(String name) {
+		return !getRelationTableNames(name).isEmpty();
+	}
+	
+	public List<String> getRelationTableNames(String table) {
+		table = table.toLowerCase();
+		
+		List<String> result = new ArrayList<String>();
+		
+		String sql = "SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE '" + table + "#_%' OR name LIKE '%#_" + table +"' ESCAPE '#')";
+		
+		Cursor c = getCursor(sql);
+		
+		while(c.moveToNext()) {
+			String name = c.getString(c.getColumnIndexOrThrow("name"));
+			
+			if(!name.equals(table) && (name.startsWith(table) || name.endsWith(table))) {
+				result.add(name);
+			}
+		}
+		
+		close(c);
+		return result;
+	}
 }

@@ -2,6 +2,7 @@ package com.orm.androrm.test.field;
 
 import com.orm.androrm.field.DoubleField;
 
+import android.content.ContentValues;
 import android.test.AndroidTestCase;
 
 public class DoubleFieldTest extends AndroidTestCase {
@@ -30,5 +31,25 @@ public class DoubleFieldTest extends AndroidTestCase {
 		d.set(27.12345);
 		
 		assertEquals(27.12345, d.get());
+	}
+	
+	public void testPutData() {
+		ContentValues values = new ContentValues();
+		DoubleField d = new DoubleField();
+		d.set(12.3);
+		
+		d.putData("foo", values);
+		
+		assertEquals(12.3, values.getAsDouble("foo"));
+	}
+	
+	public void testReset() {
+		DoubleField d = new DoubleField();
+		
+		d.set(12.3);
+		assertEquals(12.3, d.get());
+		
+		d.reset();
+		assertEquals(0.0, d.get());
 	}
 }

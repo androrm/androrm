@@ -24,8 +24,6 @@ public class QuerySetTest extends AndroidTestCase {
 		models.add(Supplier.class);
 		models.add(Brand.class);
 		
-		DatabaseAdapter.setDatabaseName("test_db");
-		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
 		

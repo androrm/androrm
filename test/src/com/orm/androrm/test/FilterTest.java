@@ -26,8 +26,6 @@ public class FilterTest extends AndroidTestCase {
 		models.add(Branch.class);
 		models.add(Supplier.class);
 		
-		DatabaseAdapter.setDatabaseName("test_db");
-		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
 	}

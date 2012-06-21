@@ -19,8 +19,6 @@ public class DateFieldTest extends AndroidTestCase {
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
 		models.add(BlankModel.class);
 
-		DatabaseAdapter.setDatabaseName("test_db");
-
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
 	}

@@ -23,8 +23,6 @@ public class OneToManyFieldTest extends AndroidTestCase {
 		models.add(Branch.class);
 		models.add(Product.class);
 		
-		DatabaseAdapter.setDatabaseName("test_db");
-		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
 		adapter.setModels(models);
 	}

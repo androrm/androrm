@@ -52,13 +52,20 @@ public class Migrator<T extends Model> {
 	}
 	
 	public <R extends Model> void addField(String name, ManyToManyField<T, R> field) {
-		AddRelationMigration<T, R> migration = new AddRelationMigration<T, R>(name, field);
-		
-		mMigrations.add(migration);
+		// Tables for M2M relations are created anyway. This stub is only here,
+		// so that users aren't confused, if they try to add a M2M field. We let
+		// them believe "they" did it :)
+		return;
 	}
 	
 	public void renameTable(String old, Class<? extends Model> updated) {
 		RenameModelMigration<T> migration = new RenameModelMigration<T>(old);
+		
+		mMigrations.add(migration);
+	}
+	
+	public void renameRelation(String old, Class<? extends Model> updated) {
+		RenameRelationMigration<T> migration = new RenameRelationMigration<T>(old);
 		
 		mMigrations.add(migration);
 	}

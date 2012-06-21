@@ -20,8 +20,6 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 
 	@Override
 	public void setUp() {
-		DatabaseAdapter.setDatabaseName("test_db");
-
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
 		models.add(Product.class);
 		models.add(Supplier.class);
