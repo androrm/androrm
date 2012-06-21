@@ -147,6 +147,20 @@ public class DatabaseAdapter {
 		close();
 	}
 	
+	public void renameTable(String from, String to) {
+		open();
+		
+		try {
+			mDbHelper.renameTable(mDb, from, to);
+		} catch(SQLException e) {
+			close();
+			
+			throw e;
+		}
+		
+		close();
+	}
+	
 	/**
 	 * Drops all tables of the current database. 
 	 */

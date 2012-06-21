@@ -18,7 +18,6 @@ public class RenameModelMigrationTest extends AbstractMigrationTest {
 	public void setUp() {
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
 		models.add(EmptyModel.class);
-		models.add(NewEmptyModel.class);
 		models.add(ModelWithRelation.class);
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(getContext());

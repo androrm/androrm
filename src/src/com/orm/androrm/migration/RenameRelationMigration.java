@@ -26,21 +26,14 @@ public class RenameRelationMigration<T extends Model> extends RenameModelMigrati
 		String newName = getValue(model);
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(context);
-		adapter.open();
 		
 		for(String table : tables) {
-			String sql = "ALTER TABLE `" + table + "` RENAME TO `" + table.replace(mOldName, newName) + "`";
-			
 			try {
-				adapter.exec(sql);
+				adapter.renameTable(table, table.replace(mOldName, newName));
 			} catch(SQLException e) {
-				adapter.close();
-				
 				return false;
 			}
 		}
-		
-		adapter.close();
 		
 		return true;
 	}

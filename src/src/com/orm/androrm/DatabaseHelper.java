@@ -117,6 +117,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		getTables().clear();
 		getModels().clear();
 	}
+	
+	protected void renameTable(SQLiteDatabase db, String from, String to) {
+		String sql = "ALTER TABLE `" + from + "` "
+				+ "RENAME TO `" + to + "`";
+		
+		db.execSQL(sql);
+		
+		getTables().add(to);
+	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {

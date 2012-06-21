@@ -35,24 +35,14 @@ public class RenameModelMigration<T extends Model> extends AndrormMigration<T> {
 		}
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(context);
-		adapter.drop(getValue(model));
-		
-		String sql = "ALTER TABLE `" + mOldName + "` "
-					+ "RENAME TO `" + getValue(model) + "`";
-		
-		adapter.open();
 		
 		try {
-			adapter.exec(sql);
+			adapter.renameTable(mOldName, getValue(model));
 		} catch (SQLException e) {
-			adapter.close();
-			
 			return false;
 		}
 		
 		renameRelationTables(context, model);
-		
-		adapter.close();
 		
 		return true;
 	}
