@@ -30,6 +30,14 @@ import android.database.SQLException;
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.Model;
 
+/**
+ * This migration will make sure that all relational tables, that belong
+ * to a certain model are renamed to fit to the new name of the model. 
+ * 
+ * @author Philipp Giese
+ *
+ * @param <T>
+ */
 public class RenameRelationMigration<T extends Model> extends RenameModelMigration<T> {
 
 	protected RenameRelationMigration(String oldName) {

@@ -29,6 +29,16 @@ import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.DatabaseBuilder;
 import com.orm.androrm.Model;
 
+/**
+ * This kind of migration is used to rename tables. If the name of a model
+ * has change, also the corresponding table needs to be renamed in order 
+ * for lookups to succeed. Furthermore we need to make sure, that all 
+ * relational tables, that have been created are renamed. 
+ * 
+ * @author Philipp Giese
+ *
+ * @param <T>
+ */
 public class RenameModelMigration<T extends Model> extends AndrormMigration<T> {
 
 	protected String mOldName;

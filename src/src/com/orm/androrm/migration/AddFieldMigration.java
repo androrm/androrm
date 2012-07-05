@@ -27,6 +27,15 @@ import android.content.Context;
 import com.orm.androrm.Model;
 import com.orm.androrm.field.DatabaseField;
 
+/**
+ * Whenever a data field should be added to an already existent model
+ * this migration is used. It will alter the table belonging to a 
+ * given model and add the specified field.  
+ * 
+ * @author Philipp Giese
+ *
+ * @param <T>
+ */
 public class AddFieldMigration<T extends Model> extends AndrormMigration<T> {
 
 	DatabaseField<?> mFieldInstance;
