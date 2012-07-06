@@ -37,7 +37,7 @@ import com.orm.androrm.Model;
  * 
  * @author Philipp Giese
  *
- * @param <T>
+ * @param <T>	Type of the model, that will be renamed. 
  */
 public class RenameModelMigration<T extends Model> extends AndrormMigration<T> {
 

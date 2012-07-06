@@ -1,6 +1,7 @@
 bin/
 gen/
 jar/
+doc/
 sqlite/
 javadoc/
 release/
