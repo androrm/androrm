@@ -601,14 +601,7 @@ public abstract class Model {
 		List<? extends Model> targets = om.getCachedValues();
 		
 		for(Model target: targets) {
-			/*
-			 * Only save the target, if it has already been saved once to the database.
-			 * Otherwise we could save objects, that shouldn't be saved. 
-			 */
-			if(target.getId() != 0) {
-				setBackLink((T) this, (Class<T>) getClass(), (O) target, (Class<O>) target.getClass());
-				target.save(context);
-			}
+			setBacklinkAndSave(context, target);
 		}
 	}
 	
@@ -623,12 +616,23 @@ public abstract class Model {
 		OneToOneField<T,?> om = (OneToOneField<T, ?>) field;
 		Model target = om.getCachedValue();
 		
+		setBacklinkAndSave(context, target);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <O extends Model, T extends Model> void setBacklinkAndSave(
+			
+			Context context,
+			Model target
+			
+	) {
 		/*
-		 * Only save the target, if it has already been saved once to the database.
-		 * Otherwise we could save objects, that shouldn't be saved. 
+		 * Only save the target, if it has already been saved once to the
+		 * database. Otherwise we could save objects, that shouldn't be saved.
 		 */
-		if(target.getId() != 0) {
-			setBackLink((T) this, (Class<T>) getClass(), (O) target, (Class<O>) target.getClass());
+		if (target.getId() != 0) {
+			setBackLink((T) this, (Class<T>) getClass(), (O) target,
+					(Class<O>) target.getClass());
 			target.save(context);
 		}
 	}
