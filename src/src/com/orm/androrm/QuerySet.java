@@ -77,6 +77,42 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 		return object;
 	}
 	
+	/**
+	 * Returns the single object that matches the given filter query.
+	 * 
+	 * @param filter
+	 *            the {@link Filter} that is executed in order to retrieve the
+	 *            object of interest
+	 * @return the object matching the given filter
+	 * @throws DoesNotExistException
+	 *             if no object matches the given query
+	 * @throws MultipleObjectsReturnedException
+	 *             if more than one object matches the given query
+	 */
+	public T get(Filter filter) throws DoesNotExistException, MultipleObjectsReturnedException {
+		T object;
+		
+		SelectStatement query = getFilter(filter);
+		int count = getCount( getFilter(filter) );
+		
+		if (count == 1) {
+			Cursor c = getCursor(query);
+			object = createObject(c);
+			closeConnection(c);
+		} else if (count == 0) {
+			throw new DoesNotExistException(
+					mClass.getSimpleName()
+					+ " matching query does not exist.");
+		} else {
+			throw new MultipleObjectsReturnedException(
+					"get() returned more than one "
+					+ mClass.getSimpleName()
+					+ " -- it returned " + count + "!");
+		}
+		
+		return object;
+	}
+	
 	public QuerySet<T> orderBy(String... columns) {
 		if(mQuery != null) {
 			SelectStatement query = new SelectStatement();
@@ -107,10 +143,17 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	}
 	
 	public QuerySet<T> filter(Filter filter) throws NoSuchFieldException {
+		mQuery = getFilter(filter);
+		
+		return this;
+	}
+
+	private SelectStatement getFilter(Filter filter) {
 		SelectStatement query = QueryBuilder.buildQuery(mClass, filter.getRules());
 		
+		SelectStatement filterQuery;
 		if(mQuery == null) {
-			mQuery = query;
+			filterQuery = query;
 		} else {
 			JoinStatement join = new JoinStatement();
 			join.left(mQuery, "left")
@@ -120,10 +163,10 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 			SelectStatement select = new SelectStatement();
 			select.from(join);
 			
-			mQuery = select;
+			filterQuery = select;
 		}
 		
-		return this;
+		return filterQuery;
 	}
 	
 	public QuerySet<T> limit(int limit) {

@@ -467,6 +467,10 @@ public abstract class Model {
 				if(o instanceof OneToManyField) {
 					saveO2MToDatabase(context, o);
 				}
+				
+				if(o instanceof OneToOneField) {
+					saveO2OToDatabase(context, o);
+				}
 			}
 			
 			persistRelations(context, getSuperclass(clazz));
@@ -597,17 +601,44 @@ public abstract class Model {
 		List<? extends Model> targets = om.getCachedValues();
 		
 		for(Model target: targets) {
-			/*
-			 * Only save the target, if it has already been saved once to the database.
-			 * Otherwise we could save objects, that shouldn't be saved. 
-			 */
-			if(target.getId() != 0) {
-				setBackLink((T) this, (Class<T>) getClass(), (O) target, (Class<O>) target.getClass());
-				target.save(context);
-			}
+			setBacklinkAndSave(context, target);
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	private <O extends Model, T extends Model> void saveO2OToDatabase(
+			
+			Context context, 
+			Object 	field
+			
+	) throws NoSuchFieldException {
+		
+		OneToOneField<T,?> om = (OneToOneField<T, ?>) field;
+		Model target = om.getCachedValue();
+		
+		if (target != null) {
+			setBacklinkAndSave(context, target);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private <O extends Model, T extends Model> void setBacklinkAndSave(
+			
+			Context context,
+			Model target
+			
+	) {
+		/*
+		 * Only save the target, if it has already been saved once to the
+		 * database. Otherwise we could save objects, that shouldn't be saved.
+		 */
+		if (target.getId() != 0) {
+			setBackLink((T) this, (Class<T>) getClass(), (O) target,
+					(Class<O>) target.getClass());
+			target.save(context);
+		}
+	}
+
 	public static <T extends Model> QuerySet<T> objects(
 			
 			Context 	context, 
