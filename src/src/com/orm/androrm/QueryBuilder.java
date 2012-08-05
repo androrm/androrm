@@ -396,6 +396,28 @@ public class QueryBuilder {
 			
 	) {
 		
+		return unwrapOneToXField(fieldName, clazz, r);
+	}
+	
+	private static final <T extends Model> Map<String, String> unwrapOneToOneField(
+			
+			String 		fieldName,
+			Class<T> 	clazz,
+			Relation<?> r
+			
+	) {
+		
+		return unwrapOneToXField(fieldName, clazz, r);
+	}
+	
+	private static final <T extends Model> Map<String, String> unwrapOneToXField(
+			
+			String 		fieldName,
+			Class<T> 	clazz,
+			Relation<?> r
+			
+	) {
+		
 		Class<? extends Model> target = r.getTarget();
 		Map<String, String> joinParams = new HashMap<String, String>();
 		
@@ -439,6 +461,8 @@ public class QueryBuilder {
 			return unwrapForeignKeyRelation(fieldName, clazz, r);
 		} else if(r instanceof OneToManyField) {
 			return unwrapOneToManyField(fieldName, clazz, r);
+		} else if(r instanceof OneToOneField) {
+			return unwrapOneToOneField(fieldName, clazz, r);
 		}
 		
 		return null;

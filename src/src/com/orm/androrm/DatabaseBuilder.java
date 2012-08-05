@@ -172,6 +172,7 @@ public class DatabaseBuilder {
 	protected static final boolean isRelationalField(Object field) {
 		if(field != null) {
 			if(field instanceof ForeignKeyField
+					|| field instanceof OneToOneField
 					|| field instanceof OneToManyField
 					|| field instanceof ManyToManyField) {
 				
