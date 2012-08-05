@@ -616,7 +616,9 @@ public abstract class Model {
 		OneToOneField<T,?> om = (OneToOneField<T, ?>) field;
 		Model target = om.getCachedValue();
 		
-		setBacklinkAndSave(context, target);
+		if (target != null) {
+			setBacklinkAndSave(context, target);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
