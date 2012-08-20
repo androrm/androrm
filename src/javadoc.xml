@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="private" author="true" classpath="libs/android-support-v4.jar:/Applications/Dev/androidSDK/tools/support/annotations.jar:libs/commons-lang3-3.0.1.jar" destdir="doc" doctitle="Androrm Source Documentation" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="com.orm.androrm.discovery,com.orm.androrm.statement,com.orm.androrm.migration,com.orm.androrm,com.orm.androrm.field" source="1.6" sourcepath="gen:src" splitindex="true" stylesheetfile="/Users/Phil/javadoc.css" use="true" version="true">
+            <link href="file:/Applications/Dev/androidSDK/docs/reference"/>
+        </javadoc>
+    </target>
+</project>
