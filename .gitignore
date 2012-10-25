@@ -7,3 +7,5 @@ release/
 *.properties
 .DS_Store
 .classpath
+src/doc
+test/coverage
