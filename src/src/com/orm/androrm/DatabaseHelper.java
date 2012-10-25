@@ -118,6 +118,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		getModels().clear();
 	}
 	
+	protected void renameRelationTable(SQLiteDatabase db, Class<? extends Model> model, String oldName) {
+		
+	}
+	
 	protected void renameTable(SQLiteDatabase db, String from, String to) {
 		String sql = "ALTER TABLE `" + from + "` "
 				+ "RENAME TO `" + to + "`";

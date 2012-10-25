@@ -94,15 +94,15 @@ public class TableDefinition {
 	@Override
 	public String toString() {
 		
-		String definition = getFieldDefintions(mFields, false);
+		String definitions = getFieldDefintions(mFields, false);
 		
 		if(!mRelations.isEmpty()) {
-			definition += ",";
-			definition += getFieldDefintions(mRelations, true);
+			definitions += ",";
+			definitions += getFieldDefintions(mRelations, true);
 		}
 		
-		definition = "CREATE TABLE IF NOT EXISTS `" + mTableName + "` (" + definition + ");";
+		definitions = "CREATE TABLE IF NOT EXISTS `" + mTableName + "` (" + definitions + ");";
 		
-		return definition;
+		return definitions;
 	}
 }
