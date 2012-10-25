@@ -9,3 +9,4 @@ release/
 .classpath
 src/doc
 test/coverage
+target/
