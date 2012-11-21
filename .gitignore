@@ -9,3 +9,6 @@ release/
 .DS_Store
 .classpath
 coverage/
+src/doc
+test/coverage
+target/
