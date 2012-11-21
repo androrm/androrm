@@ -17,8 +17,16 @@
   
   <dependencies>
     <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.android</groupId>
+      <artifactId>android-test</artifactId>
     </dependency>
     <dependency>
        <groupId>org.apache.commons</groupId>
@@ -45,7 +53,7 @@
         </configuration>
         <extensions>true</extensions>
       </plugin>
-
+      
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
@@ -54,6 +62,31 @@
           <target>1.6</target>
         </configuration>
       </plugin>
+      
+      <plugin>
+           <groupId>org.codehaus.mojo</groupId>
+           <artifactId>build-helper-maven-plugin</artifactId>
+           <version>1.1</version>
+           <executions>
+               <execution>
+                   <id>add-source</id>
+                   <phase>generate-sources</phase>
+                   <goals>
+                       <goal>add-source</goal>
+                   </goals>
+                   <configuration>
+                       <sources>
+                           <source>
+                               src
+                           </source>
+                           <source>
+                               ../test/src
+                           </source>
+                       </sources>
+                   </configuration>
+               </execution>
+           </executions>
+       </plugin>
     </plugins>
   </build>
 </project>
