@@ -58,6 +58,14 @@ extends AbstractToManyRelation<L, R> {
 		mTableName = createTableName();
 	}
 	
+	/**
+	 * This defines the convention after which relational tables are named.
+	 * It had to happen at some point. Throughout androrm the name of a
+	 * relational table will be the lexically sorted version of both tables
+	 * that take part in the relation. 
+	 * 
+	 * @return relation table name
+	 */
 	private String createTableName() {
 		List<String> tableNames = new ArrayList<String>();
 		tableNames.add(DatabaseBuilder.getTableName(mOriginClass));

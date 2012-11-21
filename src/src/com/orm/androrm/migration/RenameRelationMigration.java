@@ -22,7 +22,11 @@
  */
 package com.orm.androrm.migration;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -58,8 +62,13 @@ public class RenameRelationMigration<T extends Model> extends RenameModelMigrati
 		DatabaseAdapter adapter = new DatabaseAdapter(context);
 		
 		for(String table : tables) {
+			List<String> parts = Arrays.asList(table.replace(mOldName, newName).split("_"));
+			Collections.sort(parts);
+			
+			String name = StringUtils.join(parts, "_");
+			
 			try {
-				adapter.renameTable(table, table.replace(mOldName, newName));
+				adapter.renameRelationTable(table, name);
 			} catch(SQLException e) {
 				return false;
 			}

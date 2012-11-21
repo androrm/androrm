@@ -147,6 +147,22 @@ public class DatabaseAdapter {
 		close();
 	}
 	
+	public void renameRelationTable(String from, String to) {
+		open();
+		
+		try {
+			mDbHelper.renameRelationTable(mDb, from, to);
+			
+			drop(from);
+		} catch(SQLException e) {
+			close();
+			
+			throw e;
+		}
+		
+		close();
+	}
+	
 	public void renameTable(String from, String to) {
 		open();
 		

@@ -43,12 +43,14 @@ public class RenameModelMigrationTest extends AbstractMigrationTest {
 		
 		assertTrue(mHelper.hasRelationTable(ModelWithRelation.class));
 		assertTrue(mHelper.tableExists("emptymodel_modelwithrelation"));
+		assertFalse(mHelper.hasRelationTable(OneFieldModel.class));
 		
 		migrator.renameTable("ModelWithRelation", OneFieldModel.class);
 		migrator.migrate(getContext());
 		
+		assertTrue(mHelper.hasRelationTable(OneFieldModel.class));
 		assertFalse(mHelper.hasRelationTable(ModelWithRelation.class));
 		assertFalse(mHelper.tableExists("emptymodel_modelwithrelation"));
 	}
-	
+
 }

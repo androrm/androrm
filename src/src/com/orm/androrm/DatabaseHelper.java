@@ -22,18 +22,21 @@
  */
 package com.orm.androrm;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.orm.androrm.migration.Migration;
-import com.orm.androrm.migration.Migrator;
-
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import com.orm.androrm.migration.Migration;
+import com.orm.androrm.migration.Migrator;
 
 /**
  * Class to open up a database connection.
@@ -118,8 +121,61 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		getModels().clear();
 	}
 	
-	protected void renameRelationTable(SQLiteDatabase db, Class<? extends Model> model, String oldName) {
+	private String changeFieldNames(String sql, String oldTable, String newTable) {
+		List<String> oldTables = Arrays.asList(oldTable.split("_"));
+		List<String> newTables = Arrays.asList(newTable.split("_"));
 		
+		List<String> tmp = new ArrayList<String>();
+		
+		for(String name : oldTables) {
+			if(newTables.contains(name)) {
+				tmp.add(name);
+			}
+		}
+		
+		List<String> result = new ArrayList<String>();
+		result.addAll(oldTables);
+		result.addAll(newTables);
+		result.removeAll(tmp);
+		
+		String from = null;
+		String to = null;
+		
+		for(String name : result) {
+			if(oldTable.contains(name)) {
+				from = name;
+			} else {
+				to = name;
+			}
+		}
+		
+		return sql.replace(from, to);
+	}
+	
+	protected void renameRelationTable(SQLiteDatabase db, String from, String to) {
+		String sql = "SELECT sql FROM sqlite_master WHERE tbl_name = '" + from + "' AND type='table'";
+
+		Cursor c = db.rawQuery(sql, null);
+
+		// get the statement with which the table has been created
+		if(c.moveToFirst()) {
+			String tableSQL = c.getString(c.getColumnIndexOrThrow("sql"));
+			// modify it, so that it will create the new table
+			tableSQL = tableSQL.replace(from, to);
+			tableSQL = changeFieldNames(tableSQL, from, to);
+	
+			db.execSQL(tableSQL);
+	
+			// load all data from the old table into the new one
+			String fill = "INSERT INTO " + to + " SELECT * FROM " + from;
+					 		
+			db.execSQL(fill);
+					 		
+			getTables().remove(from);
+			getTables().add(to);
+		}
+		
+		c.close();
 	}
 	
 	protected void renameTable(SQLiteDatabase db, String from, String to) {
