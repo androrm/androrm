@@ -632,7 +632,11 @@ public abstract class Model {
 		}
 	}
 	
+	/**
+	 * Override this method in order to roll-out migrations
+	 * @param context
+	 */
 	protected void migrate(Context context) {
-		
+
 	}
 }

@@ -68,13 +68,13 @@ public class RenameModelMigration<T extends Model> extends AndrormMigration<T> {
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(context);
 		
+		renameRelationTables(context, model);
+		
 		try {
 			adapter.renameTable(mOldName, getValue(model));
 		} catch (SQLException e) {
 			return false;
 		}
-		
-		renameRelationTables(context, model);
 		
 		return true;
 	}

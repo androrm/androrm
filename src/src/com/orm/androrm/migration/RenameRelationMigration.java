@@ -68,7 +68,7 @@ public class RenameRelationMigration<T extends Model> extends RenameModelMigrati
 			String name = StringUtils.join(parts, "_");
 			
 			try {
-				adapter.renameRelationTable(table, name);
+				adapter.renameTable(table, name);
 			} catch(SQLException e) {
 				return false;
 			}

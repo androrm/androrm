@@ -115,7 +115,7 @@ public class DatabaseAdapter {
 		open();
 		Cursor oldVersion = get(table, where, null);
 		
-		if(oldVersion.moveToNext()) {	
+		if(oldVersion.moveToNext() && values.size() != 0) {	
 			String whereClause = null;
 			if(where != null) {
 				whereClause = where.toString().replace(" WHERE ", "");
@@ -147,27 +147,13 @@ public class DatabaseAdapter {
 		close();
 	}
 	
-	public void renameRelationTable(String from, String to) {
-		open();
-		
-		try {
-			mDbHelper.renameRelationTable(mDb, from, to);
-			
-			drop(from);
-		} catch(SQLException e) {
-			close();
-			
-			throw e;
-		}
-		
-		close();
-	}
-	
 	public void renameTable(String from, String to) {
 		open();
 		
 		try {
 			mDbHelper.renameTable(mDb, from, to);
+			
+			drop(from);
 		} catch(SQLException e) {
 			close();
 			
