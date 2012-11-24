@@ -147,6 +147,16 @@ public class DatabaseAdapter {
 		close();
 	}
 	
+	/**
+	 * This method will not actually rename an existing table as 
+	 * it is only called after the initialization phase is over.
+	 * Thus the new table already exists in the system. Renaming
+	 * now means filling the new table with the data of the old
+	 * one and afterwards removing the old table. 
+	 * 
+	 * @param from	Current name of the table.
+	 * @param to	Desired name of the table. 
+	 */
 	public void renameTable(String from, String to) {
 		open();
 		

@@ -27,6 +27,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.util.Log;
+
 import com.orm.androrm.field.AndrormField;
 import com.orm.androrm.field.DataField;
 import com.orm.androrm.field.ForeignKeyField;
@@ -34,11 +39,6 @@ import com.orm.androrm.field.IntegerField;
 import com.orm.androrm.field.ManyToManyField;
 import com.orm.androrm.field.NoSuchFieldException;
 import com.orm.androrm.field.OneToManyField;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
 
 
 /**
@@ -218,6 +218,7 @@ public abstract class Model {
 	protected static final void runMigrations(Context context, List<Class<? extends Model>> models) {
 		for(Class<? extends Model> model : models) {
 			Model instance = getInstace(model);
+			
 			instance.migrate(context);
 		}
 	}

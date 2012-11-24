@@ -32,6 +32,7 @@ import android.content.Context;
 import android.database.SQLException;
 
 import com.orm.androrm.DatabaseAdapter;
+import com.orm.androrm.DatabaseBuilder;
 import com.orm.androrm.Model;
 
 /**
@@ -45,19 +46,21 @@ import com.orm.androrm.Model;
 public class RenameRelationMigration<T extends Model> extends RenameModelMigration<T> {
 
 	protected RenameRelationMigration(String oldName) {
-		super(oldName);
+		super(oldName, "rename_relation");
 	}
 
 	@Override
 	public boolean execute(Context context, Class<T> model) {
-		if(isApplied(model, context)) {
-			return false;
-		}
-		
 		MigrationHelper helper = new MigrationHelper(context);
 		
 		List<String> tables = helper.getRelationTableNames(mOldName);
-		String newName = getValue(model);
+		String newName = DatabaseBuilder.getTableName(model);
+
+		mValue = StringUtils.join(tables, ",");
+		
+		if(isApplied(model, context)) {
+			return false;
+		}
 		
 		DatabaseAdapter adapter = new DatabaseAdapter(context);
 		
@@ -75,6 +78,11 @@ public class RenameRelationMigration<T extends Model> extends RenameModelMigrati
 		}
 		
 		return true;
+	}
+	
+	@Override
+	public String getValue(Class<T> model) {
+		return mValue;
 	}
 
 }

@@ -48,6 +48,12 @@ public class RenameModelMigration<T extends Model> extends AndrormMigration<T> {
 		
 		mOldName = old.toLowerCase();
 	}
+	
+	public RenameModelMigration(String old, String action) {
+		super(null, action);
+		
+		mOldName = old.toLowerCase();
+	}
 
 	@Override
 	public boolean execute(Context context, Class<T> model) {

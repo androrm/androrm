@@ -58,7 +58,7 @@ public class Migrator<T extends Model> {
 		return;
 	}
 	
-	public void renameTable(String old, Class<? extends Model> updated) {
+	public void renameModel(String old, Class<? extends Model> updated) {
 		RenameModelMigration<T> migration = new RenameModelMigration<T>(old);
 		
 		mMigrations.add(migration);
