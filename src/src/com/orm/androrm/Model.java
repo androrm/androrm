@@ -26,6 +26,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -215,7 +216,7 @@ public abstract class Model {
 				+ getEligableFields(instance.getClass(), instance).toString());
 	}
 	
-	protected static final void runMigrations(Context context, List<Class<? extends Model>> models) {
+	protected static final void runMigrations(Context context, Set<Class<? extends Model>> models) {
 		for(Class<? extends Model> model : models) {
 			Model instance = getInstace(model);
 			
