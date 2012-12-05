@@ -22,7 +22,7 @@
  */
 package com.orm.androrm;
 
-import java.util.List;
+import java.util.Set;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -281,9 +281,9 @@ public class DatabaseAdapter {
 	 * Registers all models, that will then be handled by the
 	 * ORM. 
 	 * 
-	 * @param models	{@link List} of classes inheriting from {@link Model}.
+	 * @param models	{@link Set} of classes inheriting from {@link Model}.
 	 */
-	public void setModels(List<Class<? extends Model>> models) {
+	public void setModels(Set<Class<? extends Model>> models) {
 		open();
 		
 		mDbHelper.setModels(mDb, models);
