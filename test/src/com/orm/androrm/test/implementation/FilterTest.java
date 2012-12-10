@@ -22,7 +22,7 @@ public class FilterTest extends AndroidTestCase {
 		models.add(Person.class);
 		models.add(Car.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 	}
 	
@@ -86,7 +86,7 @@ public class FilterTest extends AndroidTestCase {
 	}
 	
 	public void tearDown() {
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.drop();
 	}
 }

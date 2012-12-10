@@ -22,6 +22,8 @@
  */
 package com.orm.androrm.migration;
 
+import java.util.Locale;
+
 import android.content.Context;
 import android.database.SQLException;
 
@@ -46,13 +48,13 @@ public class RenameModelMigration<T extends Model> extends AndrormMigration<T> {
 	public RenameModelMigration(String old) {
 		super(null, "rename_table");
 		
-		mOldName = old.toLowerCase();
+		mOldName = old.toLowerCase(Locale.getDefault());
 	}
 	
 	public RenameModelMigration(String old, String action) {
 		super(null, action);
 		
-		mOldName = old.toLowerCase();
+		mOldName = old.toLowerCase(Locale.getDefault());
 	}
 
 	@Override
@@ -72,7 +74,7 @@ public class RenameModelMigration<T extends Model> extends AndrormMigration<T> {
 			return true;
 		}
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(context);
 		
 		renameRelationTables(context, model);
 		

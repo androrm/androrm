@@ -17,7 +17,7 @@ public class ModelRegression extends AndroidTestCase {
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
 		models.add(EmptyModel.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 	}
 	
@@ -33,7 +33,7 @@ public class ModelRegression extends AndroidTestCase {
 	
 	@Override
 	public void tearDown() {
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.drop();
 	}
 	

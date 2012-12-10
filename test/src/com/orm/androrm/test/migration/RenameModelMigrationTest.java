@@ -24,7 +24,7 @@ public class RenameModelMigrationTest extends AbstractMigrationTest {
 		models.add(NewEmptyModel.class);
 		models.add(NewModelWithRelation.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 		
 		super.setUp();

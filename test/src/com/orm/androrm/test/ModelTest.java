@@ -18,7 +18,7 @@ public class ModelTest extends AndroidTestCase {
 		models.add(BlankModel.class);
 		models.add(BlankModelNoAutoincrement.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 	}
 	
@@ -84,7 +84,7 @@ public class ModelTest extends AndroidTestCase {
 	
 	@Override
 	public void tearDown() {
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.drop();
 	}
 }

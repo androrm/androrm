@@ -216,11 +216,16 @@ public abstract class Model {
 	}
 	
 	protected static final void runMigrations(Context context, List<Class<? extends Model>> models) {
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(context);
+		adapter.beginTransaction();
+		
 		for(Class<? extends Model> model : models) {
 			Model instance = getInstace(model);
 			
 			instance.migrate(context);
 		}
+		
+		adapter.commitTransaction();
 	}
 	
 	protected static final <T extends Model> Field getField(
@@ -408,7 +413,7 @@ public abstract class Model {
 			Where where = new Where();
 			where.and(PK, getId());
 			
-			DatabaseAdapter adapter = new DatabaseAdapter(context);
+			DatabaseAdapter adapter = DatabaseAdapter.getInstance(context);
 			int affectedRows = adapter.delete(DatabaseBuilder.getTableName(getClass()), where);
 			
 			if(affectedRows != 0) {
@@ -552,7 +557,7 @@ public abstract class Model {
 		Where where = new Where();
 		where.and(PK, id);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(context);
 		int rowID = adapter.doInsertOrUpdate(DatabaseBuilder.getTableName(getClass()), values, where);
 
 		if(rowID == -1) {
@@ -589,7 +594,7 @@ public abstract class Model {
 		ManyToManyField<T, ?> m = (ManyToManyField<T, ?>) field;
 		List<? extends Model> targets = m.getCachedValues();
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(context);
 		
 		for(Model target: targets) {
 			/*

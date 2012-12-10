@@ -25,7 +25,7 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 		models.add(Brand.class);
 		models.add(Supplier.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 	}
 	
@@ -149,7 +149,7 @@ public class ForeignKeyFieldTest extends AndroidTestCase {
 	
 	@Override
 	public void tearDown() {
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.drop();
 	}
 }

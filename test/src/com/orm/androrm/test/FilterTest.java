@@ -26,7 +26,7 @@ public class FilterTest extends AndroidTestCase {
 		models.add(Branch.class);
 		models.add(Supplier.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 	}
 	
@@ -122,7 +122,7 @@ public class FilterTest extends AndroidTestCase {
 	
 	@Override
 	public void tearDown() {
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.drop();
 	}
 }

@@ -62,7 +62,7 @@ public class RenameRelationMigration<T extends Model> extends RenameModelMigrati
 			return false;
 		}
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(context);
 		
 		for(String table : tables) {
 			List<String> parts = Arrays.asList(table.replace(mOldName, newName).split("_"));

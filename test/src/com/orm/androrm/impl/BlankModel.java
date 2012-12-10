@@ -2,15 +2,21 @@ package com.orm.androrm.impl;
 
 import java.util.Date;
 
+import android.content.Context;
 import android.location.Location;
 
 import com.orm.androrm.Model;
+import com.orm.androrm.QuerySet;
 import com.orm.androrm.field.CharField;
 import com.orm.androrm.field.DateField;
 import com.orm.androrm.field.LocationField;
 
 public class BlankModel extends Model {
 
+	public static final QuerySet<BlankModel> objects(Context context) {
+		return objects(context, BlankModel.class);
+	}
+	
 	protected CharField mName;
 	protected LocationField mLocation;
 	protected DateField mDate;

@@ -81,7 +81,7 @@ public abstract class DataField<T> implements DatabaseField<T> {
 	}
 	
 	protected boolean exec(Context context, Class<? extends Model> model, String sql) {
-		DatabaseAdapter adapter = new DatabaseAdapter(context);
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(context);
 		
 		adapter.open();
 		
