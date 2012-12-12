@@ -100,7 +100,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public DatabaseHelper(Context context, String dbName) {
 		super(context, dbName, null, DATABASE_VERSION);
 	}
-
+	
 	/**
 	 * Drops all tables of the database.
 	 * @param db {@link SQLiteDatabase}.

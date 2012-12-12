@@ -46,6 +46,8 @@ public class DatabaseAdapter {
 	 */
 	private static String DATABASE_NAME = "my_database";
 	
+	private static DatabaseAdapter mInstance;
+	
 	/**
 	 * Set the name, that will be used for the database.
 	 * 
@@ -57,6 +59,14 @@ public class DatabaseAdapter {
 	
 	public static final String getDatabaseName() {
 		return DATABASE_NAME;
+	}
+	
+	public static final DatabaseAdapter getInstance(Context context) {
+		if(mInstance == null) {
+			mInstance = new DatabaseAdapter(context);
+		}
+		
+		return mInstance;
 	}
 	
 	/**
@@ -71,9 +81,19 @@ public class DatabaseAdapter {
 	
 	private Context mContext;
 	
+	private int mRunningTransactions;
+	
+	/**
+	 * This constructor is deprecated. In order to retrieve an instance
+	 * call {@link DatabaseAdapter#getInstance(Context)}.
+	 * 
+	 * @param context {@link Context} of the application.
+	 */
+	@Deprecated
 	public DatabaseAdapter(Context context) {
 		mDbHelper = new DatabaseHelper(context, DATABASE_NAME);
 		mContext = context;
+		mRunningTransactions = 0;
 	}
 	
 	/**
@@ -82,7 +102,9 @@ public class DatabaseAdapter {
 	 * data leaks.
 	 */
 	public void close() {
-		mDbHelper.close();
+		if(mRunningTransactions == 0) {
+			mDbHelper.close();
+		}
 	}
 	
 	/**
@@ -244,6 +266,60 @@ public class DatabaseAdapter {
 		return result;
 	}
 	
+	public void increaseTransactionCounter() {
+		mRunningTransactions++;
+	}
+	
+	public void decreaseTransactionCounter() {
+		mRunningTransactions--;
+	}
+	
+	public void resetTransactionCounter() {
+		mRunningTransactions = 0;
+	}
+	
+	public int runningTransactions() {
+		return mRunningTransactions;
+	}
+	
+	/**
+	 * Starts a new transaction on the database. Note, that transaction
+	 * can also be nested. So in order to work properly ALWAYS acquire a
+	 * {@link DatabaseAdapter} instance via the {@link DatabaseAdapter#getInstance(Context)}
+	 * method.
+	 * 
+	 * @return Current {@link DatabaseAdapter} instance.
+	 */
+	public DatabaseAdapter beginTransaction() {
+		open();
+		
+		mDb.beginTransactionWithListener(TransactionListener.getFor(this));
+		
+		return this;
+	}
+	
+	/**
+	 * This method will set the current transaction as successful and end it
+	 * afterwards, thus committing all the data. 
+	 * @return
+	 */
+	public DatabaseAdapter commitTransaction() {
+		mDb.setTransactionSuccessful();
+		mDb.endTransaction();
+		
+		close();
+		
+		return this;
+	}
+
+	public DatabaseAdapter rollbackTransaction() {
+		mDb.endTransaction();
+		
+		close();
+		
+		return this;
+	}
+	
 	/**
 	 * This opens a new database connection. If a connection or database already exists
 	 * the system will ensure that getWritableDatabase() will return this Database.
@@ -255,7 +331,9 @@ public class DatabaseAdapter {
 	 * @throws SQLException
 	 */
 	public DatabaseAdapter open() throws SQLException {
-		mDb = mDbHelper.getWritableDatabase();
+		if(mRunningTransactions == 0) {
+			mDb = mDbHelper.getWritableDatabase();
+		}
 		
 		return this;
 	}

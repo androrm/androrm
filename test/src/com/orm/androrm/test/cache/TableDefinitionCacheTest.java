@@ -19,7 +19,7 @@ public class TableDefinitionCacheTest extends AndroidTestCase {
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
 		models.add(Product.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 		
 		assertTrue(ModelCache.knowsModel(Product.class));
@@ -27,7 +27,7 @@ public class TableDefinitionCacheTest extends AndroidTestCase {
 	}
 	
 	public void tearDown() {
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());;
 		adapter.drop();
 		
 		ModelCache.reset();

@@ -25,19 +25,22 @@ package com.orm.androrm.migration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.content.Context;
 import android.database.Cursor;
 
 import com.orm.androrm.DatabaseAdapter;
 import com.orm.androrm.DatabaseBuilder;
 import com.orm.androrm.Model;
+import com.orm.androrm.field.ManyToManyField;
 
 public class MigrationHelper {
 
 	private DatabaseAdapter mAdapter;
 	
 	public MigrationHelper(Context context) {
-		mAdapter = new DatabaseAdapter(context);
+		mAdapter = DatabaseAdapter.getInstance(context);
 	}
 	
 	private Cursor getCursor(String query) {
@@ -73,17 +76,21 @@ public class MigrationHelper {
 		return tableExists(DatabaseBuilder.getTableName(model));
 	}
 	
+	/**
+	 * Checks whether a given table name already exists in the database.
+	 * 
+	 * @param name Name of the table to look up.
+	 * @return <code>true</code> if one exists <code>false</code> otherwise.
+	 */
 	public boolean tableExists(String name) {
-		name = name.toLowerCase();
-		
-		String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='" + name + "'";
+		String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '" + name + "'";
 		
 		Cursor c = getCursor(sql);
 		
 		while(c.moveToNext()) {
 			String table = c.getString(c.getColumnIndexOrThrow("name"));
 			
-			if(table.equals(name)) {
+			if(table.equalsIgnoreCase(name)) {
 				close(c);
 				
 				return true;
@@ -94,27 +101,41 @@ public class MigrationHelper {
 		return false;
 	}
 	
+	/**
+	 * Check if a given model has relational tables in the system. 
+	 * Relational tables are created if a model has one or more 
+	 * {@link ManyToManyField} instances. 
+	 * 
+	 * @param model The {@link Model} class to look up. 
+	 * @return <code>true</code> if there are any, <code>false</code> otherwise.
+	 */
 	public boolean hasRelationTable(Class<? extends Model> model) {
 		return hasRelationTable(DatabaseBuilder.getTableName(model));
 	}
 	
+	/**
+	 * Alias for {@link MigrationHelper#hasRelationTable(Class)}.
+	 * @param name
+	 * @return
+	 */
 	public boolean hasRelationTable(String name) {
 		return !getRelationTableNames(name).isEmpty();
 	}
 	
 	public List<String> getRelationTableNames(String table) {
-		table = table.toLowerCase();
-		
 		List<String> result = new ArrayList<String>();
-		
 		String sql = "SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE '" + table + "#_%' OR name LIKE '%#_" + table +"' ESCAPE '#')";
 		
 		Cursor c = getCursor(sql);
 		
 		while(c.moveToNext()) {
 			String name = c.getString(c.getColumnIndexOrThrow("name"));
-			
-			if(!name.equals(table) && (name.startsWith(table) || name.endsWith(table))) {
+		
+			if(!name.equalsIgnoreCase(table) && (
+					StringUtils.startsWithIgnoreCase(name, table) || 
+					StringUtils.endsWithIgnoreCase(name, table)
+				)) {
+				
 				result.add(name);
 			}
 		}

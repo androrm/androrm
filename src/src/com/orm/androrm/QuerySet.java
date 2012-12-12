@@ -48,7 +48,7 @@ public class QuerySet<T extends Model> implements Iterable<T> {
 	
 	public QuerySet(Context context, Class<T> model) {
 		mClass = model;
-		mAdapter = new DatabaseAdapter(context);
+		mAdapter = DatabaseAdapter.getInstance(context);
 	}
 	
 	public void injectQuery(SelectStatement query) {

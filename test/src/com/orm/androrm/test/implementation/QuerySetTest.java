@@ -24,7 +24,7 @@ public class QuerySetTest extends AndroidTestCase {
 		models.add(Supplier.class);
 		models.add(Brand.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 		
 		Brand b = new Brand();
@@ -88,7 +88,7 @@ public class QuerySetTest extends AndroidTestCase {
 	}
 	
 	public void tearDown() {
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.drop();
 	}
 }

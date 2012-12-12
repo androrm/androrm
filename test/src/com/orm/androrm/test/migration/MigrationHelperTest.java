@@ -18,7 +18,7 @@ public class MigrationHelperTest extends AbstractMigrationTest {
 		models.add(OneFieldModel.class);
 		models.add(ModelWithRelation.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 		
 		super.setUp();

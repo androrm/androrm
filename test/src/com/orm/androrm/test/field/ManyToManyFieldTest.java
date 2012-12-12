@@ -26,7 +26,7 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 		models.add(Branch.class);
 		models.add(Brand.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 	}
 
@@ -191,7 +191,7 @@ public class ManyToManyFieldTest extends AndroidTestCase {
 
 	@Override
 	public void tearDown() {
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.drop();
 	}
 }

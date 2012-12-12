@@ -17,7 +17,7 @@ public class ForeignKeyMigrationTest extends AbstractMigrationTest {
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
 		models.add(EmptyModel.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 		
 		super.setUp();

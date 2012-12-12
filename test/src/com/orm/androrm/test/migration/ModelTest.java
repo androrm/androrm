@@ -14,7 +14,7 @@ public class ModelTest extends AbstractMigrationTest {
 		List<Class<? extends Model>> models = new ArrayList<Class<? extends Model>>();
 		models.add(ModelWithMigration.class);
 		
-		DatabaseAdapter adapter = new DatabaseAdapter(getContext());
+		DatabaseAdapter adapter = DatabaseAdapter.getInstance(getContext());
 		adapter.setModels(models);
 		
 		assertTrue(mHelper.hasField(ModelWithMigration.class, "mTestField"));
