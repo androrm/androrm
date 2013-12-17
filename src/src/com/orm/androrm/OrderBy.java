@@ -32,7 +32,8 @@ public class OrderBy {
 	/**
 	 * Add an ORDER BY statement. For convenience ASC and DESC can
 	 * be toggled by adding a preceding a <code>+</code> or <code>-</code>
-	 * to the table column. 
+	 * to the table column. In order to sort the table column in numerical
+	 * order add the prefix #.
 	 * <br /><br />
 	 * For example <code>-foo</code> will result in <code>foo DESC</code>.
 	 * <br /><br />
@@ -52,13 +53,22 @@ public class OrderBy {
 			} else {
 				mOrderBy = " ";
 			}
-			
-			if(col.startsWith("-")) {
-				mOrderBy += "UPPER(" + col.substring(1) + ") DESC";
-			} else if(col.startsWith("+")) {
-				mOrderBy += "UPPER(" + col.substring(1) + ") ASC";
-			} else {
-				mOrderBy += "UPPER(" + col + ") ASC";
+			if(col.startsWith("#")) {
+				if(col.startsWith("-")) {
+					mOrderBy += "CAST(" +col.substring(2) + " AS INTEGER) DESC";
+				} else if(col.startsWith("+")) {
+					mOrderBy += "CAST(" +col.substring(2) + " AS INTEGER) ASC";
+				} else {
+					mOrderBy += "CAST(" +col.substring(1)  + " AS INTEGER) ASC";
+				}
+			}else{
+				if(col.startsWith("-")) {
+					mOrderBy += "UPPER(" + col.substring(1) + ") DESC";
+				} else if(col.startsWith("+")) {
+					mOrderBy += "UPPER(" + col.substring(1) + ") ASC";
+				} else {
+					mOrderBy += "UPPER(" + col + ") ASC";
+				}
 			}
 			
 			if(first) {
